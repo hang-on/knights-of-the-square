@@ -1,0 +1,260 @@
+Blockquest - documentation
+--------------------------
+
+2014-08-07: Integrated coding convention used
+
+
+/*
+Block Quest: Starring Arthur the Knight.
+- towards porting/re-creating Capcom's Knights of the Round for the SMS.
+
+
+Levels
+fire - fire     - Village on fire
+conf - confused - Confused Fight
+cast - castle   - Battle at the Castle Fort
+fest - festival - Knights Festival
+expe - expedit  - Expedition
+sage - strange  - Knights in a strange land
+finl - final    - Final Stage: Decisive Battle at the King's Castle
+
+
+
+The tilemap of the screen contains 31 columns (1-31).
+
+How the tile map of the level is made:
+1) Individual tiles are first created on the iPad (Sprite Something).
+   The app exports a sprite/tile sheet in .png format.
+2) In Photoshop I set up a grid and copy/paste the tiles from the
+   sheet to create the level layout. Save as .png.
+3) The image of the level is then processed by BMP2Tile
+4) The tilemap outputted by BMP2Tile is then transposed 
+   (columns to rows) in Excel. This is the data used by drawClmn to
+   update a specified column on the screen map.
+
+
+Coding convention:
+---------------------------------------------------------------------
+
+Line length = max. 70 characters.
+
+- Labels start in column 1
+- Instruction mnemonics start in column 14
+- operand field start in column 20
+- inline comments start with a ";" in column 36, if operands extend 
+  into column 36, then insert two spaces before
+  comment.
+
+Example:
+myString:    ld    a, (vertPos)    ; get the status byte
+
+Labels and variables:
+- lowerCamelCase
+- max. 8 characters
+- max. two words
+
+Assembler directives
+- directive start in column 1
+- lowercase
+- comments preceding the directives as needed
+- operands etc. after the directives, no column alignment
+
+Exceptions
+1) Constants, i.e.
+   .define xxxxxxxx (max 8 chars, all caps) column 20 = value
+    - this can have comments on from col 36+
+
+2) Blocks of data, i.e.
+   ; tiles for Arthur:
+                .db   $00   (column 14 and 20)
+                .db   $01
+   Lowercase comment on preceeding line, ends with colon
+   Note: Big data blocks should be in external files and included
+
+3) Declaration of labels and variables, i.e.
+   someVar      db                    ; my comment
+  - comments can be from col 36+, ("db" at column 14)
+
+
+; ------------------------
+journal            dd
+
+27th July, 2014.
+Describing cell attributes table in comments
+Hand coding Arthur attack tiles, 2 tiles.
+Implementing player state handler. Three initial states: Idle,
+walking and attacking. Adding attack animation, missing secondary
+sprite (the sword).
+
+28th July, 2014.
+Happy it went OK with state machine. Starting filenum 022.
+Deciding not to implement storing VDP registers in RAM.
+Looking into trimming the section that responds to player's input i
+the four directions. Inspiration from the Spectrum how to.
+
+29th July, 2014
+Experimenting with a graphics workflow:
+Sprite Something (iPad) > Photoshop > BMP2Tile > source
+Lesson: Force background color at index 0 in PS.
+Succes! I got my village background, colors and sprites in!
+Now I need to redefine cell attributes etc., but hey, no prob.
+For objects in the path: Should mabe restrict to solid 16x16 or pure
+8x8, because collision detection looks funny if square borders are
+not established. All in all a good day - it really looks like a
+game now!
+
+30th July 2014.
+Improving graphics workflow. Preparing for scrolling. Must store
+screen map in columns. Draw whole level 1 map in PS5, then BMP2Tile
+, and then Excel macros to proces this output.
+Aaargh!! This is so difficult. I cant figure out how it will work.
+I need a routine to draw a column to the tilemap...
+
+31th July 2014.
+After much sweat, I finally arrive at an acceptable LUT based routine
+to draw a column to the tile map. Feed it pointers. Will it work when
+things heat up during gameplay? Is it too heavy to be handled during
+VBlanks...? My real work draws me away as this defining moment. Noo..
+late at night I can scroll the level forward using player two right.
+Left column blanked, and new stuff is secretly being loaded outside
+screen as necessary, and scrolls in. It seems to be sync issues in
+MEKA. Does this mean that my code is too slow for the VDP?
+Or does it mean that my netbook is too weak....? Anyways, a major
+success!! I have ALWAYS dreamt about scrolling.
+
+3rd August 2014
+Painful days, as real work and life has kept me away from this
+right after my major scrolling achievement. I think some categories
+are emerging to classify my modes of game development:
+* nothing: absolutely nothing
+* reflection: thinking about issues and challenges in the code.
+  Playing games for inspiration. Reading diverse stuff on the net
+* attacking: making leaps, opportunistic prototyping, quick fixes
+  and unstable, clumsy code with few comments
+* fortifying: straightning out the code, writing comments, making
+  functions, writing documentation, restructuring, aligning the new
+  elements into the existing structure.
+Metaphor for process. It is somewhat like building. But not in the
+formal way, with plans ahead, blueprints, foundation first, etc.
+It is more like building play house /a tree house - you add features
+along the way as you see fit. The structure expands slowly, the new
+features are banged up with hammer an nails at first, but in time
+you will properly attach them to the main house...
+Today I'm reviewing the source Blockqust 27 (fortification).
+
+04th August 2014
+Term to describe my approach: The treehouse approach to code
+construction. Coming home from work, I continue to go over the
+source. I'm working on applying a fine scroll mask to the scroll reg.
+value, so I don't need a separate variable in RAM for this.
+
+7th August, 2014
+Scrolling is now complete. I got rid of the cell/grid meta layer for
+collision detection. It was clumsy, got in the way, and I think it is
+not the best background coillision scheme for this kind of game,
+which has limited background collision anyway. Cleaning up and
+documenting. Speculating about background graphics.
+
+10th August 2014
+Good days on the forum that helped me understand the logic behind
+metatiles, background coll. detection, etc. Can't get Jonathan's
+collision detection to work. Thinking about box coll. detect. Have
+made a treasure chest tile, and integrated it. I'll go with a kind
+of object script for the level. At each scroll column, script is
+checked, and sprites are placed (chest, barrel, enemies). Thinking
+about a reasonable limit. Maybe 25 is ok?
+Maybe I have arrived at something:
+px = player x, pw = player width
+ox = object x, ow object width
+Note: 1. Hot spot (x,y) is assumed to be in the center of the sprite!
+      2. px - ox  produce the difference (positive/absolute value)
+px - ox  is the absolute value, more like abs(px-ox). In z80 it seems
+I can use NEG:
+;absolute value of A
+AbsA:
+ bit 7,a
+ ret z
+ neg    ; neg means to multiply a with - 1
+ ret
+
+
+I'm rolling with this formula for collision detection:
+---------------------------------
+ if horizontal overlap between player and object, following must be
+ true:
+
+ pw + ow > abs(px-ox) + 1 = pw + ow > (abs(px - ox) + 1) 2
+ 2    2  =                          =
+
+the difference btw. px and ox + 1, times 2, must be equal or less
+than the sum of the player's width and object's width
+Do the same for vertical overlap. If both are true, then collision!
+------------------------------------
+
+11th August 2014.
+A chest is on the screen. And the above coll. math is implemented and
+it works. I have also changed the way Arthur moves. Now I have two
+variables: vSpeed and hSpeed. plrX and plrY is added to these, if
+no collision. Have also produced a sword slashing sound i Deflemask,
+and waiting for executables for vgm2psg, in order to proceed with
+integrating sound effects.
+
+12th August 2014.
+With sverx's help I got the vgm2psg source compiled, and used it to
+go all the way and integrate a slashing sword sound when Arthur
+attacks. Coooool! Must redraw chest to be nicer, and also more 8x8.
+Implementing coll. detection for sword and chest, so you can attack
+the chest and cause it to open. And then touch it with Arthur to
+collect the treasure. With the treasure chest I'm really going with
+the treehouse approach. Just to put in stuff I need, without being
+limited to generalized routines and optimized code the first time
+around. I just elevated a very specific player vs. chest coll. detect
+routine to be a general routine, that accepts pointers to two data
+blocks of x,y coordinates, and return carry=collision. So this 
+routine can be used also for the sword vs. chest, etc.
+
+Also today first test on real hardware. It does not look too awful,
+and it works like expected. So far so good.
+
+14th August 2014
+Slash and bonus sounds added. You can slash a chest, and then it
+opens. If it is open, you can walk into it, to pick up the gold.
+And hear the nice bonus sound. Fixed a nasty bug in collision 
+detection routine. If objects where too far away, it created
+overflow, resulting in wierd 'invisible' objects you could stumble
+into. Fixed now. Looking into a randomizer, so chests can be placed
+as the map scrolls.
+
+15th August 2014
+New computer to beef up the SMS life. I deserved it :) Trying to make
+the chest appear randomly. The plan is:
+1) comment out chest placing code
+2) write code that checks chestmode every scroll column
+   if no chest ($ff) > place a new at (0, plrY)
+later make this random, but for now a baby step approach
+Yeah - the new laptop lets me, for the first time in my SMS-life,
+have a meka session with all the editors open at the same time!!
+Roxx!
+The above workflow was carried out, and I even had time to import
+updated chest tiles. I think I'll go with the boxy one. Now chests
+randomly scroll into the screen as you move forward. Now I need some
+way of keeping score. Used the Phantasy Star rnd routine from
+SMS-Power.
+
+18th August 2014
+Having a Tile Studio > GIMP > BMP2Tile workflow for graphics.
+Have made the scoring logic (Cauldwell), and it works nicely. Score
+is being updated in the status bar. Then issue arises, as my scroll
+column routine also updates columns in the status bar. Oh, nasty work
+arounds are ensuing...
+
+19th August 2014
+Ripped scoring tiles from Shinobi. Looks nice. Might also steal the
+life meter. Wait and see. Also good inspiration from LOFI Roguelike
+sprite sheet found on the web. Have made an attack and die animation
+for the enemy soldier. Integrated into spritesheet that loads. I'm at
+14 sprite colors now. Think I'm gonna make it with these. When 
+soldier is hit, he wil have his orange west color changed to a bright
+yellow. 
+
+
