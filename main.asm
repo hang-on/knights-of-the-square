@@ -1,27 +1,8 @@
 /*
-Block Quest:
-Work in progress!!
 
-... Knights of the Square :)
+Knights of the Square
 
-21 - adding plrState var, and jump table (switch case)
-23 - graphics overhaul, w. BMP2Tile
-25 - displays a screen of tiles for level 1
-26 - trying a LUT approach to writing columns to screen map
-27 - trying for scrolling
-33 - working, but level cannot be very big,
-     so I'm getting rid of the cells for collision detection etc.
-34 - beyond cells..
-40 - attack animation and scrolling works. Fixed bluelib sprite bug
-41 - new graphics...
-43 - new sprite sheet, incl. treasure chest
-44 - chest coll., scroll, open and pick-up works now + sound SFX
-45 -
-49 - random chests
-51 - scoring, routines and prep. Scoring works, but ugly tiles
-53 - ripped score tiles from Shinobi, niiice, going for enemy soldier
-56 - solder hurting, dying and scrolling
-57 - cleaning up,
+
 */
 
 ; --------------------------------------------------------------------
@@ -45,11 +26,12 @@ banksize $4000
 banks 2
 .endro
 
+
 ; include the bluelib library assumed to be in the same directory:
-.INCLUDE "bluelib.inc"
+.INCLUDE "lib\bluelib.inc"
 
 ; include psglib for handling sound. Thank you Sverx!
-.include "psglib.inc"
+.include "lib\psglib.inc"
 
 ; NOTE: Remember to update these values as new tiles are included!!
 .define NUMSPR     32              ; # of tiles in sprite bank (1)
@@ -1271,25 +1253,25 @@ solDying:
 
 ; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
 firePal:
-.include "firePal1.inc"
-.include "firePal2.inc"
+.include "palette\firePal1.inc"
+.include "palette\firePal2.inc"
 
 ; Sprite tiles in pattern generator bank 1:
 fireSPR:
-.include "fireSPR.inc"
+.include "tile\fireSPR.inc"
 
 ; Background tiles in pattern generator bank 2:
 fireBG:
-.include "fireBG.inc"
+.include "tile\fireBG.inc"
 
 ; Tile map of whole level, organized column-by-column:
 fireMap:
-.include "fireMap.inc"
+.include "tilemap\fireMap.inc"
 
 ; sound effect:
 sfxSword:
-.incbin "slash.psg"
+.incbin "sfx\slash.psg"
 
 sfxBonus:
-.incbin "bonus.psg"
+.incbin "sfx\bonus.psg"
 .ends
