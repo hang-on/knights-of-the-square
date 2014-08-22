@@ -1,8 +1,9 @@
-To be included in journal.
+Workflow for tile export
+--------------------------------------------------------------------------------------
+Tile Studio > GIMP > BMP2Tile > source
 
-Workflow for creating graphics.
-
-Use Tile Studio to draw tiles. Ctrl+U gives you the used colors. make a palette out of these with the palette manager. Export as 16 color bitmap 4bpp. 
+Use Tile Studio to draw tiles. Ctrl+U gives you the used colors. make a palette out of 
+these with the palette manager. Export as 16 color bitmap 4bpp. 
 - check background color
 - check use this palette as default and for current tile set
 - export 16 color bmp

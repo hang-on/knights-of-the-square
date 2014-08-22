@@ -291,11 +291,11 @@ gameLoop:    ld    hl, plrState    ; get player state
              cp    9               ; check if attack has expired
              jp    nz, stAttack    ; if not, continue attack state
 
-; Check if there is a soldier on screen.
+; Check if there is a standing soldier on screen.
 
-chkSol:      ld    a, (solMode)
-             cp    SOLSTAND
-             jp    nz, chkChest
+chkSol:      ld    a, (solMode)    ; get soldier mode
+             cp    SOLSTAND        ; is he standing?
+             jp    nz, chkChest    ; if not, skip the following...
 
 ; Check if Arthur's sword collides with soldier.
 
@@ -307,59 +307,55 @@ chkSol:      ld    a, (solMode)
              call  clDetect        ; coll. between obj1 and obj2?
              jp    nc, chkChest    ; if no coll. > skip
 
-; Hurt soldier.  (yellow shirt)
+; Update soldier mode to "hurting" and set counter for duration.
 
-             ld    ix, solMode
-             ld    (ix + 0), SOLHURT   ; soldier mode
-             ld    (ix + 3), 10        ; set soldier counter
-            ; deal damage:
-             call  goRandom
-             and   %00000011  ; random damage = 0 - 3 + weapon
-             ld    b, a
-             ld    a, (wponDam)
-             add   a, b
-             ld    b, a
-             ld    a, (solLife)
-             sub   b
-             ld    (solLife), a
-             jp    nc, +
-             ; switch to dying..
-             ld   (ix + 3), 0  ; reset pointer
-             ld   (ix + 0), SOLDYING
-             jp    resSword
+             ld    ix, solMode     ; point to soldier data block
+             ld    (ix + 0), SOLHURT  ; set soldier mode = hurting
+             ld    (ix + 3), 10    ; set soldier counter = 10
 
+; Deal damage to soldier using formula: (0 - 3) + weapon modifier.
 
-+:
-             jp    resSword      ; can't be hitting the chest now...
-; ------------
+             call  goRandom        ; put a pseudo-random number in A
+             and   %00000011       ; mask to give us interval 0 - 3
+             ld    b, a            ; store masked random number
+             ld    a, (wponDam)    ; get weapon damage modifier
+             add   a, b            ; add random damage to modifier
+             ld    b, a            ; store this total amount of dam.
+             ld    a, (solLife)    ; get soldier's life variable
+             sub   b               ; subtract total damage
+             ld    (solLife), a    ; and put the result back in var.
+             jp    nc, +           ; has soldier below 0 life now?
+             ld   (ix + 3), 0      ; if so, reset counter
+             ld   (ix + 0), SOLDYING  ; update mode to "dying"
++:           jp    resSword        ; forward to reset Arthur's sword
 
 ; Check if there is a closed chest on screen.
 
-chkChest:    ld    a, (cstMode)
-             cp    CHESTCL
+chkChest:    ld    a, (cstMode)    ; get chest mode
+             cp    CHESTCL         ; is it closed?
              jp    nz, resSword    ; if no closed chest > skip coll.
 
 ; Check if Arthur's sword collides with chest.
 
-             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
-             dec   (hl)            ; because the sword is small...
-             dec   (hl)
-             dec   (hl)
-             ld    de, cstX        ; de = obj2 (x,y) - Closed chest
-             call  clDetect        ; coll. between obj1 and obj2?
-             jp    nc, resSword    ; if no coll. > skip chest open
+             ld    hl, wponX       ; point to Arthur's sword (x, y)
+             dec   (hl)            ; move center so (x-3, y)
+             dec   (hl)            ; ... because sword width < 8 pix
+             dec   (hl)            ; ...
+             ld    de, cstX        ; point to closed chest (x, y)
+             call  clDetect        ; coll. between player and chest?
+             jp    nc, resSword    ; if no coll. > skip forward
 
 ; Open chest (sprite) and change chest mode.
 
-             ld    ix, cstMode
-             ld    c, CHESTOP      ; open chest
-             ld    d, (ix + 1)     ; D
-             ld    e, (ix + 2)     ; E
+             ld    ix, cstMode     ; point to chest data block
+             ld    c, CHESTOP      ; charcode for open chest
+             ld    d, (ix + 1)     ; param: chest x pos in D
+             ld    e, (ix + 2)     ; param: chest y pos in E
              ld    b, CHESTSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
-             ld    hl, cstMode
-             ld    (hl), CHESTOP
-             jp    resSword
+
+             ld    hl, cstMode     ; point to chest mode
+             ld    (hl), CHESTOP   ; update mode to "open"
 
 ; Reset sword sprite.
 
@@ -603,18 +599,24 @@ finLoop:     halt                  ; finish loop by waiting for ints.
 
 .section "Objects" free
 objects:
-             ld    a, (solMode)
-             cp    SOLHURT
-             jp    z, hdlHurt  ; handle hurt
-             cp    SOLDYING
-             jp    nz, object2
-             ; handle dying
-             ld       hl, solCount
-             ld       de, solDying
-             call     advcAnim
+
+; Respond to soldier's current mode (TODO: move out of VBlank!)
+
+             ld    a, (solMode)    ; get soldier mode
+             cp    SOLHURT         ; is he currently hurting?
+             jp    z, hdlHurt      ; handle hurting process
+
+             cp    SOLDYING        ; is he dying?
+             jp    nz, object2     ; if not, skip to next object
+             
+; Soldier is dying - animate the sprite.
+
+             ld       hl, solCount ; param: cel counter
+             ld       de, solDying ; param: animation script
+             call     advcAnim     ; forward to net cel in animation
 
              ld    hl, solDying    ; param: animation script
-             ld    a, (solCount)    ; param: freshly updated anim.
+             ld    a, (solCount)   ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
              ld    a, (solX)       ; get player's x position
@@ -624,47 +626,53 @@ objects:
              ld    b, SOLSAT       ; B = plr sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
 
-             ld    a, (solCount)
-             cp    20 ; he is lying flat?
-             jp    nz, +
-             ld    hl, solMode
-             ld    (hl), SOLDEAD
-; Add to player's score.
+             ld    a, (solCount)   ; get soldier's counter
+             cp    20              ; he is lying flat by now?
+             jp    nz, object2     ; if not, handle nwxt object
+             ld    hl, solMode     ; if so, point to soldier's mode
+             ld    (hl), SOLDEAD   ; and update it to "dead"
 
-             ld    hl, score + 3    ; point to the hundreds column
-             ld    b,  2            ; one soldier is worth 200 points!
-             call  goScore          ; call the score updater routine
+; Soldier is dead; add to player's score.
 
+             ld    hl, score + 3   ; point to the hundreds column
+             ld    b,  2           ; one soldier is worth 200 points!
+             call  goScore         ; call the score updater routine
+             jp       object2      ; handle next object
 
-+:
+; Soldier is hurting (he is taking damage from player's weapon).
 
+hdlHurt:     ld    hl, solCount    ; point to soldier's counter
+             ld    a, (hl)         ; get value
+             cp    10              ; is this a new hurt sequence?
+             jp    nz, +           ; if not, skip forward...
 
-             jp       object2
+; A) New hurt sequence started - give soldier a yellow shirt.
 
-hdlHurt:     ld    hl, solCount
-             ld    a, (hl)
-             cp    10 ; new hurt?
-             jp    nz, +
-             ld         b, C7B2
-             ld         c, YELLOW              ; yellow shirt
-             call       dfColor   ;
-             jp         ++
-+:           ; check for end hurt
-             cp    0; end hurt?
-             jp    nz, ++
-             ld         b, C7B2
-             ld         c, ORANGE              ; orange shirt
-             call       dfColor   ;
-             ld    hl, solMode
-             ld    (hl), SOLSTAND
-             jp   object2
+             ld    b, C7B2         ; soldier's shirt is col. 7, bnk 2
+             ld    c, YELLOW       ; set up for a yellow shirt
+             call  dfColor         ; define color in CRAM
+             jp    ++              ; skip forward to count down
 
-++:          ; just count down..
-             dec    (hl)
++:           cp    0               ; is counter = 0? (end hurt)
+             jp    nz, ++          ; if not, skip forward...
+
+; B) The hurting sequence has ended - give him his orange shirt back.
+
+             ld    b, C7B2         ; shirt is color 7 in CRAM bank 2
+             ld    c, ORANGE       ; prepare for an orange shirt
+             call  dfColor         ; define color in CRAM
+             ld    hl, solMode     ; point to soldier's mode variable
+             ld    (hl), SOLSTAND  ; switch back to standing
+             jp    object2         ; jump to next objects
+
+; C) Hurt sequence is just going on...
+
+++:          dec   (hl)            ; decrease counter
+
+; Handle next object (currently no other objects...)
 
 object2:
-             ret
-
+             ret                   ; return to int. handler
 .ends
 
 
@@ -1225,10 +1233,6 @@ goRandom:    push  hl
 
 
 .ends
-
-
-
-
 
 ; -------------------------------------------------------------------
 ;                            DATA
