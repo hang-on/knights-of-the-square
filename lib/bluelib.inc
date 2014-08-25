@@ -146,6 +146,7 @@ SOURCES AND INSPIRATION
 frmCount     DB                    ; counts frames
 portDC       DB                    ; keeps the latest reading of the
 portDD       DB                    ; input ports
+CRAMBuf      DSB 34                ; 2 x 16 colors + flag
 .ends
 
 .ramsection "Sprite Attribute Table RAM buffer" slot 3
@@ -211,8 +212,30 @@ hdlFrame:
              ld    hl, portDD       ; store it in designated variable
              ld    (hl),a
 
+; Check CRAM buffer flag, and copy on request.
+
+             ld    a, (CRAMBuf + 33)
+             cp    1
+             jp    nz, +
 
 
+             ld    a, $00          ; prepare VDP for write to CRAM
+             out   (VDPCOM), a     ; starting at color $00
+             ld    a, CMDCRAM
+             out   (VDPCOM), a
+
+             ld    hl, CRAMBuf
+
+             ld    b, 32           ; write all 32 bytes of color data
+-:           ld    a, (hl)
+             out   (VDPDATA), a
+             inc   hl
+             djnz  -
+
+             ld    a, $00          ; reset flag
+             ld    (ix + 33), a
+
++:
              ret
 .ends
 ; ====================================================================
@@ -391,12 +414,13 @@ setBrdr:     or    %11110000
 ;     ld         c, MAROON              ; defined in code
 ;     call       dfColor
 ; --------------------------------------------------------------------
-dfColor:     ld    a, b
-             out   (VDPCOM), a
-             ld     a, CMDCRAM     ; issue the CRAM command
-             out    (VDPCOM), a
-             ld     a, c
-             out    (VDPDATA), a
+dfColor:     ld    hl, CRAMBuf
+             ld    d, 0
+             ld    e, b
+             add   hl, de
+             ld    (hl), c
+             ld    a, 1
+             ld    (CRAMBuf + 33), a
              ret
 .ends
 ; ====================================================================
@@ -483,20 +507,16 @@ goSprite:    push  de              ; save new x and y pos
 ;     ld         hl, myColors
 ;     call       setCRAM
 ; --------------------------------------------------------------------
-setCRAM:     ld    a, $00          ; prepare VDP for write to CRAM
-             out   (VDPCOM), a     ; starting at color $00
-             ld    a, CMDCRAM
-             out   (VDPCOM), a
-
-             ld    b, 32           ; write all 32 bytes of color data
--:           ld    a, (hl)
-             out   (VDPDATA), a
-             inc   hl
-             djnz  -
+setCRAM:     ld    de, CRAMBuf
+             ld    bc, 33
+             ldir
+             ld    a, 1               ; set flag
+             ld    (CRAMBuf + 33), a
 
              ret
 .ends
 ; ====================================================================
+
 
 ; ====================================================================
 .section "initBlib" free
