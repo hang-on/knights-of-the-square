@@ -6,8 +6,6 @@
 
      NAME                             SUMMARY
 -----------------   --------------------------------------------------
-dfColor             DEFINE COLOR: Defines a specified color in
-                    CRAM bank 1 or 2
 
 dfTile              DEFINE TILE: Defines a 32 byte pattern
 
@@ -24,7 +22,7 @@ getPlr2             GET PLAYER 2 INPUT: Get input from player 2's
 initBuff            INITIALIZE SAT BUFFER: Write zeroes to the
                     designated bytes in RAM
 
-initVDP             INITIALIZE VDP REGISTERS: Set up all 11 registers 
+initVDP             INITIALIZE VDP REGISTERS: Set up all 11 registers
                     in one function call
 
 setBrdr             SET BORDER COLOR: Set the border color to a color
@@ -35,6 +33,9 @@ wtPlr1              WAIT FOR PLAYER 1: Wait for player 1 to release
 
 wtPlr2              WAIT FOR PLAYER 2: Wait for player 2 to release
                     all keys
+
+dfColor             DEFINE COLOR: Defines a specified color in
+                    CRAM bank 1 or 2
 
 setCRAM             SET COLOR RAM: define all 32 colors in CRAM
 
@@ -405,28 +406,6 @@ setBrdr:     or    %11110000
 .ends
 ; ====================================================================
 
-; ====================================================================
-.section "dfColor" free
-; DEFINE COLOR
-; define a color in either bank 1 or 2 in CRAM
-; Entry: Register B = CRAM index (which color in which bank?),
-;        Register C = Color (in RGB format)
-; tip: use the CRAM definitions
-; example:
-;     ld         b, C0B2
-;     ld         c, MAROON              ; defined in code
-;     call       dfColor
-; --------------------------------------------------------------------
-dfColor:     ld    hl, CRAMBuf
-             ld    d, 0
-             ld    e, b
-             add   hl, de
-             ld    (hl), c
-             ld    a, FLGSET
-             ld    (CRAMFlag), a
-             ret
-.ends
-; ====================================================================
 
 
 ; ====================================================================
@@ -504,22 +483,46 @@ goSprite:    push  de              ; save new x and y pos
 ; ====================================================================
 .section "setCRAM" free
 ; SET COLOR RAM
-; define all 32 colors in CRAM
+; Define all 32 colors in CRAM. Color bytes are loaded to the CRAM
+; buffer, and transfered at next frame interrupt.
 ; Entry: HL = pointer to 32 bytes of color
 ; example:
 ;     ld         hl, myColors
 ;     call       setCRAM
 ; --------------------------------------------------------------------
-setCRAM:     ld    de, CRAMBuf
-             ld    bc, 32
-             ldir
-             ld    a, FLGSET               ; set flag
-             ld    (CRAMFlag), a
+setCRAM:     ld    de, CRAMBuf     ; point to RAM buffer (dest.)
+             ld    bc, 32          ; 32 colors to write
+             ldir                  ; do it
+             ld    a, FLGSET       ; signal to the frame routine
+             ld    (CRAMFlag), a   ; by setting the CRAM write flag
 
              ret
 .ends
 ; ====================================================================
 
+; ====================================================================
+.section "dfColor" free
+; DEFINE COLOR
+; Define a color in CRAM. This function works on a buffer, so it is
+; safe to call it at any time. Changes are applied at next frame int.
+; Entry: Register B = CRAM index (which color in which bank?),
+;        Register C = Color (in RGB format)
+; tip: use the bluelib CRAM definitions
+; example:
+;     ld         b, C0B2
+;     ld         c, MAROON            ; defined in code
+;     call       dfColor
+; --------------------------------------------------------------------
+dfColor:     ld    hl, CRAMBuf     ; point to ram buffer
+             ld    d, 0            ; clear MSB
+             ld    e, b            ; B contains the index = offset
+             add   hl, de          ; point hl to target color
+             ld    (hl), c         ; update target color as specified
+             ld    a, FLGSET       ; prepare to write a set flag
+             ld    (CRAMFlag), a   ; and signal to frame routine
+             ret
+.ends
+; ====================================================================
 
 ; ====================================================================
 .section "initBlib" free
