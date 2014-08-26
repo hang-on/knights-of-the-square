@@ -474,7 +474,7 @@ mvNorth:     ld    hl, plrY
 mvEast:      ld    hl, plrX        ; the horizontal pos. of player
              ld    a, (hl)         ; read from variable to register
              cp    SCRLTRIG        ; player on the scroll trigger?
-             jp    nz, +           ; if not, then no scrolling
+             jp    nz, noScrl           ; if not, then no scrolling
 
 ; Read from map data to see if the next byte is the terminator ($ff).
 
@@ -483,17 +483,54 @@ mvEast:      ld    hl, plrX        ; the horizontal pos. of player
              ld    d, (ix + 1)     ; MSB to D
              ld    a, (de)         ; get next byte from map data block
              cp    $ff             ; is it the terminator?
-             jp    z, +            ; if so, then no scrolling
+             jp    z, noScrl            ; if so, then no scrolling
 
 ; Scrolling OK. Set the scroll flag to signal to interrupt handler.
 
              ld    a, 1            ; 1 = flag is set
              ld    (scrlFlag), a   ; set scroller flag
+
+; Scroll chest if it is on screen.
+
+             ld   a, (cstMode)     ; point to chest mode
+             cp   CHESTOFF         ; is chest turned off?
+             jp   z, +       ; if so, skip to column check
+
+             ld   hl, cstX         ; point to chest x pos
+             dec  (hl)             ; decrement it
+             ld   a, (hl)          ; put value in A for a comparison
+             cp   0                ; is chest x = 0 (blanked clmn)?
+             jp   nz, uptChest     ; if not, forward to update chest
+
+; Chest has scrolled off screen, so destroy it.
+
+             ld    c, 0            ; reset charcode
+             ld    d, 0            ; reset x pos
+             ld    e, 0            ; reset y pos
+             ld    b, CHESTSAT     ; B = the chest's index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ld    hl, cstMode     ; point to chest mode
+             ld    (hl), CHESTOFF  ; set chect mode to OFF
+             jp    +         ; forward to check column
+
+; Update chest sprite position.
+
+uptChest:    ld    a, (cstMode)
+             ld    c, a            ; chest mode
+             ld    d, (hl)         ; D
+             inc   hl
+             ld    e, (hl)         ; E
+             ld    b, CHESTSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
++: ;
+
+
              ret                   ; scrolling will happen in int.
 
 ; No scrolling. Move sprite one pixel to the right, if within bounds.
-
-+:           ld    a, (hl)         ; get player horiz. position
+; TODO: bad label name (noScroll already exits, fixit!)
+noScrl:           ld    a, (hl)         ; get player horiz. position
              cp    248             ; is player on the right bound?
              ret   z               ; ... no straying offscreen!
              ld    a, 1
