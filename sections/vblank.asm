@@ -115,7 +115,7 @@ uptChest:    ld    a, (cstMode)
              call  goSprite        ; update SAT buffer (RAM)
 
 +: ; next test - the soldier...
-;**
+
 
 ; Scroll soldier if he is on screen.
 

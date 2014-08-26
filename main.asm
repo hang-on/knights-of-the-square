@@ -45,8 +45,11 @@ banks 2
 ; misc. functions
 .include "sections\misc.asm"
 
-; soldier object updating
+; soldier object handling
 .include "sections\soldier.asm"
+
+; chest object handling
+.include "sections\chest.asm"
 
 
 ; --------------------------------------------------------------------
@@ -213,40 +216,12 @@ gameLoop:
              cp    ATTACK          ; was the player attacking?
              jp    nz, getInput    ; if not, forward to test for input
              ld    a, (plrAnim)    ; else: get current animation cel
-             cp    9               ; is Arthur stabbing his sword?
+             cp    9               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
-; Arthur stabs, check if he hits a soldier.
+             call  chkSol          ; does Arthur hit a soldier?
 
-             call  chkSol
-
-; Check if there is a closed chest on screen.
-
-chkChest:    ld    a, (cstMode)    ; get chest mode
-             cp    CHESTCL         ; is it closed?
-             jp    nz, resSword    ; if no closed chest > skip coll.
-
-; Check if Arthur's sword collides with chest.
-
-             ld    hl, wponX       ; point to Arthur's sword (x, y)
-             dec   (hl)            ; move center so (x-3, y)
-             dec   (hl)            ; ... because sword width < 8 pix
-             dec   (hl)            ; ...
-             ld    de, cstX        ; point to closed chest (x, y)
-             call  clDetect        ; coll. between player and chest?
-             jp    nc, resSword    ; if no coll. > skip forward
-
-; Open chest (sprite) and change chest mode.
-
-             ld    ix, cstMode     ; point to chest data block
-             ld    c, CHESTOP      ; charcode for open chest
-             ld    d, (ix + 1)     ; param: chest x pos in D
-             ld    e, (ix + 2)     ; param: chest y pos in E
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-             ld    hl, cstMode     ; point to chest mode
-             ld    (hl), CHESTOP   ; update mode to "open"
+             call  chkChest        ; does he hit a closed chest?
 
 ; Reset sword sprite.
 
