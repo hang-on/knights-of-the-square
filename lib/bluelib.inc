@@ -139,6 +139,11 @@ SOURCES AND INSPIRATION
 .define CTBTN1     4
 .define CTBTN2     5
 
+; for flags
+.define FLGSET     1
+.define FLGRESET   0
+
+
 ; ********************************************************************
 ; VARIABLES
 ; ********************************************************************
@@ -146,7 +151,8 @@ SOURCES AND INSPIRATION
 frmCount     DB                    ; counts frames
 portDC       DB                    ; keeps the latest reading of the
 portDD       DB                    ; input ports
-CRAMBuf      DSB 34                ; 2 x 16 colors + flag
+CRAMBuf      DSB 32                ; 2 x 16 colors
+CRAMFlag     DB                    ; flag for CRAM buffer
 .ends
 
 .ramsection "Sprite Attribute Table RAM buffer" slot 3
@@ -204,6 +210,7 @@ hdlFrame:
              otir
 
 ; Store input from controllers in variables
+
              in    a, $DC          ; read input port $DC
              ld    hl, portDC      ; store it in designated variable
              ld    (hl),a
@@ -214,8 +221,8 @@ hdlFrame:
 
 ; Check CRAM buffer flag, and copy on request.
 
-             ld    a, (CRAMBuf + 33)
-             cp    1
+             ld    a, (CRAMFlag)
+             cp    FLGSET
              jp    nz, +
 
 
@@ -225,18 +232,14 @@ hdlFrame:
              out   (VDPCOM), a
 
              ld    hl, CRAMBuf
-
              ld    b, 32           ; write all 32 bytes of color data
--:           ld    a, (hl)
-             out   (VDPDATA), a
-             inc   hl
-             djnz  -
+             otir
 
-             ld    a, $00          ; reset flag
-             ld    (ix + 33), a
+             ld    a, FLGRESET          ; reset flag
+             ld    (CRAMFlag), a
 
 +:
-             ret
+             ret                   ; return from frame housekeeping
 .ends
 ; ====================================================================
 
@@ -377,7 +380,7 @@ initBuff:    ld    b, 64           ; 64 sprites
              ld    hl, bfVert
              ld    (hl), $D0       ; sprite terminator placed at
                                    ; first sprite to disable them all
-             
+
              ld    b, 128          ; like above, now with HPos
              ld    hl, bfHoriz     ; and char code (word-sized data)
 -:           ld    (hl), $00
@@ -419,8 +422,8 @@ dfColor:     ld    hl, CRAMBuf
              ld    e, b
              add   hl, de
              ld    (hl), c
-             ld    a, 1
-             ld    (CRAMBuf + 33), a
+             ld    a, FLGSET
+             ld    (CRAMFlag), a
              ret
 .ends
 ; ====================================================================
@@ -508,10 +511,10 @@ goSprite:    push  de              ; save new x and y pos
 ;     call       setCRAM
 ; --------------------------------------------------------------------
 setCRAM:     ld    de, CRAMBuf
-             ld    bc, 33
+             ld    bc, 32
              ldir
-             ld    a, 1               ; set flag
-             ld    (CRAMBuf + 33), a
+             ld    a, FLGSET               ; set flag
+             ld    (CRAMFlag), a
 
              ret
 .ends
