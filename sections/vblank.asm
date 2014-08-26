@@ -88,7 +88,8 @@ hdlHurt:     ld    hl, solCount    ; point to soldier's counter
 
 ; C) Hurt sequence is just going on...
 
-++:          dec   (hl)            ; decrease counter
+++:          ld    hl, solCount
+             dec   (hl)            ; decrease counter
 
 ; Handle next object (currently no other objects...)
 

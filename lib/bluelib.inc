@@ -139,6 +139,11 @@ SOURCES AND INSPIRATION
 .define CTBTN1     4
 .define CTBTN2     5
 
+; for flags
+.define FLGSET     1
+.define FLGRESET   0
+
+
 ; ********************************************************************
 ; VARIABLES
 ; ********************************************************************
@@ -146,6 +151,8 @@ SOURCES AND INSPIRATION
 frmCount     DB                    ; counts frames
 portDC       DB                    ; keeps the latest reading of the
 portDD       DB                    ; input ports
+CRAMBuf      DSB 32                ; 2 x 16 colors
+CRAMFlag     DB                    ; flag for CRAM buffer
 .ends
 
 .ramsection "Sprite Attribute Table RAM buffer" slot 3
@@ -203,6 +210,7 @@ hdlFrame:
              otir
 
 ; Store input from controllers in variables
+
              in    a, $DC          ; read input port $DC
              ld    hl, portDC      ; store it in designated variable
              ld    (hl),a
@@ -211,9 +219,27 @@ hdlFrame:
              ld    hl, portDD       ; store it in designated variable
              ld    (hl),a
 
+; Check CRAM buffer flag, and copy on request.
+
+             ld    a, (CRAMFlag)
+             cp    FLGSET
+             jp    nz, +
 
 
-             ret
+             ld    a, $00          ; prepare VDP for write to CRAM
+             out   (VDPCOM), a     ; starting at color $00
+             ld    a, CMDCRAM
+             out   (VDPCOM), a
+
+             ld    hl, CRAMBuf
+             ld    b, 32           ; write all 32 bytes of color data
+             otir
+
+             ld    a, FLGRESET          ; reset flag
+             ld    (CRAMFlag), a
+
++:
+             ret                   ; return from frame housekeeping
 .ends
 ; ====================================================================
 
@@ -354,7 +380,7 @@ initBuff:    ld    b, 64           ; 64 sprites
              ld    hl, bfVert
              ld    (hl), $D0       ; sprite terminator placed at
                                    ; first sprite to disable them all
-             
+
              ld    b, 128          ; like above, now with HPos
              ld    hl, bfHoriz     ; and char code (word-sized data)
 -:           ld    (hl), $00
@@ -391,12 +417,13 @@ setBrdr:     or    %11110000
 ;     ld         c, MAROON              ; defined in code
 ;     call       dfColor
 ; --------------------------------------------------------------------
-dfColor:     ld    a, b
-             out   (VDPCOM), a
-             ld     a, CMDCRAM     ; issue the CRAM command
-             out    (VDPCOM), a
-             ld     a, c
-             out    (VDPDATA), a
+dfColor:     ld    hl, CRAMBuf
+             ld    d, 0
+             ld    e, b
+             add   hl, de
+             ld    (hl), c
+             ld    a, FLGSET
+             ld    (CRAMFlag), a
              ret
 .ends
 ; ====================================================================
@@ -483,20 +510,16 @@ goSprite:    push  de              ; save new x and y pos
 ;     ld         hl, myColors
 ;     call       setCRAM
 ; --------------------------------------------------------------------
-setCRAM:     ld    a, $00          ; prepare VDP for write to CRAM
-             out   (VDPCOM), a     ; starting at color $00
-             ld    a, CMDCRAM
-             out   (VDPCOM), a
-
-             ld    b, 32           ; write all 32 bytes of color data
--:           ld    a, (hl)
-             out   (VDPDATA), a
-             inc   hl
-             djnz  -
+setCRAM:     ld    de, CRAMBuf
+             ld    bc, 32
+             ldir
+             ld    a, FLGSET               ; set flag
+             ld    (CRAMFlag), a
 
              ret
 .ends
 ; ====================================================================
+
 
 ; ====================================================================
 .section "initBlib" free
