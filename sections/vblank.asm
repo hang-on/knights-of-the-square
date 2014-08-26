@@ -80,42 +80,6 @@ scroller:
              or    CMDREG          ; or with write register command
              out   (VDPCOM), a     ; send 2nd byte of command word
 
-
-
-; Scroll soldier if he is on screen.
-
-             ld   a, (solMode)     ; point to soldier mode
-             cp   SOLOFF         ; is soldier turned off?
-             jp   z, chkClmn       ; if so, skip to column check
-
-             ld   hl, solX         ; point to soldier x pos
-             dec  (hl)             ; decrement it
-             ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ; is chest x = 0 (blanked clmn)?
-             jp   nz, uptSol     ; if not, forward to update chest
-
-; Soldier has scrolled off screen, so destroy him.
-debug1:
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, SOLSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, solMode     ; point to chest mode
-             ld    (hl), SOLOFF  ; set chect mode to OFF
-             jp    chkClmn         ; forward to check column
-
-; Update soldier sprite position.
-
-uptSol:    ld    a, (solMode)
-             ld    c, a            ; chest mode
-             ld    d, (hl)         ; D
-             inc   hl
-             ld    e, (hl)         ; E
-             ld    b, SOLSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-;**
 ; The leftmost 8 pixels on screen hides (fully/partially) one column.
 ; Check scroll value to see if next column is hidden = ready to fill.
 
