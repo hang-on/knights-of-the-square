@@ -213,46 +213,12 @@ gameLoop:
              cp    ATTACK          ; was the player attacking?
              jp    nz, getInput    ; if not, forward to test for input
              ld    a, (plrAnim)    ; else: get current animation cel
-             cp    9               ; check if attack has expired
+             cp    9               ; is Arthur stabbing his sword?
              jp    nz, stAttack    ; if not, continue attack state
 
-; Check if there is a standing soldier on screen.
+; Arthur stabs, check if he hits a soldier.
 
-chkSol:      ld    a, (solMode)    ; get soldier mode
-             cp    SOLSTAND        ; is he standing?
-             jp    nz, chkChest    ; if not, skip the following...
-
-; Check if Arthur's sword collides with soldier.
-
-             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
-             dec (hl)              ; adjust for smaller sprite
-             dec (hl)
-             dec (hl)
-             ld    de, solX        ; de = obj2 (x,y) - Soldier
-             call  clDetect        ; coll. between obj1 and obj2?
-             jp    nc, chkChest    ; if no coll. > skip
-
-; Update soldier mode to "hurting" and set counter for duration.
-
-             ld    ix, solMode     ; point to soldier data block
-             ld    (ix + 0), SOLHURT  ; set soldier mode = hurting
-             ld    (ix + 3), 10    ; set soldier counter = 10
-
-; Deal damage to soldier using formula: (0 - 3) + weapon modifier.
-
-             call  goRandom        ; put a pseudo-random number in A
-             and   %00000011       ; mask to give us interval 0 - 3
-             ld    b, a            ; store masked random number
-             ld    a, (wponDam)    ; get weapon damage modifier
-             add   a, b            ; add random damage to modifier
-             ld    b, a            ; store this total amount of dam.
-             ld    a, (solLife)    ; get soldier's life variable
-             sub   b               ; subtract total damage
-             ld    (solLife), a    ; and put the result back in var.
-             jp    nc, +           ; has soldier below 0 life now?
-             ld   (ix + 3), 0      ; if so, reset counter
-             ld   (ix + 0), SOLDYING  ; update mode to "dying"
-+:           jp    resSword        ; forward to reset Arthur's sword
+             call  chkSol
 
 ; Check if there is a closed chest on screen.
 

@@ -1,13 +1,16 @@
-.section "Update soldier" free
-updSol:
-; Respond to soldier's current mode
+.section "Soldier routines" free
 
-             ld    a, (solMode)    ; get soldier mode
+; Respond to, and update, the soldier's current mode.
+
+updSol:      ld    a, (solMode)    ; get soldier mode
              cp    SOLHURT         ; is he currently hurting?
              jp    z, hdlHurt      ; handle hurting process
 
              cp    SOLDYING        ; is he dying?
-             ret    nz             ; if not, skip to next object
+             ret    nz             ; if not, return
+
+             cp    SOLSTAND        ; is he standing?
+             jp    z, chkSol       ; collision detection
 
 ; Soldier is dying - animate the sprite.
 
@@ -32,7 +35,7 @@ updSol:
              ld    hl, solMode     ; if so, point to soldier's mode
              ld    (hl), SOLDEAD   ; and update it to "dead"
 
-; Soldier is dead; add to player's score.
+; Soldier is dead, add to player's score.
 
              ld    hl, score + 3   ; point to the hundreds column
              ld    b,  2           ; one soldier is worth 200 points!
@@ -71,4 +74,37 @@ hdlHurt:     ld    hl, solCount    ; point to soldier's counter
              dec   (hl)            ; decrease counter
 
              ret
+
+; Check if Arthur's sword collides with soldier.
+
+chkSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
+             dec (hl)              ; adjust for smaller sprite
+             dec (hl)
+             dec (hl)
+             ld    de, solX        ; de = obj2 (x,y) - Soldier
+             call  clDetect        ; coll. between obj1 and obj2?
+             ret    nc             ; if no coll. > skip
+
+; Update soldier mode to "hurting" and set counter for duration.
+
+             ld    ix, solMode     ; point to soldier data block
+             ld    (ix + 0), SOLHURT  ; set soldier mode = hurting
+             ld    (ix + 3), 10    ; set soldier counter = 10
+
+; Deal damage to soldier using formula: (0 - 3) + weapon modifier.
+
+             call  goRandom        ; put a pseudo-random number in A
+             and   %00000011       ; mask to give us interval 0 - 3
+             ld    b, a            ; store masked random number
+             ld    a, (wponDam)    ; get weapon damage modifier
+             add   a, b            ; add random damage to modifier
+             ld    b, a            ; store this total amount of dam.
+             ld    a, (solLife)    ; get soldier's life variable
+             sub   b               ; subtract total damage
+             ld    (solLife), a    ; and put the result back in var.
+             jp    nc, +           ; has soldier below 0 life now?
+             ld   (ix + 3), 0      ; if so, reset counter
+             ld   (ix + 0), SOLDYING  ; update mode to "dying"
++:           ret
+
 .ends
