@@ -47,6 +47,8 @@ prepVRAM            Send command word to VDP
 
 wrteVRAM            Write data to VDP data port
 
+clearRam            Clears ram range ($c000 - $dfe0)
+
 ----------------------------------------------------------------------
 REQUIREMENTS AND LIMITATIONS
 ----------------------------------------------------------------------
@@ -367,31 +369,6 @@ VDPStd:
 .ends
 ; ====================================================================
 
-
-; ====================================================================
-.section "initBuff" free
-; INITIALIZE SAT BUFFER
-; initializes the Sprite Attribute Table RAM buffer.
-initBuff:    ld    b, 64           ; 64 sprites
-             ld    hl, bfVert      ; HL pointing to bfVert in RAM
--:           ld    (hl), $00       ; write $00 to avoid messy RAM
-             inc   hl              ; point to next byte
-             djnz  -               ; process every 64 bfVert byte
-
-             ld    hl, bfVert
-             ld    (hl), $D0       ; sprite terminator placed at
-                                   ; first sprite to disable them all
-
-             ld    b, 128          ; like above, now with HPos
-             ld    hl, bfHoriz     ; and char code (word-sized data)
--:           ld    (hl), $00
-             inc   hl
-             djnz  -
-             ret
-.ends
-; ====================================================================
-
-
 ; ====================================================================
 .section "setBrdr" free
 ; SET BORDER COLOR
@@ -532,7 +509,6 @@ dfColor:     ld    hl, CRAMBuf     ; point to ram buffer
 ; --------------------------------------------------------------------
 initBlib:    ld    hl, VDPStd
              call  initVDP         ; init VDP
-             ; call  initBuff        ; init SAT RAM buffer
              call  clearRam
              ret
 .ends
@@ -572,14 +548,17 @@ wrteVRAM:
 ; ====================================================================
 
 
+; ====================================================================
 .section "Clear ram" free
-
-clearRam:
-             ld    hl, $c000
-             ld    (hl), 0
-             ld    de, $c001
-             ld    bc, $1fdf  ; clear ram with 0's: $c000 - $dfe0
-             ldir             ; near the stack - but staying clear of it
-             ret
-
+; Clear ram (range $c000 - $dfe0) with 0's
+; - it goes near the stack, but stays clear (if stack is not too big)
+; Called automatically by initBlib
+clearRam:    ld    hl, $c000  ; point to start of ram
+             ld    (hl), 0    ; write the first zero
+             ld    de, $c001  ; point to next byte
+             ld    bc, $1fdf  ; get ready to load some bytes
+             ldir             ; clear the range
+             ret              ; return
 .ends
+; ====================================================================
+
