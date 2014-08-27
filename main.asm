@@ -45,6 +45,12 @@ banks 2
 ; misc. functions
 .include "sections\misc.asm"
 
+; soldier object handling
+.include "sections\soldier.asm"
+
+; chest object handling
+.include "sections\chest.asm"
+
 
 ; --------------------------------------------------------------------
 
@@ -195,9 +201,12 @@ init:        call  initBlib        ; initialize bluelib
 
 .section "Main game loop" free
 
+gameLoop:
+             call  updSol          ; update soldier
+
 ; Store the now expired player state as 'old state'.
 
-gameLoop:    ld    hl, plrState    ; get player state
+             ld    hl, plrState    ; get player state
              ld    a, (hl)         ; put it in A
              inc   hl              ; point to oldState = plrState + 1
              ld    (hl), a         ; save expired state as oldState
@@ -207,74 +216,12 @@ gameLoop:    ld    hl, plrState    ; get player state
              cp    ATTACK          ; was the player attacking?
              jp    nz, getInput    ; if not, forward to test for input
              ld    a, (plrAnim)    ; else: get current animation cel
-             cp    9               ; check if attack has expired
+             cp    9               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
-; Check if there is a standing soldier on screen.
+             call  hitSol          ; does Arthur hit a soldier?
 
-chkSol:      ld    a, (solMode)    ; get soldier mode
-             cp    SOLSTAND        ; is he standing?
-             jp    nz, chkChest    ; if not, skip the following...
-
-; Check if Arthur's sword collides with soldier.
-
-             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
-             dec (hl)              ; adjust for smaller sprite
-             dec (hl)
-             dec (hl)
-             ld    de, solX        ; de = obj2 (x,y) - Soldier
-             call  clDetect        ; coll. between obj1 and obj2?
-             jp    nc, chkChest    ; if no coll. > skip
-
-; Update soldier mode to "hurting" and set counter for duration.
-
-             ld    ix, solMode     ; point to soldier data block
-             ld    (ix + 0), SOLHURT  ; set soldier mode = hurting
-             ld    (ix + 3), 10    ; set soldier counter = 10
-
-; Deal damage to soldier using formula: (0 - 3) + weapon modifier.
-
-             call  goRandom        ; put a pseudo-random number in A
-             and   %00000011       ; mask to give us interval 0 - 3
-             ld    b, a            ; store masked random number
-             ld    a, (wponDam)    ; get weapon damage modifier
-             add   a, b            ; add random damage to modifier
-             ld    b, a            ; store this total amount of dam.
-             ld    a, (solLife)    ; get soldier's life variable
-             sub   b               ; subtract total damage
-             ld    (solLife), a    ; and put the result back in var.
-             jp    nc, +           ; has soldier below 0 life now?
-             ld   (ix + 3), 0      ; if so, reset counter
-             ld   (ix + 0), SOLDYING  ; update mode to "dying"
-+:           jp    resSword        ; forward to reset Arthur's sword
-
-; Check if there is a closed chest on screen.
-
-chkChest:    ld    a, (cstMode)    ; get chest mode
-             cp    CHESTCL         ; is it closed?
-             jp    nz, resSword    ; if no closed chest > skip coll.
-
-; Check if Arthur's sword collides with chest.
-
-             ld    hl, wponX       ; point to Arthur's sword (x, y)
-             dec   (hl)            ; move center so (x-3, y)
-             dec   (hl)            ; ... because sword width < 8 pix
-             dec   (hl)            ; ...
-             ld    de, cstX        ; point to closed chest (x, y)
-             call  clDetect        ; coll. between player and chest?
-             jp    nc, resSword    ; if no coll. > skip forward
-
-; Open chest (sprite) and change chest mode.
-
-             ld    ix, cstMode     ; point to chest data block
-             ld    c, CHESTOP      ; charcode for open chest
-             ld    d, (ix + 1)     ; param: chest x pos in D
-             ld    e, (ix + 2)     ; param: chest y pos in E
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-             ld    hl, cstMode     ; point to chest mode
-             ld    (hl), CHESTOP   ; update mode to "open"
+             call  chkChest        ; does he hit a closed chest?
 
 ; Reset sword sprite.
 
@@ -341,17 +288,9 @@ stWalk:      ld    a, WALK         ; get constant
              xor   a
              ld   (vSpeed), a
 
-; Check for collision between soldier and player.
-
-coll1:       ld    a, (solMode)    ; get soldier mode
-             cp    SOLSTAND           ; is he off/inactive?
-             jp    nz, coll2      ; if no active soldier skip...
-
-             ld    hl, plrX        ; point HL to player x,y data
-             ld    de, solX        ; point DE to chest x,y
-             call  clDetect        ; call the collision detection sub
+; check colliion with soldier
+             call  collSol
              jp    nc, coll2     ; if no carry, then no collision
-
              jp    stopPlr       ; fall through: collision!
 
 ; Check for collision between chest and player.
@@ -527,7 +466,7 @@ mvNorth:     ld    hl, plrY
 mvEast:      ld    hl, plrX        ; the horizontal pos. of player
              ld    a, (hl)         ; read from variable to register
              cp    SCRLTRIG        ; player on the scroll trigger?
-             jp    nz, +           ; if not, then no scrolling
+             jp    nz, noScrl           ; if not, then no scrolling
 
 ; Read from map data to see if the next byte is the terminator ($ff).
 
@@ -536,17 +475,58 @@ mvEast:      ld    hl, plrX        ; the horizontal pos. of player
              ld    d, (ix + 1)     ; MSB to D
              ld    a, (de)         ; get next byte from map data block
              cp    $ff             ; is it the terminator?
-             jp    z, +            ; if so, then no scrolling
+             jp    z, noScrl            ; if so, then no scrolling
 
 ; Scrolling OK. Set the scroll flag to signal to interrupt handler.
 
              ld    a, 1            ; 1 = flag is set
              ld    (scrlFlag), a   ; set scroller flag
+
+; Scroll chest if it is on screen.
+
+             call  scrlCst
+
+
+; Scroll soldier if he is on screen.
+
+             ld   a, (solMode)     ; point to soldier mode
+             cp   SOLOFF         ; is soldier turned off?
+             jp   z, +       ; if so, skip to column check
+
+             ld   hl, solX         ; point to soldier x pos
+             dec  (hl)             ; decrement it
+             ld   a, (hl)          ; put value in A for a comparison
+             cp   0                ; is chest x = 0 (blanked clmn)?
+             jp   nz, uptSol     ; if not, forward to update chest
+
+; Soldier has scrolled off screen, so destroy him.
+
+             ld    c, 0            ; reset charcode
+             ld    d, 0            ; reset x pos
+             ld    e, 0            ; reset y pos
+             ld    b, SOLSAT     ; B = the chest's index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ld    hl, solMode     ; point to chest mode
+             ld    (hl), SOLOFF  ; set chect mode to OFF
+             jp    +               ; forward to check column
+
+; Update soldier sprite position.
+
+uptSol:      ld    a, (solMode)
+             ld    c, a            ; chest mode
+             ld    d, (hl)         ; D
+             inc   hl
+             ld    e, (hl)         ; E
+             ld    b, SOLSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
+
++:
              ret                   ; scrolling will happen in int.
 
 ; No scrolling. Move sprite one pixel to the right, if within bounds.
-
-+:           ld    a, (hl)         ; get player horiz. position
+; TODO: bad label name (noScroll already exits, fixit!)
+noScrl:           ld    a, (hl)         ; get player horiz. position
              cp    248             ; is player on the right bound?
              ret   z               ; ... no straying offscreen!
              ld    a, 1
