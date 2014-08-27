@@ -288,17 +288,9 @@ stWalk:      ld    a, WALK         ; get constant
              xor   a
              ld   (vSpeed), a
 
-; Check for collision between soldier and player.
-
-coll1:       ld    a, (solMode)    ; get soldier mode
-             cp    SOLSTAND           ; is he off/inactive?
-             jp    nz, coll2      ; if no active soldier skip...
-
-             ld    hl, plrX        ; point HL to player x,y data
-             ld    de, solX        ; point DE to chest x,y
-             call  clDetect        ; call the collision detection sub
+; check colliion with soldier
+             call  coll1
              jp    nc, coll2     ; if no carry, then no collision
-
              jp    stopPlr       ; fall through: collision!
 
 ; Check for collision between chest and player.

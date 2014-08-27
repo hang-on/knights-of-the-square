@@ -107,4 +107,14 @@ chkSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
              ld   (ix + 0), SOLDYING  ; update mode to "dying"
 +:           ret
 
+; Check for collision between soldier and player.
+
+coll1:       ld    a, (solMode)    ; get soldier mode
+             cp    SOLSTAND           ; is he off/inactive?
+             jp    nz, coll2      ; if no active soldier skip...
+
+             ld    hl, plrX        ; point HL to player x,y data
+             ld    de, solX        ; point DE to chest x,y
+             call  clDetect        ; call the collision detection sub
+             ret
 .ends
