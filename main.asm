@@ -94,9 +94,6 @@ init:        call  initBlib        ; initialize bluelib
 
 ; Initialize variables for horizontal scrolling.
 
-             xor    a              ; A = 0
-             ld    (scrlFlag), a   ; scroll flag = 0
-             ld    (scrlReg), a    ; VDP register 8 value = 0
              ld    de, fireMap     ; start address lev. 1 map data
              ld    hl, mapData     ; current level's map data
              ld    (hl), e         ; transfer LSB of 16-bit pointer

@@ -1,5 +1,5 @@
-; ram module
-
+; Ram module.
+; All variables default to 0, because ram is cleared by bluelib.
 ; --------------------------------------------------------------------
 .ramsection "Variables" slot 3
 plrX         db                    ; horiz. pos. on the screen (0-256)
