@@ -532,7 +532,8 @@ dfColor:     ld    hl, CRAMBuf     ; point to ram buffer
 ; --------------------------------------------------------------------
 initBlib:    ld    hl, VDPStd
              call  initVDP         ; init VDP
-             call  initBuff        ; init SAT RAM buffer
+             ; call  initBuff        ; init SAT RAM buffer
+             call  clearRam
              ret
 .ends
 ; ====================================================================
@@ -571,4 +572,14 @@ wrteVRAM:
 ; ====================================================================
 
 
+.section "Clear ram" free
 
+clearRam:
+             ld    hl, $c000
+             ld    (hl), 0
+             ld    de, $c001
+             ld    bc, $1fdf  ; clear ram with 0's: $c000 - $dfe0
+             ldir             ; near the stack - but staying clear of it
+             ret
+
+.ends
