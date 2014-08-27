@@ -320,17 +320,6 @@ plrWalk:     ld    a, (oldState)   ; get old state
              call  goSprite        ; update SAT buffer (RAM)
              jp    finLoop         ; finish this game loop pass
 
-; it is a function!
-stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
-             ld   (plrX), a        ; revert x-pos to prev. value
-
-             ld    a, (plrYOld)    ; get y-pos from before vSpeed
-             ld    (plrY), a       ; revert y-pos to prev. value
-
-             xor   a               ; clear A
-             ld    (scrlFlag), a   ; reset scroll flag = don't scroll
-             ret
-
 ; Handle player state = idle.
 
 stIdle:      ld    a, IDLE         ; get constant
@@ -403,6 +392,19 @@ finLoop:     halt                  ; finish loop by waiting for ints.
 
 
 .section "Player movement handling" free
+
+; Stop player.
+
+stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
+             ld   (plrX), a        ; revert x-pos to prev. value
+
+             ld    a, (plrYOld)    ; get y-pos from before vSpeed
+             ld    (plrY), a       ; revert y-pos to prev. value
+
+             xor   a               ; clear A
+             ld    (scrlFlag), a   ; reset scroll flag = don't scroll
+             ret
+
 
 ; Move the player one pixel south (down).
 
