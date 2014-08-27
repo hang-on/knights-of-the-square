@@ -109,12 +109,14 @@ hitSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
 
 ; Check for collision between soldier and player.
 
-collSol:       ld    a, (solMode)    ; get soldier mode
+collSol:     ld    a, (solMode)    ; get soldier mode
              cp    SOLSTAND           ; is he off/inactive?
-             jp    nz, coll2      ; if no active soldier skip...
+             ret   nz              ; if no active soldier skip...
 
              ld    hl, plrX        ; point HL to player x,y data
              ld    de, solX        ; point DE to chest x,y
              call  clDetect        ; call the collision detection sub
+             call  c, stopPlr     ; if carry, then collision!
+
              ret
 .ends

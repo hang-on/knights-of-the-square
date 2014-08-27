@@ -288,61 +288,13 @@ stWalk:      ld    a, WALK         ; get constant
              xor   a
              ld   (vSpeed), a
 
-; check collision with soldier
+; Check for, and handle, collision with soldier
 
              call  collSol
-             jp    c, stopPlr    ; if carry, then collision!
 
-; Check for collision between chest and player.
+; Check for, and handle, collision with chest
 
-coll2:       ld    a, (cstMode)    ; get chest mode
-             cp    CHESTOFF        ; is it off/inactive?
-             jp    z, plrWalk      ; if no active chest skip coll.chk
-
-             ld    hl, plrX        ; point HL to player x,y data
-             ld    de, cstX        ; point DE to chest x,y
-             call  clDetect        ; call the collision detection sub
-             jp    nc, plrWalk     ; if no carry, then no collision
-
-; Check if chest is closed or open.
-
-             ld    a, (cstMode)    ; get chest mode
-             cp    CHESTCL         ; is it closed?
-             jp    z, stopPlr      ; if so, then player cannot pass!
-
-; If chest is open, then pick it up.
-
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, CHESTSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, cstMode     ; point to chest mode
-             ld    (hl), $ff       ; turn it off now
-
-             ld    hl,sfxBonus     ; point to bonus SFX
-             ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
-             call  PSGSFXPlay      ; play the super retro bonus sound
-
-; Add to player's score.
-
-             ld    hl, score + 3    ; point to the hundreds column
-             ld    b,  4            ; one chest is worth 400 points!
-             call  goScore          ; call the score updater routine
-
-
-             jp    plrWalk         ; continue to handle walking
-
-; If chest is closed then block player movement.
-
-stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
-             ld   (plrX), a        ; revert x-pos to prev. value
-
-             ld    a, (plrYOld)    ; get y-pos from before vSpeed
-             ld    (plrY), a       ; revert y-pos to prev. value
-
-             xor   a               ; clear A
-             ld    (scrlFlag), a   ; reset scroll flag = don't scroll
+             call  collCst
 
 ; Handle walking animation of player sprite.
 
@@ -367,6 +319,17 @@ plrWalk:     ld    a, (oldState)   ; get old state
              ld    b, PLRSAT       ; B = plr sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
              jp    finLoop         ; finish this game loop pass
+
+; it is a function!
+stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
+             ld   (plrX), a        ; revert x-pos to prev. value
+
+             ld    a, (plrYOld)    ; get y-pos from before vSpeed
+             ld    (plrY), a       ; revert y-pos to prev. value
+
+             xor   a               ; clear A
+             ld    (scrlFlag), a   ; reset scroll flag = don't scroll
+             ret
 
 ; Handle player state = idle.
 
