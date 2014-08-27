@@ -219,7 +219,7 @@ gameLoop:
              cp    9               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
-             call  chkSol          ; does Arthur hit a soldier?
+             call  hitSol          ; does Arthur hit a soldier?
 
              call  chkChest        ; does he hit a closed chest?
 
@@ -289,7 +289,7 @@ stWalk:      ld    a, WALK         ; get constant
              ld   (vSpeed), a
 
 ; check colliion with soldier
-             call  coll1
+             call  collSol
              jp    nc, coll2     ; if no carry, then no collision
              jp    stopPlr       ; fall through: collision!
 

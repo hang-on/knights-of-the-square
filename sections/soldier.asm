@@ -10,7 +10,7 @@ updSol:      ld    a, (solMode)    ; get soldier mode
              ret    nz             ; if not, return
 
              cp    SOLSTAND        ; is he standing?
-             jp    z, chkSol       ; collision detection
+             jp    z, hitSol       ; collision detection
 
 ; Soldier is dying - animate the sprite.
 
@@ -77,7 +77,7 @@ hdlHurt:     ld    hl, solCount    ; point to soldier's counter
 
 ; Check if Arthur's sword collides with soldier.
 
-chkSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
+hitSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
              dec (hl)              ; adjust for smaller sprite
              dec (hl)
              dec (hl)
@@ -109,7 +109,7 @@ chkSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
 
 ; Check for collision between soldier and player.
 
-coll1:       ld    a, (solMode)    ; get soldier mode
+collSol:       ld    a, (solMode)    ; get soldier mode
              cp    SOLSTAND           ; is he off/inactive?
              jp    nz, coll2      ; if no active soldier skip...
 
