@@ -288,10 +288,10 @@ stWalk:      ld    a, WALK         ; get constant
              xor   a
              ld   (vSpeed), a
 
-; check colliion with soldier
+; check collision with soldier
+
              call  collSol
-             jp    nc, coll2     ; if no carry, then no collision
-             jp    stopPlr       ; fall through: collision!
+             jp    c, stopPlr    ; if carry, then collision!
 
 ; Check for collision between chest and player.
 
