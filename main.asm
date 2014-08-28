@@ -422,7 +422,10 @@ mvNorth:     ld    hl, plrY
 
 ; Player wants to move east - check if he is at the scroll trigger.
 
-mvEast:      ld    hl, plrX        ; the horizontal pos. of player
+mvEast:      ld   a, RIGHT         ;
+             ld   (plrDir), a      ;
+
+             ld    hl, plrX        ; the horizontal pos. of player
              ld    a, (hl)         ; read from variable to register
              cp    SCRLTRIG        ; player on the scroll trigger?
              jp    nz, noScrl           ; if not, then no scrolling
@@ -484,8 +487,8 @@ uptSol:      ld    a, (solMode)
              ret                   ; scrolling will happen in int.
 
 ; No scrolling. Move sprite one pixel to the right, if within bounds.
-; TODO: bad label name (noScroll already exits, fixit!)
-noScrl:           ld    a, (hl)         ; get player horiz. position
+; TODO: bad label name (noScroll already exist, fixit!)
+noScrl:      ld    a, (hl)         ; get player horiz. position
              cp    248             ; is player on the right bound?
              ret   z               ; ... no straying offscreen!
              ld    a, 1
@@ -494,7 +497,10 @@ noScrl:           ld    a, (hl)         ; get player horiz. position
 
 ; Move the player one pixel west (left).
 
-mvWest:      ld    hl, plrX
+mvWest:      ld   a, LEFT          ;
+             ld   (plrDir), a      ;
+
+             ld    hl, plrX
              ld    a, (hl)
              cp    8
              ret   z
