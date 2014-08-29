@@ -2,7 +2,11 @@
 Knights of the Square
 */
 
-; --------------------------------------------------------------------
+; -------------------------------------------------------------------
+; Command line options
+;.define PSASSETS                  ; enable PSP assets
+; -------------------------------------------------------------------
+
 
 ; creates 3 x 16 KB slots for ROM and 1 x 8 KB slot for RAM
 ; TODO: Initialize the mapper a'la Charles MacDonald!!
@@ -68,11 +72,21 @@ init:        call  initBlib        ; initialize bluelib
              ld    hl, firePal     ; firePal: Lev. 1 palette data
              call  setCRAM         ; define all colors in CRAM
 
+.ifdef PSASSETS
+             ld    hl, $0000       ; start in bank 1, index = 00
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, fireSPR     ; source data: Sprite tiles
+             ld    bc, NUMSPR*32   ; tiles x 32, each tile = 32 bytes
+             call  wrteVRAM        ; load tiles into tilebank
+
+.else
              ld    hl, $0200       ; start in bank 1, index = 16
              call  prepVRAM        ; tell this to VDP
              ld    hl, fireSPR     ; source data: Sprite tiles
              ld    bc, NUMSPR*32   ; tiles x 32, each tile = 32 bytes
              call  wrteVRAM        ; load tiles into tilebank
+
+.endif
 
              ld    hl, $2000       ; start at bank 2 (index = 256)
              call  prepVRAM        ; tell this to VDP
@@ -520,27 +534,46 @@ mvWest:      ld   a, LEFT          ;
 
 ; cel array for shifting between legs apart (char $10) and wide ($11)
 animWalk:
-.db $11 $11 $11 $11 $10 $10 $10 $10 $ff
+.define C1 ARTSTAND+1
+.define C2 ARTSTAND
+.db C1 C1 C1 C1 C2 C2 C2 C2 $ff
 
 ; cel array for animating the attacking Arthur
 animAttk:
-.db $10 $12 $12 $12 $12 $12 $12 $12 $12 $10 $10 $ff
+.redefine C1 ARTSTAND
+.redefine C2 ARTSTAND+2
+.db C1 C2 C2 C2 C2 C2 C1 $ff
 
-
+; cel array for animating collapsing soldier
 solDying:
-.db $2b $2b $2b $2b $2b $2b $2b $2b $2b $2b $2c $2c $2c $2c $2c $2c $2c $2c $2c $2c $2d $ff
+.redefine C1 SOLSTAND+2
+.redefine C2 SOLSTAND+3
+.redefine C3 SOLSTAND+4
+.db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C3 $ff
+
 .ends
 
 .section "Level 1 data: Village on fire (abbrev. 'fire')" free
+; Sprite tiles in pattern generator bank 1:
+fireSPR:
+.ifdef PSASSETS
 
+.include "tile\ps\fireSPR.inc"
+; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
+firePal:
+.include "palette\firePal1.inc"
+.include "palette\ps\firePal2.inc"
+
+.else
+
+.include "tile\fireSPR.inc"
 ; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
 firePal:
 .include "palette\firePal1.inc"
 .include "palette\firePal2.inc"
 
-; Sprite tiles in pattern generator bank 1:
-fireSPR:
-.include "tile\fireSPR.inc"
+.endif
+
 
 ; Background tiles in pattern generator bank 2:
 fireBG:
