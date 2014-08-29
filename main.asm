@@ -4,7 +4,7 @@ Knights of the Square
 
 ; -------------------------------------------------------------------
 ; Command line options
-;.define PSASSETS                  ; enable PSP assets
+.define PSASSETS                  ; enable PSP assets
 ; -------------------------------------------------------------------
 
 
@@ -186,13 +186,13 @@ init:        call  initBlib        ; initialize bluelib
              inc   e               ; next source ("C")
              call  putTile         ; write it
              inc   d               ; next destination
-             ld    e, DIGITS  ;    ; "O" is just like zero here
+             inc   e         ;    ; "O" is just like zero here
              call  putTile         ; so write O/zero
              inc   d               ; and so on...
-             ld    e, DIGITS+12
+             inc   e
              call  putTile
              inc   d
-             ld    e, DIGITS+13
+             inc   e
              call  putTile
 
 ; Initilize PSGLib.
@@ -313,10 +313,20 @@ plrWalk:     ld    a, (oldState)   ; get old state
              ld    (hl), 0         ; and reset it (start from cel 0)
 
 +:           ld    hl, plrAnim     ; param: player's animation
-             ld    de, animWalk    ; param: player's anim. script
-             call  advcAnim        ; advance plr's walking anim.
 
-             ld    hl, animWalk    ; param: animation script
+             ; branch on direction
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
+             ld    de, artRight    ; param: player's anim. script
+             call  advcAnim        ; advance plr's walking anim.
+             ld    hl, artRight    ; param: animation script
+             jp    ++
++:
+             ld    de, artLeft    ; param: player's anim. script
+             call  advcAnim        ; advance plr's walking anim.
+             ld    hl, artLeft    ; param: animation script
+++:
              ld    a, (plrAnim)    ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
@@ -334,8 +344,14 @@ stIdle:      ld    a, IDLE         ; get constant
              ld    (plrState), a   ; set player state to idle
 
 ; Put a standing Arthur on screen.
-
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
              ld    c, ARTSTAND     ; C = charcode
+             jp    ++
++:
+             ld    c, ARTSTAND+4     ; C = charcode
+++:
              ld    a, (plrX)
              ld    d, a            ; D
              ld    a, (plrY)
@@ -533,10 +549,17 @@ mvWest:      ld   a, LEFT          ;
 .section "Animation tables" free
 
 ; cel array for shifting between legs apart (char $10) and wide ($11)
-animWalk:
+artRight:
 .define C1 ARTSTAND+1
 .define C2 ARTSTAND
 .db C1 C1 C1 C1 C2 C2 C2 C2 $ff
+
+; walking left
+artLeft:
+.redefine C1 ARTSTAND+5
+.redefine C2 ARTSTAND+4
+.db C1 C1 C1 C1 C2 C2 C2 C2 $ff
+
 
 ; cel array for animating the attacking Arthur
 animAttk:
