@@ -34,6 +34,9 @@ scrlCst:     ld   a, (cstMode)     ; point to chest mode
              cp   CHESTOFF         ; is chest turned off?
              ret   z               ; if so, skip to column check
 
+             call collCst
+             ret  c
+
              ld   hl, cstX         ; point to chest x pos
              dec  (hl)             ; decrement it
              ld   a, (hl)          ; put value in A for a comparison
@@ -60,7 +63,6 @@ scrlCst:     ld   a, (cstMode)     ; point to chest mode
              ld    e, (hl)         ; E
              ld    b, CHESTSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
-
              ret ;
 
 ; -------------------------------------------------------------------
@@ -69,7 +71,7 @@ scrlCst:     ld   a, (cstMode)     ; point to chest mode
 
 collCst:     ld    a, (cstMode)    ; get chest mode
              cp    CHESTOFF        ; is it off/inactive?
-             jp    z, plrWalk      ; if no active chest skip coll.chk
+             ret    z      ; if no active chest skip coll.chk
 
              ld    hl, plrX        ; point HL to player x,y data
              ld    de, cstX        ; point DE to chest x,y

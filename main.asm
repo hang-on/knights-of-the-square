@@ -207,6 +207,7 @@ init:        call  initBlib        ; initialize bluelib
              jp     gameLoop       ; jump to main game loop
 .ends
 
+
 .section "Main game loop" free
 
 gameLoop:
@@ -227,8 +228,9 @@ gameLoop:
              cp    9               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
-             call  hitSol          ; does Arthur hit a soldier?
+; Perform collision detection sword >< objects.
 
+             call  hitSol          ; does Arthur hit a soldier?
              call  chkChest        ; does he hit a closed chest?
 
 ; Reset sword sprite.
@@ -367,14 +369,30 @@ stAttack:    ld    a, ATTACK       ; get constant
 
              ld    a, (oldState)   ; get old state
              cp    ATTACK          ; where we attacking last time?
-             jp    z, +            ; if so, continue the script
+             jp    z, attack1      ; if so, continue the script
              xor   a               ; else, set A = 0
              ld    (plrAnim), a    ; and start new animation sequence
+             
+             ld    hl,sfxSword     ; point hl to sword SFX
+             ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
+             call  PSGSFXPlay      ; play slashing sound
 
+             ; branch on direction
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
              ld    c, ARTSWORD     ; C = charcode (param)
              ld    a, (plrX)       ; get player x position
              add   a, 8
              ld    d, a            ; put it in D
+             jp    ++
++:
+             ld    c, ARTSWORD+4   ; C = charcode (param)
+             ld    a, (plrX)       ; get player x position
+             sub   8
+             ld    d, a            ; put it in D
+
+++:
              ld    (wponX), a      ; put it in weapon x pos
              ld    a, (plrY)       ; get player y position (param)
              ld    e, a            ; put it in E
@@ -382,18 +400,22 @@ stAttack:    ld    a, ATTACK       ; get constant
              ld    b, WPONSAT      ; B = sprite index in SAT
              call  goSprite        ; update SAT RAM buffer
 
-             ld    hl,sfxSword     ; point hl to sword SFX
-             ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
-             call  PSGSFXPlay      ; play slashing sound
 
 
-+:           ld    c, ARTATTK      ; C = charcode (param)
+attack1:     ld    a, (plrDir)
+             cp    RIGHT
+             jp    z, +
+             add   a, 3
++:
+             add   a, 3
+             ld    c, a           ; C = charcode (param)
              ld    a, (plrX)       ; get player x position
              ld    d, a            ; put it in D
              ld    a, (plrY)       ; get player y position (param)
              ld    e, a            ; put it in E
              ld    b, PLRSAT       ; B = sprite index in SAT
              call  goSprite        ; update SAT RAM buffer
+
 
              ld    hl, plrAnim
              inc   (hl)
@@ -427,6 +449,7 @@ stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
 
              xor   a               ; clear A
              ld    (scrlFlag), a   ; reset scroll flag = don't scroll
+             scf   ; set carry
              ret
 
 
@@ -477,7 +500,6 @@ mvEast:      ld   a, RIGHT         ;
 ; Scroll chest if it is on screen.
 
              call  scrlCst
-
 
 ; Scroll soldier if he is on screen.
 
@@ -562,9 +584,14 @@ artLeft:
 
 
 ; cel array for animating the attacking Arthur
-animAttk:
+atkRight:
 .redefine C1 ARTSTAND
 .redefine C2 ARTSTAND+2
+.db C1 C2 C2 C2 C2 C2 C1 $ff
+
+atkLeft:
+.redefine C1 ARTSTAND+4
+.redefine C2 ARTSTAND+6
 .db C1 C2 C2 C2 C2 C2 C1 $ff
 
 ; cel array for animating collapsing soldier
