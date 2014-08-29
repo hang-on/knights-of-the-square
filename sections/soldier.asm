@@ -30,7 +30,7 @@ updSol:      ld    a, (solMode)    ; get soldier mode
              call  goSprite        ; update SAT buffer (RAM)
 
              ld    a, (solCount)   ; get soldier's counter
-             cp    20              ; he is lying flat by now?
+             cp    11              ; he is lying flat by now?
              ret   nz              ; if not, handle next object
              ld    hl, solMode     ; if so, point to soldier's mode
              ld    (hl), SOLDEAD   ; and update it to "dead"
@@ -51,7 +51,8 @@ hdlHurt:     ld    hl, solCount    ; point to soldier's counter
 
 ; A) New hurt sequence started - give soldier a yellow shirt.
 
-             ld    b, C7B2         ; soldier's shirt is col. 7, bnk 2
+ ;            ld    b, C7B2         ; soldier's shirt is col. 7, bnk 2
+             ld    b, SOLSHIRT         ; soldier's shirt is col. 7, bnk 2
              ld    c, YELLOW       ; set up for a yellow shirt
              call  dfColor         ; define color in CRAM
              jp    ++              ; skip forward to count down
@@ -61,7 +62,7 @@ hdlHurt:     ld    hl, solCount    ; point to soldier's counter
 
 ; B) The hurting sequence has ended - give him his orange shirt back.
 
-             ld    b, C7B2         ; shirt is color 7 in CRAM bank 2
+             ld    b, SOLSHIRT         ; shirt is color 7 in CRAM bank 2
              ld    c, ORANGE       ; prepare for an orange shirt
              call  dfColor         ; define color in CRAM
              ld    hl, solMode     ; point to soldier's mode variable
