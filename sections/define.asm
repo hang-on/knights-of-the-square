@@ -35,9 +35,6 @@
 .define WALK       1
 .define ATTACK     2
 
-; different directions:
-.define RIGHT      0
-.define LEFT       1
 
 ; colors
 .define YELLOW     $0f

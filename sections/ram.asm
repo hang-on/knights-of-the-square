@@ -13,7 +13,7 @@ vSpeed       db
 plrXOld      db
 plrYOld      db
 plrLife      db                    ; life meter of the player
-plrDir       db                    ; player's direction
+
 score:       ds 6                  ; a RAM data block for the score
 
 
