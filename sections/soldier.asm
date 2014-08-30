@@ -3,14 +3,12 @@
 ; Respond to, and update, the soldier's current mode.
 
 updSol:      ld    a, (solMode)    ; get soldier mode
+
              cp    SOLHURT         ; is he currently hurting?
              jp    z, hdlHurt      ; handle hurting process
 
              cp    SOLDYING        ; is he dying?
              ret    nz             ; if not, return
-
-             cp    SOLSTAND        ; is he standing?
-             jp    z, hitSol       ; collision detection
 
 ; Soldier is dying - animate the sprite.
 
@@ -46,7 +44,7 @@ updSol:      ld    a, (solMode)    ; get soldier mode
 
 hdlHurt:     ld    hl, solCount    ; point to soldier's counter
              ld    a, (hl)         ; get value
-             cp    10              ; is this a new hurt sequence?
+             cp    5               ; is this a new hurt sequence?
              jp    nz, +           ; if not, skip forward...
 
 ; A) New hurt sequence started - give soldier a yellow shirt.
@@ -78,7 +76,15 @@ hdlHurt:     ld    hl, solCount    ; point to soldier's counter
 
 ; Check if Arthur's sword collides with soldier.
 
-hitSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
+hitSol:      ld   a, (solMode)
+             cp   SOLDEAD          ; is he dead?
+             ret  z                ; you sould not beat a corpse!
+
+             cp   SOLHURT          ; is he dead?
+             ret  z                ; you sould not beat a corpse!
+
+
+             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
              dec (hl)              ; adjust for smaller sprite
              dec (hl)
              dec (hl)
@@ -90,7 +96,7 @@ hitSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
 
              ld    ix, solMode     ; point to soldier data block
              ld    (ix + 0), SOLHURT  ; set soldier mode = hurting
-             ld    (ix + 3), 10    ; set soldier counter = 10
+             ld    (ix + 3), 5    ; set soldier counter = 10
 
 ; Deal damage to soldier using formula: (0 - 3) + weapon modifier.
 
@@ -110,11 +116,14 @@ hitSol:      ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
 
 ; Check for collision between soldier and player.
 
-collSol:     ld    a, (solMode)    ; get soldier mode
-             cp    SOLSTAND           ; is he off/inactive?
-             ret   nz              ; if no active soldier skip...
+collSol:     ld    a, (solMode)     ; get soldier mode
+             cp    SOLSTAND         ; is he standing?
+             jp   z, +              ; if so, then check collision
+             cp    SOLHURT          ; is he hurting?
+             jp   z, +              ; if so, then check collision
+             ret                    ; else skip = he is passable
 
-             ld    hl, plrX        ; point HL to player x,y data
++:           ld    hl, plrX        ; point HL to player x,y data
              ld    de, solX        ; point DE to chest x,y
              call  clDetect        ; call the collision detection sub
              call  c, stopPlr     ; if carry, then collision!

@@ -4,7 +4,7 @@ Knights of the Square
 
 ; -------------------------------------------------------------------
 ; Command line options
-;.define PSASSETS                  ; enable PSP assets
+.define PSASSETS                  ; enable PSP assets
 ; -------------------------------------------------------------------
 
 
@@ -186,13 +186,13 @@ init:        call  initBlib        ; initialize bluelib
              inc   e               ; next source ("C")
              call  putTile         ; write it
              inc   d               ; next destination
-             ld    e, DIGITS  ;    ; "O" is just like zero here
+             inc   e         ;    ; "O" is just like zero here
              call  putTile         ; so write O/zero
              inc   d               ; and so on...
-             ld    e, DIGITS+12
+             inc   e
              call  putTile
              inc   d
-             ld    e, DIGITS+13
+             inc   e
              call  putTile
 
 ; Initilize PSGLib.
@@ -206,6 +206,7 @@ init:        call  initBlib        ; initialize bluelib
              ei                    ; enable interrupts
              jp     gameLoop       ; jump to main game loop
 .ends
+
 
 .section "Main game loop" free
 
@@ -227,8 +228,9 @@ gameLoop:
              cp    9               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
-             call  hitSol          ; does Arthur hit a soldier?
+; Perform collision detection sword >< objects.
 
+             call  hitSol          ; does Arthur hit a soldier?
              call  chkChest        ; does he hit a closed chest?
 
 ; Reset sword sprite.
@@ -313,10 +315,20 @@ plrWalk:     ld    a, (oldState)   ; get old state
              ld    (hl), 0         ; and reset it (start from cel 0)
 
 +:           ld    hl, plrAnim     ; param: player's animation
-             ld    de, animWalk    ; param: player's anim. script
-             call  advcAnim        ; advance plr's walking anim.
 
-             ld    hl, animWalk    ; param: animation script
+             ; branch on direction
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
+             ld    de, artRight    ; param: player's anim. script
+             call  advcAnim        ; advance plr's walking anim.
+             ld    hl, artRight    ; param: animation script
+             jp    ++
++:
+             ld    de, artLeft    ; param: player's anim. script
+             call  advcAnim        ; advance plr's walking anim.
+             ld    hl, artLeft    ; param: animation script
+++:
              ld    a, (plrAnim)    ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
@@ -334,8 +346,14 @@ stIdle:      ld    a, IDLE         ; get constant
              ld    (plrState), a   ; set player state to idle
 
 ; Put a standing Arthur on screen.
-
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
              ld    c, ARTSTAND     ; C = charcode
+             jp    ++
++:
+             ld    c, ARTSTAND+4     ; C = charcode
+++:
              ld    a, (plrX)
              ld    d, a            ; D
              ld    a, (plrY)
@@ -351,14 +369,30 @@ stAttack:    ld    a, ATTACK       ; get constant
 
              ld    a, (oldState)   ; get old state
              cp    ATTACK          ; where we attacking last time?
-             jp    z, +            ; if so, continue the script
+             jp    z, attack1      ; if so, continue the script
              xor   a               ; else, set A = 0
              ld    (plrAnim), a    ; and start new animation sequence
+             
+             ld    hl,sfxSword     ; point hl to sword SFX
+             ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
+             call  PSGSFXPlay      ; play slashing sound
 
+             ; branch on direction
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
              ld    c, ARTSWORD     ; C = charcode (param)
              ld    a, (plrX)       ; get player x position
              add   a, 8
              ld    d, a            ; put it in D
+             jp    ++
++:
+             ld    c, ARTSWORD+4   ; C = charcode (param)
+             ld    a, (plrX)       ; get player x position
+             sub   8
+             ld    d, a            ; put it in D
+
+++:
              ld    (wponX), a      ; put it in weapon x pos
              ld    a, (plrY)       ; get player y position (param)
              ld    e, a            ; put it in E
@@ -366,18 +400,22 @@ stAttack:    ld    a, ATTACK       ; get constant
              ld    b, WPONSAT      ; B = sprite index in SAT
              call  goSprite        ; update SAT RAM buffer
 
-             ld    hl,sfxSword     ; point hl to sword SFX
-             ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
-             call  PSGSFXPlay      ; play slashing sound
 
 
-+:           ld    c, ARTATTK      ; C = charcode (param)
+attack1:     ld    a, (plrDir)
+             cp    RIGHT
+             jp    z, +
+             add   a, 3
++:
+             add   a, 3
+             ld    c, a           ; C = charcode (param)
              ld    a, (plrX)       ; get player x position
              ld    d, a            ; put it in D
              ld    a, (plrY)       ; get player y position (param)
              ld    e, a            ; put it in E
              ld    b, PLRSAT       ; B = sprite index in SAT
              call  goSprite        ; update SAT RAM buffer
+
 
              ld    hl, plrAnim
              inc   (hl)
@@ -411,6 +449,7 @@ stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
 
              xor   a               ; clear A
              ld    (scrlFlag), a   ; reset scroll flag = don't scroll
+             scf   ; set carry
              ret
 
 
@@ -461,7 +500,6 @@ mvEast:      ld   a, RIGHT         ;
 ; Scroll chest if it is on screen.
 
              call  scrlCst
-
 
 ; Scroll soldier if he is on screen.
 
@@ -533,15 +571,27 @@ mvWest:      ld   a, LEFT          ;
 .section "Animation tables" free
 
 ; cel array for shifting between legs apart (char $10) and wide ($11)
-animWalk:
+artRight:
 .define C1 ARTSTAND+1
 .define C2 ARTSTAND
 .db C1 C1 C1 C1 C2 C2 C2 C2 $ff
 
+; walking left
+artLeft:
+.redefine C1 ARTSTAND+5
+.redefine C2 ARTSTAND+4
+.db C1 C1 C1 C1 C2 C2 C2 C2 $ff
+
+
 ; cel array for animating the attacking Arthur
-animAttk:
+atkRight:
 .redefine C1 ARTSTAND
 .redefine C2 ARTSTAND+2
+.db C1 C2 C2 C2 C2 C2 C1 $ff
+
+atkLeft:
+.redefine C1 ARTSTAND+4
+.redefine C2 ARTSTAND+6
 .db C1 C2 C2 C2 C2 C2 C1 $ff
 
 ; cel array for animating collapsing soldier
