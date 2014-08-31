@@ -17,6 +17,25 @@ scrlBrk      db                    ; block scrolling
 
 .section "Stage initialize" free
 stagInit:
+; Load graphical assets for level 1: Village on Fire.
+
+             ld    hl, firePal     ; firePal: Lev. 1 palette data
+             call  setCRAM         ; define all colors in CRAM
+
+             ld    hl, $0000       ; start in bank 1, index = 00
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, fireSPR     ; source data: Sprite tiles
+             ld    bc, NUMSPR*32   ; tiles x 32, each tile = 32 bytes
+             call  wrteVRAM        ; load tiles into tilebank
+
+
+             ld    hl, $2000       ; start at bank 2 (index = 256)
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, fireBG      ; source data: Background tiles
+             ld    bc, NUMBG*32       ; no. of tiles x 32
+             call  wrteVRAM        ; load tiles into tilebank
+
+
 ; Initialize variables for horizontal scrolling.
 
              ld    de, fireMap     ; start address lev. 1 map data

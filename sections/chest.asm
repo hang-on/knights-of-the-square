@@ -158,46 +158,6 @@ _step3:
 
 ; Check for collision between chest and player.
 
-collCst:     ld    a, (cstMode)    ; get chest mode
-             cp    CHESTOFF        ; is it off/inactive?
-             ret    z      ; if no active chest skip coll.chk
-
-             ld    hl, plrX        ; point HL to player x,y data
-             ld    de, cstX        ; point DE to chest x,y
-             call  clDetect        ; call the collision detection sub
-             ret   nc              ; if no carry, then no collision
-
-; Check if chest is closed or open.
-
-             ld    a, (cstMode)    ; get chest mode
-             cp    CHESTCL         ; is it closed?
-             jp    nz, +           ; if so, then player cannot pass!
-             call  stopPlr
-             ret
-
-+:
-; If chest is open, then pick it up.
-
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, CHESTSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, cstMode     ; point to chest mode
-             ld    (hl), $ff       ; turn it off now
-
-             ld    hl,sfxBonus     ; point to bonus SFX
-             ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
-             call  PSGSFXPlay      ; play the super retro bonus sound
-
-; Add to player's score.
-
-             ld    hl, score + 3    ; point to the hundreds column
-             ld    b,  4            ; one chest is worth 400 points!
-             call  goScore          ; call the score updater routine
-
-
-             ret                    ; continue to handle walking
 
 
 .ends

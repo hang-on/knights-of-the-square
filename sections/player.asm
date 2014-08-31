@@ -272,14 +272,18 @@ attack1:     ld    a, (plrDir)
 _step5:
              ld    a, (scrlFlag)
              cp    1
-             jp    nz, _step5_1
+             jp    nz, _step6
              xor   a
              ld    (hSpeed), a     ; dont move forward.
+
+_step6:
+
+_step8:
 
 ; -------------------------------------------------------------------
 ;                           MOVE PLAYER / UPDATE POSITION           ;
 ; -------------------------------------------------------------------
-_step5_1:
+_step10:
 ; Move player horizontally according to hSpeed.
 
              ld    a, (hSpeed)     ; get horizontal speed
@@ -303,12 +307,54 @@ _step5_1:
              ld   (vSpeed), a
 
 ; -------------------------------------------------------------------
-;                           COLLISION DETECTION                     ;
+;                    Check for collision w. chest                   ;
 ; -------------------------------------------------------------------
-_step6:
+_step11:
+             ld    a, (cstMode)    ; get chest mode
+             cp    CHESTOFF        ; is it off/inactive?
+             jp    z, _step13      ; if no active chest skip coll.chk
+
+             ld    hl, plrX        ; point HL to player x,y data
+             ld    de, cstX        ; point DE to chest x,y
+             call  clDetect        ; call the collision detection sub
+             jp    nc, _step13              ; if no carry, then no collision
+
+; Check if chest is closed or open.
+
+             ld    a, (cstMode)    ; get chest mode
+             cp    CHESTCL         ; is it closed?
+             jp    nz, +           ; if so, then player cannot pass!
+             call  stopPlr
+             jp    _step13
++:
+; If chest is open, then pick it up.
+
+             xor   a
+             ld    (cstX), a
+             ld    (cstY), a
+
+             ld    c, 0            ; reset charcode
+             ld    d, 0            ; reset x pos
+             ld    e, 0            ; reset y pos
+             ld    b, CHESTSAT     ; B = the chest's index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ld    hl, cstMode     ; point to chest mode
+             ld    (hl), $ff       ; turn it off now
+
+             ld    hl,sfxBonus     ; point to bonus SFX
+             ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
+             call  PSGSFXPlay      ; play the super retro bonus sound
+
+/*; Add to player's score.
+
+             ld    hl, score + 3    ; point to the hundreds column
+             ld    b,  4            ; one chest is worth 400 points!
+             call  goScore          ; call the score updater routine
+*/
 
 
 
+_step13:
              ret
 
 .ends
@@ -325,7 +371,6 @@ stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
 
              xor   a               ; clear A
              ld    (scrlFlag), a   ; reset scroll flag = don't scroll
-             scf   ; set carry
              ret
 
 ; Move the player one pixel south (down).
