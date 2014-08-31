@@ -73,7 +73,7 @@ plrLoop:
 ;                           RESPOND TO INPUT                        ;
 ; -------------------------------------------------------------------
 _step1:
-debug:
+
              ld    a, (plrState)
              cp    ATTACK
              jp   z, _step2        ; not input when attacking
@@ -313,6 +313,9 @@ _step11:
              ld    a, (cstMode)    ; get chest mode
              cp    CHESTOFF        ; is it off/inactive?
              jp    z, _step13      ; if no active chest skip coll.chk
+             ld    a, (plrState)
+             cp    WALK
+             jp    nz, _step13
 
              ld    hl, plrX        ; point HL to player x,y data
              ld    de, cstX        ; point DE to chest x,y
@@ -344,15 +347,6 @@ _step11:
              ld    hl,sfxBonus     ; point to bonus SFX
              ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
              call  PSGSFXPlay      ; play the super retro bonus sound
-
-/*; Add to player's score.
-
-             ld    hl, score + 3    ; point to the hundreds column
-             ld    b,  4            ; one chest is worth 400 points!
-             call  goScore          ; call the score updater routine
-*/
-
-
 
 _step13:
              ret

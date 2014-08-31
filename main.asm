@@ -29,21 +29,15 @@ banks 2
 
 ; Definitions
 
-; scoring
-.define DIGITS     $10             ; tile bank index of digits
-.define SCORE      19              ; where to begin the score display
 
 ; colors
 .define YELLOW     $0f
 .define ORANGE     $07
 
 
-; Ram module.
 ; All variables default to 0, because ram is cleared by bluelib.
 ; --------------------------------------------------------------------
 .ramsection "Variables" slot 3
-score:       ds 6                  ; a RAM data block for the score
-
 rndSeed      dw                    ; used by goRandom as seed
 .ends
 
@@ -53,8 +47,6 @@ rndSeed      dw                    ; used by goRandom as seed
 ; sound handling. Thank you Sverx!
 .include "lib\psglib.inc"
 
-; VBlank handling
-.include "sections\vblank.asm"
 
 ; misc. functions
 .include "sections\misc.asm"
@@ -71,6 +63,11 @@ rndSeed      dw                    ; used by goRandom as seed
 ; stage module
 .include "sections\stage.asm"
 
+; score module
+.include "sections\score.asm"
+
+; VBlank handling
+.include "sections\vblank.asm"
 
 ; --------------------------------------------------------------------
 
@@ -96,6 +93,7 @@ init:        call  initBlib        ; initialize bluelib
              inc   hl              ; point to MSB
              ld    (hl), a         ; update MSB of seed
 
+             call scorInit         ; init score module
 
              call cstInit          ; initialize chest
 
@@ -107,32 +105,6 @@ init:        call  initBlib        ; initialize bluelib
 
              call  plrInit
 
-; Initialize score counter to 000000.
-
-             ld    a, '0'          ; put ASCII zero into A
-             ld    b, 6            ; we need 6 digits for the display
-             ld    hl, score       ; pt. to score data block (6 byt.)
--:           ld    (hl), a         ; set digit to ASCII zero
-             inc   hl              ; next digit
-             djnz  -               ; do it for all 6 digits
-
-; Write the word "SCORE" on the status bar.
-
-             ld    d, SCORE        ; where to start putting tiles
-             ld    e, DIGITS + 10  ; "SCORE" comes after the digits
-             call  putTile         ; write "S"
-             inc   d               ; next destination
-             inc   e               ; next source ("C")
-             call  putTile         ; write it
-             inc   d               ; next destination
-             inc   e         ;    ; "O" is just like zero here
-             call  putTile         ; so write O/zero
-             inc   d               ; and so on...
-             inc   e
-             call  putTile
-             inc   d
-             inc   e
-             call  putTile
 
 ; Initilize PSGLib.
 

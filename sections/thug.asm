@@ -172,13 +172,6 @@ thugLp3:
              ld    hl, thugCoun
              inc   (hl)
 
-; Soldier is dead, add to player's score. (should go into player or score object)
-; we can set a flag here?
-;             ld    hl, score + 3   ; point to the hundreds column
-;             ld    b,  2           ; one soldier is worth 200 points!
-;             call  goScore         ; call the score updater routine
-
-
 ; -------------------------------------------------------------------
 ;                 THUG SCROLLER                                     ;
 ; -------------------------------------------------------------------
