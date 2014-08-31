@@ -8,7 +8,7 @@
 .define THUGDIE    $02
 
 .define THUGOFF     $00             ; switched off
-.define THUGDEAD    $2d             ; dead
+.define THUGDEAD    $34             ; dead
 .define THUGSHIR   $19             ; palette index for shirt
 
 .define SCROLL     0
@@ -64,7 +64,7 @@ thugLoop:
 
              ld    ix, thugStat     ; point to data block
              ld    (ix + 0), THUGHURT  ; set mode = hurting
-             ld    (ix + 3), 5    ; set counter
+             ld    (ix + 3), 7    ; set counter
 
 ; Give him a yellow shirt
 

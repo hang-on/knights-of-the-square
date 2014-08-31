@@ -233,17 +233,21 @@ gameLoop:
              cp    ATTACK          ; was the player attacking?
              jp    nz, getInput    ; if not, forward to test for input
              ld    a, (plrAnim)    ; else: get current animation cel
-             cp    9               ; is Arthur stabbing (last cel)?
+             cp    8               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
 ; Perform collision detection sword >< objects.
 
-             call  hitSol          ; does Arthur hit a soldier?
-             call  chkChest        ; does he hit a closed chest?
+;             call  hitSol          ; does Arthur hit a soldier?
+;             call  chkChest        ; does he hit a closed chest?
 
 ; Reset sword sprite.
 
-resSword:    ld    c, 0            ; reset charcode
+resSword:    
+             xor   a
+             ld    (wponX), a
+             ld    (wponY), a
+             ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
              ld    e, 0            ; reset y pos
              ld    b, WPONSAT      ; B = the weapon's index in SAT
@@ -308,7 +312,7 @@ stWalk:      ld    a, WALK         ; get constant
 
 ; Check for, and handle, collision with soldier
 
-             call  collSol
+;             call  collSol
 
 ; Check for, and handle, collision with chest
 
@@ -432,7 +436,7 @@ attack1:     ld    a, (plrDir)
 
 ; Finish game loop.
 
-finLoop:     
+finLoop:
              call  thugLoop        ; update the thug object
 
              halt                  ; finish loop by waiting for ints.
