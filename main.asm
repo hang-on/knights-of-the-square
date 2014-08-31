@@ -27,18 +27,31 @@ banksize $4000
 banks 2
 .endro
 
+; Definitions
+
+; scoring
+.define DIGITS     $10             ; tile bank index of digits
+.define SCORE      19              ; where to begin the score display
+
+; colors
+.define YELLOW     $0f
+.define ORANGE     $07
+
+
+; Ram module.
+; All variables default to 0, because ram is cleared by bluelib.
+; --------------------------------------------------------------------
+.ramsection "Variables" slot 3
+score:       ds 6                  ; a RAM data block for the score
+
+rndSeed      dw                    ; used by goRandom as seed
+.ends
 
 ; semi-generic SMS library
 .include "lib\bluelib.inc"
 
 ; sound handling. Thank you Sverx!
 .include "lib\psglib.inc"
-
-; the definitions
-.include "sections\define.asm"
-
-; the RAM map
-.include "sections\ram.asm"
 
 ; VBlank handling
 .include "sections\vblank.asm"
@@ -102,19 +115,7 @@ init:        call  initBlib        ; initialize bluelib
              ld    (hl), a         ; update MSB of seed
 
 
-
-; Initialize chest, but don't put it on screen.
-
-             ld    ix, cstMode     ; point ix to the chest data block
-             ld    (ix + 0), CHESTOFF
-             ld    (ix + 1), 0     ; chest x pos
-             ld    (ix + 2), 0     ; chest y pos
-
-             ld    c, 0            ; C = charcode
-             ld    d, (ix + 1)
-             ld    e, (ix + 2)     ; E
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
+             call cstInit          ; initialize chest
 
 ; Initialize the thug.
 
@@ -171,6 +172,7 @@ gameLoop:
              call  stagLoop
              call  plrLoop
              call  thugLoop        ; update the thug object
+             call  cstLoop
 
              halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?

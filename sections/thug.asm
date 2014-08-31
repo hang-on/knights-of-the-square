@@ -199,6 +199,10 @@ thugLp4:
 
 ; thug has scrolled off screen, so destroy him.
 
+             xor   a
+             ld    (thugX), a
+             ld    (thugY), a
+
              ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
              ld    e, 0            ; reset y pos

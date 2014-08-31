@@ -1,17 +1,67 @@
+; Chest module
+
+; Header ------------------------------------------------------------
+.define CHESTCL    $20
+.define CHESTOP    $21
+
+; positions in the SAT:
+.define CHESTSAT   2
+
+; for the chest mode status byte
+.define CHESTOFF   $ff
+
+.ramsection "Chest variables" slot 3
+
+cstMode      db                    ; chest is off, closed or open?
+cstX         db                    ; chest x pos
+cstY         db                    ; chest y pos
+
+.ends
+; -------------------------------------------------------------------
+
+.section "Chest initialize" free
+cstInit:
+; Initialize chest, but don't put it on screen.
+
+             ld    ix, cstMode     ; point ix to the chest data block
+             ld    (ix + 0), CHESTOFF
+             ld    (ix + 1), 0     ; chest x pos
+             ld    (ix + 2), 0     ; chest y pos
+
+             ld    c, 0            ; C = charcode
+             ld    d, (ix + 1)
+             ld    e, (ix + 2)     ; E
+             ld    b, CHESTSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
+             ret
+.ends
+
 .section "Chest handling"
-chkChest:    ld    a, (cstMode)    ; get chest mode
-             cp    CHESTCL         ; is it closed?
-             ret    nz             ; if no closed chest > skip coll.
+; -------------------------------------------------------------------
+;                 COLLISION DETECTION: SWORD AND CHEST              ;
+; -------------------------------------------------------------------
+cstLoop:
+             ld    a, (cstMode)    ; get chest mode
+             cp    CHESTOFF        ; is it closed?
+             jp    z, _step1       ; if no closed chest > skip coll.
 
 ; Check if Arthur's sword collides with chest.
 
-             ld    hl, wponX       ; point to Arthur's sword (x, y)
-             dec   (hl)            ; move center so (x-3, y)
-             dec   (hl)            ; ... because sword width < 8 pix
-             dec   (hl)            ; ...
-             ld    de, cstX        ; point to closed chest (x, y)
-             call  clDetect        ; coll. between player and chest?
-             ret    nc             ; if no coll. > skip forward
+             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
+             ld    a, (plrDir)     ; adjust depending on direction
+             cp    LEFT
+             jp    nz, +
+             inc   (hl)            ; the sword is not 8 pix wide
+             inc   (hl)
+             inc   (hl)
+             jp    ++
++:           dec (hl)              ;
+             dec (hl)
+             dec (hl)
+++:          ld    de, cstX       ;
+             call  clDetect        ; coll. between obj1 and obj2?
+             jp    nc, _step1         ; if no coll. > skip
 
 ; Open chest (sprite) and change chest mode.
 
@@ -24,26 +74,58 @@ chkChest:    ld    a, (cstMode)    ; get chest mode
 
              ld    hl, cstMode     ; point to chest mode
              ld    (hl), CHESTOP   ; update mode to "open"
-             ret
 
 ; -------------------------------------------------------------------
+;                 CHEST SCROLLER                                    ;
+; -------------------------------------------------------------------
+_step1:
 
-; Scroll chest if it is on screen.
+             ld    a, (scrlFlag)
+             cp    1                   ; is flag set for scrolling?
+             jp    nz, _step3
 
-scrlCst:     ld   a, (cstMode)     ; point to chest mode
-             cp   CHESTOFF         ; is chest turned off?
-             ret   z               ; if so, skip to column check
+; -------
+; Check if there is already an active chest on screen.
 
-             call collCst
-             ret  c
+             ld    a, (cstMode)
+             cp    CHESTOFF             ;
+             jp    nz, ++
 
-             ld   hl, cstX         ; point to chest x pos
+; Determine if we should put a new chest on screen.
+
+             call  goRandom        ; random num. 0-127 (or 0-255)?
+             sub   20              ; higher number = bigger chance
+             jp    po, _step3     ; if it overflowed, no new chest
+
+; Put a new chest outside the screen to the right, ready to scroll.
+
+             ld    ix, cstMode     ; point ix to the chest data block
+             ld    (ix + 0), CHESTCL  ; set chest mode to closed
+             ld    (ix + 1), 255   ; chest x pos
+             call  goRandom
+             and   %00011111       ; get random number 0-31
+             add   a, 115          ; add 115 to get a valid y pos
+             ld    (ix + 2), a     ; chest y pos
+
+             ld    c, CHESTCL      ; C = charcode
+             ld    d, (ix + 1)     ; chest x
+             ld    e, (ix + 2)     ; chest y
+             ld    b, CHESTSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
+; Scroll the chest.
+++:
+             ld   hl, cstX         ; point to  x pos
              dec  (hl)             ; decrement it
              ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ; is chest x = 0 (blanked clmn)?
-             jp   nz, +            ; if not, forward to update chest
+             cp   0                ;
+             jp   nz, +     ; if not, forward...
 
-; Chest has scrolled off screen, so destroy it.
+; chest has scrolled off screen, so destroy him.
+
+             xor   a
+             ld    (cstX), a
+             ld    (cstY), a
 
              ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
@@ -52,20 +134,27 @@ scrlCst:     ld   a, (cstMode)     ; point to chest mode
              call  goSprite        ; update SAT RAM buffer
              ld    hl, cstMode     ; point to chest mode
              ld    (hl), CHESTOFF  ; set chect mode to OFF
-             ret             ; forward to check column
+             jp    _step3
 
 ; Update chest sprite position.
-
-+:           ld    a, (cstMode)
++:
+             ld    a, (cstMode)
              ld    c, a            ; chest mode
              ld    d, (hl)         ; D
              inc   hl
              ld    e, (hl)         ; E
              ld    b, CHESTSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
-             ret ;
 
-; -------------------------------------------------------------------
+
+_step3:
+
+            ret
+
+
+
+
+; goes into player module -------------------------------------------
 
 ; Check for collision between chest and player.
 
@@ -109,10 +198,6 @@ collCst:     ld    a, (cstMode)    ; get chest mode
 
 
              ret                    ; continue to handle walking
-
-
-
-
 
 
 .ends

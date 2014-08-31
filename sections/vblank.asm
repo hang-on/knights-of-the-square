@@ -94,33 +94,7 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
              call  setClmn         ; update it (minus status bar!)
              ld    (nextClmn), a   ; store next hidden column number
 
-; Check if there is already an active chest on screen.
 
-             ld    a, (cstMode)    ; get chest mode
-             cp    CHESTOFF        ; is the chest currently off?
-             jp    nz, resFlag     ; if so, forward to reset flag
-
-; Determine if we should put a new chest on screen.
-
-             call  goRandom        ; random num. 0-127 (or 0-255)?
-             sub   20              ; higher number = bigger chance
-             jp    po, resFlag     ; if it overflowed, no new chest
-
-; Put a new chest oustide the screen to the right, ready to scroll.
-
-             ld    ix, cstMode     ; point ix to the chest data block
-             ld    (ix + 0), CHESTCL  ; set chest mode to closed
-             ld    (ix + 1), 255   ; chest x pos
-             call  goRandom
-             and   %00011111       ; get random number 0-31
-             add   a, 115          ; add 115 to get a valid y pos
-             ld    (ix + 2), a     ; chest y pos
-
-             ld    c, CHESTCL      ; C = charcode
-             ld    d, (ix + 1)     ; chest x
-             ld    e, (ix + 2)     ; chest y
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
 
 ; Reset the scroll flag and return.
 
