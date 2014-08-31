@@ -7,8 +7,8 @@
 .define THUGHURT   $01
 .define THUGDIE    $02
 
-.define THUGOFF     $00             ; switched off
-.define THUGDEAD    $34             ; dead
+.define THUGOFF    $00             ; switched off
+.define THUGDEAD   $34             ; dead
 .define THUGSHIR   $19             ; palette index for shirt
 
 .define SCROLL     0
@@ -19,13 +19,17 @@ thugX        db
 thugY        db
 thugCoun     db
 thugLife     db
-thugFlag     db
+thugFlag     db                    ; * see below
 .ends
 
+; * thugFlag, bits: xxxx xxps
+; s = scroll thug left next vblank
+; p = points ready to be added to player's score (for slaying!)
 ; -------------------------------------------------------------------
 
 .section "Thug initialize" free
 ; initialize thug with default values
+; call this every time the thug is brought into play
 thugInit:
              ld    ix, thugStat
              ld    (ix + 0), THUGSTAN
@@ -44,6 +48,7 @@ thugInit:
 
 .section "Thug loop" free
 ; handle the thug object each pass in the game loop
+; put a call to this function in the main game loop
 thugLoop:
 ; -------------------------------------------------------------------
 ;                 COLLISION DETECTION: SWORD AND THUG               ;
@@ -53,10 +58,17 @@ thugLoop:
              jp   nz, thugLp1
 
              ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
-             dec (hl)              ; adjust for smaller sprite
+             ld    a, (plrDir)     ; adjust depending on direction
+             cp    LEFT
+             jp    nz, +
+             inc   (hl)            ; the sword is not 8 pix wide
+             inc   (hl)
+             inc   (hl)
+             jp    ++
++:           dec (hl)              ;
              dec (hl)
              dec (hl)
-             ld    de, thugX       ;
+++:          ld    de, thugX       ;
              call  clDetect        ; coll. between obj1 and obj2?
              jp    nc, thugLp1         ; if no coll. > skip
 
@@ -211,7 +223,13 @@ thugLp4:
 
 thugLp5:
              ret
+.ends
 
-
-
+.section "Thug data" free
+; cel array for animating collapsing thug
+thugDie:
+.redefine C1 THUGSTAN+2
+.redefine C2 THUGSTAN+3
+.redefine C3 THUGSTAN+4
+.db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C3 $ff
 .ends

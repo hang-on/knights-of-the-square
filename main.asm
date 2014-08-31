@@ -46,9 +46,6 @@ banks 2
 ; misc. functions
 .include "sections\misc.asm"
 
-; soldier object handling
-.include "sections\soldier.asm"
-
 ; chest object handling
 .include "sections\chest.asm"
 
@@ -158,20 +155,6 @@ init:        call  initBlib        ; initialize bluelib
              ld    b, CHESTSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
 
-/*
-; Initialize the soldier and put him on screen.
-
-             ld    ix, solMode     ; point ix to the soldier data
-             ld    (ix + 0), SOLSTAND  ; he is standing
-             ld    (ix + 1), 82    ; soldier x pos
-             ld    (ix + 2), 130   ; soldier y pos
-             ld    (ix + 4), 10    ; soldier life meter
-             ld    c, SOLSTAND     ; charcode for goSprite
-             ld    d, (ix + 1)     ; x-pos for goSprite
-             ld    e, (ix + 2)     ; y-pos for goSprite
-             ld    b, SOLSAT       ; SAT index for goSprite
-             call  goSprite        ; update SAT buffer (RAM)
-*/
 ; Initialize the thug.
 
              call  thugInit
@@ -219,7 +202,6 @@ init:        call  initBlib        ; initialize bluelib
 .section "Main game loop" free
 
 gameLoop:
-             call  updSol          ; update soldier
 
 ; Store the now expired player state as 'old state'.
 
@@ -236,14 +218,10 @@ gameLoop:
              cp    8               ; is Arthur stabbing (last cel)?
              jp    nz, stAttack    ; if not, continue attack state
 
-; Perform collision detection sword >< objects.
-
-;             call  hitSol          ; does Arthur hit a soldier?
-;             call  chkChest        ; does he hit a closed chest?
 
 ; Reset sword sprite.
 
-resSword:    
+resSword:
              xor   a
              ld    (wponX), a
              ld    (wponY), a
@@ -310,9 +288,6 @@ stWalk:      ld    a, WALK         ; get constant
              xor   a
              ld   (vSpeed), a
 
-; Check for, and handle, collision with soldier
-
-;             call  collSol
 
 ; Check for, and handle, collision with chest
 
@@ -512,49 +487,15 @@ mvEast:      ld   a, RIGHT         ;
              ld    a, 1            ; 1 = flag is set
              ld    (scrlFlag), a   ; set scroller flag
 
-; Scroll thug 
+; Scroll thug
              set    SCROLL, a
-             ld     (thugFlag), a 
+             ld     (thugFlag), a
 
 ; Scroll chest if it is on screen.
 
              call  scrlCst
 
-; Scroll soldier if he is on screen.
 
-             ld   a, (solMode)     ; point to soldier mode
-             cp   SOLOFF         ; is soldier turned off?
-             jp   z, +       ; if so, skip to column check
-
-             ld   hl, solX         ; point to soldier x pos
-             dec  (hl)             ; decrement it
-             ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ; is chest x = 0 (blanked clmn)?
-             jp   nz, uptSol     ; if not, forward to update chest
-
-; Soldier has scrolled off screen, so destroy him.
-
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, SOLSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, solMode     ; point to chest mode
-             ld    (hl), SOLOFF  ; set chect mode to OFF
-             jp    +               ; forward to check column
-
-; Update soldier sprite position.
-
-uptSol:      ld    a, (solMode)
-             ld    c, a            ; chest mode
-             ld    d, (hl)         ; D
-             inc   hl
-             ld    e, (hl)         ; E
-             ld    b, SOLSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-
-+:
              ret                   ; scrolling will happen in int.
 
 ; No scrolling. Move sprite one pixel to the right, if within bounds.
@@ -591,8 +532,8 @@ mvWest:      ld   a, LEFT          ;
 
 ; cel array for shifting between legs apart (char $10) and wide ($11)
 artRight:
-.define C1 ARTSTAND+1
-.define C2 ARTSTAND
+.redefine C1 ARTSTAND+1
+.redefine C2 ARTSTAND
 .db C1 C1 C1 C1 C2 C2 C2 C2 $ff
 
 ; walking left
