@@ -52,6 +52,9 @@ banks 2
 ; chest object handling
 .include "sections\chest.asm"
 
+; experimental thug module
+.include "sections\thug.asm"
+
 
 ; --------------------------------------------------------------------
 
@@ -155,6 +158,7 @@ init:        call  initBlib        ; initialize bluelib
              ld    b, CHESTSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
 
+/*
 ; Initialize the soldier and put him on screen.
 
              ld    ix, solMode     ; point ix to the soldier data
@@ -167,6 +171,10 @@ init:        call  initBlib        ; initialize bluelib
              ld    e, (ix + 2)     ; y-pos for goSprite
              ld    b, SOLSAT       ; SAT index for goSprite
              call  goSprite        ; update SAT buffer (RAM)
+*/
+; Initialize the thug.
+
+             call  thugInit
 
 ; Initialize score counter to 000000.
 
@@ -372,7 +380,7 @@ stAttack:    ld    a, ATTACK       ; get constant
              jp    z, attack1      ; if so, continue the script
              xor   a               ; else, set A = 0
              ld    (plrAnim), a    ; and start new animation sequence
-             
+
              ld    hl,sfxSword     ; point hl to sword SFX
              ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
              call  PSGSFXPlay      ; play slashing sound
@@ -424,7 +432,10 @@ attack1:     ld    a, (plrDir)
 
 ; Finish game loop.
 
-finLoop:     halt                  ; finish loop by waiting for ints.
+finLoop:     
+             call  thugLoop        ; update the thug object
+
+             halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?
              jp    gameLoop        ; then over again...
 .ends
@@ -496,6 +507,10 @@ mvEast:      ld   a, RIGHT         ;
 
              ld    a, 1            ; 1 = flag is set
              ld    (scrlFlag), a   ; set scroller flag
+
+; Scroll thug 
+             set    SCROLL, a
+             ld     (thugFlag), a 
 
 ; Scroll chest if it is on screen.
 
