@@ -20,6 +20,7 @@ thugY        db
 thugCoun     db
 thugLife     db
 thugFlag     db                    ; * see below
+thugHSP      db                    ; thug's horizontal speed
 .ends
 
 ; * thugFlag, bits: xxxx xxps
@@ -157,7 +158,7 @@ thugLp3:
              ld    (hl), THUGDEAD   ;
              jp    thugLp4
 +:
-             ld    hl, solDying    ; param: animation script
+             ld    hl, thugDie    ; param: animation script
              ld    a, (thugCoun)   ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
@@ -186,18 +187,14 @@ thugLp4:
              cp    THUGOFF             ; don't scroll if he is off
              jp    z, thugLp5
 
-             ld    a, (thugFlag)
-             bit   SCROLL, a            ; is flag set for scrolling?
-             jp    z, thugLp5
+             ld    a, (scrlFlag)
+             cp    1                   ; is flag set for scrolling?
+             jp    nz, thugLp5
 
-             ; reset flag
-             res   SCROLL, a
-             ld    (thugFlag), a
-
-             ld   hl, thugX         ; point to soldier x pos
+             ld   hl, thugX         ; point to  x pos
              dec  (hl)             ; decrement it
              ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ; is chest x = 0 (blanked clmn)?
+             cp   0                ;
              jp   nz, +     ; if not, forward...
 
 ; thug has scrolled off screen, so destroy him.
@@ -221,7 +218,27 @@ thugLp4:
              ld    b, THUGSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
 
+; -------------------------------------------------------------------
+;                 SCROLL THUG?                                      ;
+; -------------------------------------------------------------------
 thugLp5:
+
+
+; -------------------------------------------------------------------
+;                 THUG MOVEMENT                                     ;
+; -------------------------------------------------------------------
+thugLp6:
+/*
+; Move thug horizontally according to hSpeed.
+
+             ld    a, (thugHSP)    ; get horizontal speed
+             ld    b, a            ; store it in B
+             ld    a, (thugX)       ; get current x pos of player
+             add   a, b            ; add speed to current x pos
+             ld    (thugX), a       ; and put it into current player x
+             xor   a               ; clear A
+             ld    (thugHSP), a     ; set speed to zero
+*/
              ret
 .ends
 
