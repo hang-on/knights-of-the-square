@@ -127,7 +127,7 @@ gameLoop:
              call  stagLoop
              call  plrLoop
              call  thugLoop        ; update the thug object
-             call  cstLoop
+             call  ManageChestLoop
 
              call  scorLoop
              halt                  ; finish loop by waiting for ints.

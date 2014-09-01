@@ -311,7 +311,7 @@ _step10:
 ; -------------------------------------------------------------------
 _step11:
              ld    a, (cstMode)    ; get chest mode
-             cp    CHESTOFF        ; is it off/inactive?
+             cp    CHEST_IS_OFF        ; is it off/inactive?
              jp    z, _step13      ; if no active chest skip coll.chk
              ld    a, (plrState)
              cp    WALK
@@ -325,7 +325,7 @@ _step11:
 ; Check if chest is closed or open.
 
              ld    a, (cstMode)    ; get chest mode
-             cp    CHESTCL         ; is it closed?
+             cp    CHEST_IS_CLOSED         ; is it closed?
              jp    nz, +           ; if so, then player cannot pass!
              call  stopPlr
              jp    _step13
