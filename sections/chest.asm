@@ -54,77 +54,7 @@ cstLoop:
 
              call  _IsHitBySword
 
-
-; -------------------------------------------------------------------
-;                 CHEST SCROLLER                                    ;
-; -------------------------------------------------------------------
-_step1:
-
-             ld    a, (scrlFlag)
-             cp    1                   ; is flag set for scrolling?
-             jp    nz, _step3
-
-; -------
-; Check if there is already an active chest on screen.
-
-             ld    a, (cstMode)
-             cp    CHESTOFF             ;
-             jp    nz, ++
-
-; Determine if we should put a new chest on screen.
-
-             call  goRandom        ; random num. 0-127 (or 0-255)?
-             sub   20              ; higher number = bigger chance
-             jp    po, _step3     ; if it overflowed, no new chest
-
-; Put a new chest outside the screen to the right, ready to scroll.
-
-             ld    ix, cstMode     ; point ix to the chest data block
-             ld    (ix + 0), CHESTCL  ; set chest mode to closed
-             ld    (ix + 1), 255   ; chest x pos
-             call  goRandom
-             and   %00011111       ; get random number 0-31
-             add   a, 115          ; add 115 to get a valid y pos
-             ld    (ix + 2), a     ; chest y pos
-
-             ld    c, CHESTCL      ; C = charcode
-             ld    d, (ix + 1)     ; chest x
-             ld    e, (ix + 2)     ; chest y
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-; Scroll the chest.
-++:
-             ld   hl, cstX         ; point to  x pos
-             dec  (hl)             ; decrement it
-             ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ;
-             jp   nz, +     ; if not, forward...
-
-; chest has scrolled off screen, so destroy him.
-
-             xor   a
-             ld    (cstX), a
-             ld    (cstY), a
-
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, CHESTSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, cstMode     ; point to chest mode
-             ld    (hl), CHESTOFF  ; set chect mode to OFF
-             jp    _step3
-
-; Update chest sprite position.
-+:
-             ld    a, (cstMode)
-             ld    c, a            ; chest mode
-             ld    d, (hl)         ; D
-             inc   hl
-             ld    e, (hl)         ; E
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
+             call  _Scroller
 
 
 _step3:
@@ -180,6 +110,79 @@ _IsHitBySword:
              ld    (hl), CHESTOP   ; update mode to "open"
              ld    hl, ChestFlag
              set   1, (hl)          ; signal to score module...
+
+             ret
+
+; -------------------------------------------------------------------
+;                 CHEST SCROLLER                                    ;
+; -------------------------------------------------------------------
+_Scroller:
+
+             ld    a, (scrlFlag)
+             cp    1                   ; is flag set for scrolling?
+             ret    nz
+
+; -------
+; Check if there is already an active chest on screen.
+
+             ld    a, (cstMode)
+             cp    CHESTOFF             ;
+             jp    nz, ++
+
+; Determine if we should put a new chest on screen.
+
+             call  goRandom        ; random num. 0-127 (or 0-255)?
+             sub   20              ; higher number = bigger chance
+             ret   po             ; if it overflowed, no new chest
+
+; Put a new chest outside the screen to the right, ready to scroll.
+
+             ld    ix, cstMode     ; point ix to the chest data block
+             ld    (ix + 0), CHESTCL  ; set chest mode to closed
+             ld    (ix + 1), 255   ; chest x pos
+             call  goRandom
+             and   %00011111       ; get random number 0-31
+             add   a, 115          ; add 115 to get a valid y pos
+             ld    (ix + 2), a     ; chest y pos
+
+             ld    c, CHESTCL      ; C = charcode
+             ld    d, (ix + 1)     ; chest x
+             ld    e, (ix + 2)     ; chest y
+             ld    b, CHESTSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
+; Scroll the chest.
+++:
+             ld   hl, cstX         ; point to  x pos
+             dec  (hl)             ; decrement it
+             ld   a, (hl)          ; put value in A for a comparison
+             cp   0                ;
+             jp   nz, +     ; if not, forward...
+
+; chest has scrolled off screen, so destroy him.
+
+             xor   a
+             ld    (cstX), a
+             ld    (cstY), a
+
+             ld    c, 0            ; reset charcode
+             ld    d, 0            ; reset x pos
+             ld    e, 0            ; reset y pos
+             ld    b, CHESTSAT     ; B = the chest's index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ld    hl, cstMode     ; point to chest mode
+             ld    (hl), CHESTOFF  ; set chect mode to OFF
+             ret
+
+; Update chest sprite position.
++:
+             ld    a, (cstMode)
+             ld    c, a            ; chest mode
+             ld    d, (hl)         ; D
+             inc   hl
+             ld    e, (hl)         ; E
+             ld    b, CHESTSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
 
              ret
 
