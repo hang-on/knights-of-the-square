@@ -310,7 +310,7 @@ _step10:
 ;                    Check for collision w. chest                   ;
 ; -------------------------------------------------------------------
 _step11:
-             ld    a, (cstMode)    ; get chest mode
+             ld    a, (ChestState)    ; get chest mode
              cp    CHEST_IS_OFF        ; is it off/inactive?
              jp    z, _step13      ; if no active chest skip coll.chk
              ld    a, (plrState)
@@ -318,13 +318,13 @@ _step11:
              jp    nz, _step13
 
              ld    hl, plrX        ; point HL to player x,y data
-             ld    de, cstX        ; point DE to chest x,y
+             ld    de, ChestX        ; point DE to chest x,y
              call  clDetect        ; call the collision detection sub
              jp    nc, _step13              ; if no carry, then no collision
 
 ; Check if chest is closed or open.
 
-             ld    a, (cstMode)    ; get chest mode
+             ld    a, (ChestState)    ; get chest mode
              cp    CHEST_IS_CLOSED         ; is it closed?
              jp    nz, +           ; if so, then player cannot pass!
              call  stopPlr
@@ -333,15 +333,15 @@ _step11:
 ; If chest is open, then pick it up.
 
              xor   a
-             ld    (cstX), a
-             ld    (cstY), a
+             ld    (ChestX), a
+             ld    (ChestY), a
 
              ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
              ld    e, 0            ; reset y pos
              ld    b, CHESTSAT     ; B = the chest's index in SAT
              call  goSprite        ; update SAT RAM buffer
-             ld    hl, cstMode     ; point to chest mode
+             ld    hl, ChestState     ; point to chest mode
              ld    (hl), $ff       ; turn it off now
 
              ld    hl,sfxBonus     ; point to bonus SFX

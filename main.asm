@@ -96,7 +96,7 @@ init:        call  initBlib        ; initialize bluelib
 
              call scorInit         ; init score module
 
-             call cstInit          ; initialize chest
+             call InitializeChest          ; initialize chest
 
 ; Initialize the thug.
 
@@ -130,6 +130,7 @@ gameLoop:
              call  ManageChestLoop
 
              call  scorLoop
+             
              halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?
              jp    gameLoop        ; then over again...
