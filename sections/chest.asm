@@ -44,52 +44,15 @@ cstInit:
 
 .section "Chest handling"
 cstLoop:
-            ; clear status flag
+
+; Clear status flag.
+
              xor   a
              ld    (ChestFlag), a
 
-; -------------------------------------------------------------------
-;                 COLLISION DETECTION: SWORD AND CHEST              ;
-; -------------------------------------------------------------------
+; Chest loop manager:
 
-             ld    a, (cstMode)    ; get chest mode
-             cp    CHESTOFF        ; is it closed?
-             jp    z, _step1       ; if no closed chest > skip coll.
-
-             cp    CHESTCL         ; is it closed?
-             jp    nz, _step1       ; if no closed chest > skip coll.
-
-
-; Check if Arthur's sword collides with chest.
-
-             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
-             ld    a, (plrDir)     ; adjust depending on direction
-             cp    LEFT
-             jp    nz, +
-             inc   (hl)            ; the sword is not 8 pix wide
-             inc   (hl)
-             inc   (hl)
-             jp    ++
-+:           dec (hl)              ;
-             dec (hl)
-             dec (hl)
-++:          ld    de, cstX       ;
-             call  clDetect        ; coll. between obj1 and obj2?
-             jp    nc, _step1         ; if no coll. > skip
-
-; Open chest (sprite) and change chest mode.
-
-             ld    ix, cstMode     ; point to chest data block
-             ld    c, CHESTOP      ; charcode for open chest
-             ld    d, (ix + 1)     ; param: chest x pos in D
-             ld    e, (ix + 2)     ; param: chest y pos in E
-             ld    b, CHESTSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-             ld    hl, cstMode     ; point to chest mode
-             ld    (hl), CHESTOP   ; update mode to "open"
-             ld    hl, ChestFlag
-             set   1, (hl)          ; signal to score module...
+             call  _IsHitBySword
 
 
 ; -------------------------------------------------------------------
@@ -175,6 +138,49 @@ _step3:
 
 ; Check for collision between chest and player.
 
+; -------------------------------------------------------------------
+;                 COLLISION DETECTION: SWORD AND CHEST              ;
+; -------------------------------------------------------------------
+_IsHitBySword:
+             ld    a, (cstMode)    ; get chest mode
+             cp    CHESTOFF        ; is it closed?
+             ret    z              ; if no closed chest > skip coll.
 
+             cp    CHESTCL         ; is it closed?
+             ret    nz             ; if no closed chest > skip coll.
+
+
+; Check if Arthur's sword collides with chest.
+
+             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
+             ld    a, (plrDir)     ; adjust depending on direction
+             cp    LEFT
+             jp    nz, +
+             inc   (hl)            ; the sword is not 8 pix wide
+             inc   (hl)
+             inc   (hl)
+             jp    ++
++:           dec (hl)              ;
+             dec (hl)
+             dec (hl)
+++:          ld    de, cstX       ;
+             call  clDetect        ; coll. between obj1 and obj2?
+             ret    nc            ; if no coll. > skip
+
+; Open chest (sprite) and change chest mode.
+
+             ld    ix, cstMode     ; point to chest data block
+             ld    c, CHESTOP      ; charcode for open chest
+             ld    d, (ix + 1)     ; param: chest x pos in D
+             ld    e, (ix + 2)     ; param: chest y pos in E
+             ld    b, CHESTSAT     ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
+             ld    hl, cstMode     ; point to chest mode
+             ld    (hl), CHESTOP   ; update mode to "open"
+             ld    hl, ChestFlag
+             set   1, (hl)          ; signal to score module...
+
+             ret
 
 .ends
