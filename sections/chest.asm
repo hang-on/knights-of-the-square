@@ -15,8 +15,12 @@
 cstMode      db                    ; chest is off, closed or open?
 cstX         db                    ; chest x pos
 cstY         db                    ; chest y pos
-
+ChestFlag    db                    ; chest flag for signalling
 .ends
+
+; ChestFlag has the following flags
+; xxxx xxxp
+; p = award points to player (for slashing it open)
 ; -------------------------------------------------------------------
 
 .section "Chest initialize" free
@@ -27,6 +31,7 @@ cstInit:
              ld    (ix + 0), CHESTOFF
              ld    (ix + 1), 0     ; chest x pos
              ld    (ix + 2), 0     ; chest y pos
+             ld    (ix + 3), 0     ; chest flags
 
              ld    c, 0            ; C = charcode
              ld    d, (ix + 1)
@@ -38,13 +43,22 @@ cstInit:
 .ends
 
 .section "Chest handling"
+cstLoop:
+            ; clear status flag
+             xor   a
+             ld    (ChestFlag), a
+
 ; -------------------------------------------------------------------
 ;                 COLLISION DETECTION: SWORD AND CHEST              ;
 ; -------------------------------------------------------------------
-cstLoop:
+
              ld    a, (cstMode)    ; get chest mode
              cp    CHESTOFF        ; is it closed?
              jp    z, _step1       ; if no closed chest > skip coll.
+
+             cp    CHESTCL         ; is it closed?
+             jp    nz, _step1       ; if no closed chest > skip coll.
+
 
 ; Check if Arthur's sword collides with chest.
 
@@ -74,6 +88,9 @@ cstLoop:
 
              ld    hl, cstMode     ; point to chest mode
              ld    (hl), CHESTOP   ; update mode to "open"
+             ld    hl, ChestFlag
+             set   1, (hl)          ; signal to score module...
+
 
 ; -------------------------------------------------------------------
 ;                 CHEST SCROLLER                                    ;

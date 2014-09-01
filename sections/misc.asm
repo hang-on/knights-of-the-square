@@ -1,35 +1,4 @@
 .section "Misc. functions" free
-; -------------------------------------------------------------------
-; SCORE
-; Assumes a data block for keeping the score
-; Data block: a series of bytes, ie: 00000
-; Adapted from Jonathan Cauldwell
-; Entry: HL points to the digit we want to increase
-;        B holds the amount by which to increase the digit
-; Exit: The data block pointed to by HL is updated
-
-goScore:
-
-; Add the specified amount to the digit.
-
-             ld    a, (hl)         ; get the value of the digit
-             add   a, b            ; add the amount to this value
-             ld    (hl), a         ; put updated digit back in string
-             cp    '9'             ; test updated digit
-             ret   c               ; if 9 or less, relax and return
-
-; Update the next digit to the left.
-
-             sub   10
-             ld    (hl), a
-nxtDigit:    dec   hl              ; move pointer to nxt digit (left)
-             inc   (hl)            ; increase that digit
-             ld    a, (hl)         ; load value into A
-             cp    '9'             ; test it
-             ret   c               ; if below 9, then scoring is done
-             sub   10
-             ld    (hl), a
-             jp    nxtDigit        ; update the next digit
 
 ; -------------------------------------------------------------------
 ; PUT TILE

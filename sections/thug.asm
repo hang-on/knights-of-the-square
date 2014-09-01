@@ -51,6 +51,9 @@ thugInit:
 ; handle the thug object each pass in the game loop
 ; put a call to this function in the main game loop
 thugLoop:
+            ; clear status flag
+             xor   a
+             ld    (thugFlag), a
 ; -------------------------------------------------------------------
 ;                 COLLISION DETECTION: SWORD AND THUG               ;
 ; -------------------------------------------------------------------
@@ -156,6 +159,8 @@ thugLp3:
              jp    nz, +
              ld    hl, thugStat     ;
              ld    (hl), THUGDEAD   ;
+             ld    hl, thugFlag
+             set   1, (hl)          ; signal to score module...
              jp    thugLp4
 +:
              ld    hl, thugDie    ; param: animation script

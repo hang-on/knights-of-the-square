@@ -69,6 +69,7 @@ rndSeed      dw                    ; used by goRandom as seed
 ; VBlank handling
 .include "sections\vblank.asm"
 
+
 ; --------------------------------------------------------------------
 
 .bank 0 slot 0
@@ -128,6 +129,7 @@ gameLoop:
              call  thugLoop        ; update the thug object
              call  cstLoop
 
+             call  scorLoop
              halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?
              jp    gameLoop        ; then over again...

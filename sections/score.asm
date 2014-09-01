@@ -42,6 +42,37 @@ scorInit:
 
 .section "Score loop" free
 scorLoop:
+
+             call  GetThugPoints
+             call  GetChestPoints
+
+
+             ret
+
+GetThugPoints:
+
+             ld    a, (thugFlag)
+             bit   1, a
+             ret   z
+             ld    hl, score + 3   ; point to the hundreds column
+             ld    b,  2           ; one soldier is worth 200 points!
+             call  goScore         ; call the score updater routine
+             ret
+
+GetChestPoints:
+
+             ld    a, (ChestFlag)  ; chest is smashed open?
+             bit   1, a
+             ret   z
+             ld    hl, score + 3   ; point to the hundreds column
+             ld    b,  1           ; worth 100 points!
+             call  goScore         ; call the score updater routine
+             
+             ; TODO: Get points from player if he walks into a chest
+             ret
+
+
+
              ; the flags (part of?) are reset every loop
              ; read thugflag - add points
              ; read  cstFlag - add points  - dont touch these
@@ -49,7 +80,6 @@ scorLoop:
              ; move score code out of vblank, and blast 6 bytes of ram every frame..
              ; work on a score ram buffer
 
-             ret
 
 /*; Add to player's score.
 
@@ -60,9 +90,38 @@ scorLoop:
 
 ; Soldier is dead, add to player's score. (should go into player or score object)
 ; we can set a flag here?
-;             ld    hl, score + 3   ; point to the hundreds column
-;             ld    b,  2           ; one soldier is worth 200 points!
-;             call  goScore         ; call the score updater routine
+
+; -------------------------------------------------------------------
+; SCORE
+; Assumes a data block for keeping the score
+; Data block: a series of bytes, ie: 00000
+; Adapted from Jonathan Cauldwell
+; Entry: HL points to the digit we want to increase
+;        B holds the amount by which to increase the digit
+; Exit: The data block pointed to by HL is updated
+
+goScore:
+
+; Add the specified amount to the digit.
+
+             ld    a, (hl)         ; get the value of the digit
+             add   a, b            ; add the amount to this value
+             ld    (hl), a         ; put updated digit back in string
+             cp    '9'             ; test updated digit
+             ret   c               ; if 9 or less, relax and return
+
+; Update the next digit to the left.
+
+             sub   10
+             ld    (hl), a
+nxtDigit:    dec   hl              ; move pointer to nxt digit (left)
+             inc   (hl)            ; increase that digit
+             ld    a, (hl)         ; load value into A
+             cp    '9'             ; test it
+             ret   c               ; if below 9, then scoring is done
+             sub   10
+             ld    (hl), a
+             jp    nxtDigit        ; update the next digit
 
 
 

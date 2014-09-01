@@ -20,6 +20,7 @@
 
 
 .section "Update score display" free
+;TODO - make this a buffer to be otir'ed every frame...
 updScore:
              ld    d, SCORE + 6    ; point to 100.000 digit (dest.)
              ld    ix, score       ; point to score
