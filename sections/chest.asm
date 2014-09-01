@@ -115,7 +115,7 @@ _IsHitBySword:
 ; Set a bit in ChestFlag to signal to score module.
 
              ld    hl, ChestFlag
-             set   1, (hl)
+             set   0, (hl)
 
              ret
 

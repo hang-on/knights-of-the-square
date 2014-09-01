@@ -45,7 +45,7 @@ scorLoop:
 
              call  GetThugPoints
              call  GetChestPoints
-
+             call  GetGoldPoints
 
              ret
 
@@ -61,14 +61,27 @@ GetThugPoints:
 
 GetChestPoints:
 
-             ld    a, (ChestFlag)  ; chest is smashed open?
-             bit   1, a
+; Award player for smashing open a chest.
+
+             ld    a, (ChestFlag)
+             bit   0, a
              ret   z
-             ld    hl, score + 3   ; point to the hundreds column
-             ld    b,  1           ; worth 100 points!
-             call  goScore         ; call the score updater routine
-             
-             ; TODO: Get points from player if he walks into a chest
+             ld    hl, score + 3
+             ld    b,  1
+             call  goScore
+             ret
+
+GetGoldPoints:
+
+; Award player for picking up gold (an open chest).
+
+             ld    a, (PlayerFlag)
+             bit   0, a
+             ret   z
+             ld    hl, score + 3
+             ld    b,  4
+             call  goScore
+
              ret
 
 

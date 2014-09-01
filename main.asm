@@ -106,7 +106,6 @@ init:        call  initBlib        ; initialize bluelib
 
              call  plrInit
 
-
 ; Initilize PSGLib.
 
              call PSGInit          ; initialize PSGLib

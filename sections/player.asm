@@ -30,12 +30,18 @@ plrXOld      db
 plrYOld      db
 plrLife      db                    ; life meter of the player
 plrDir       db                    ; player's direction
+PlayerFlag   db
 
 wponX        db                    ; weapon x,y (for coll. detect)
 wponY        db
 wponDam      db                    ; damage dealt by the player's weapon
 
 .ends
+; PlayerFlag is formatted as follows:
+; xxxx xxxc
+; x = undefined
+; c = player touches and open chest (award points)
+
 
 ; --------------------------------------------------------------------
 
@@ -62,6 +68,13 @@ plrInit:
 
 .section "Player loop" free
 plrLoop:
+
+; Clear status flag.
+
+             xor   a
+             ld    (PlayerFlag), a
+
+
 ; Store the now expired player state as 'old state'.
 
              ld    hl, plrState    ; get player state
@@ -331,6 +344,8 @@ _step11:
              jp    _step13
 +:
 ; If chest is open, then pick it up.
+             ld    hl, PlayerFlag
+             set   0, (hl)
 
              xor   a
              ld    (ChestX), a
@@ -347,6 +362,8 @@ _step11:
              ld    hl,sfxBonus     ; point to bonus SFX
              ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
              call  PSGSFXPlay      ; play the super retro bonus sound
+
+
 
 _step13:
              ret
