@@ -147,66 +147,36 @@ DetectCollision:
 
 ; Test for horizontal overlap.
 
-             ld    a, h            ; get obj1 x pos (top left corner)
-             srl   b
-             add   a, b            ; update x pos to center of sprite
-             ld    h, a
-
-
+             ld    a, h         ; get obj1 x pos (top left corner)
+             add   a, 4            ; update x pos to center of sprite
+             ld    b, a            ; save it in B
              ld    a, d         ; get obj2 x pos (top left corner)
-             srl   c
-             add   a, c            ; update x pos to center of sprite
-             sub   h               ; subtract the two x pos'
+             add   a, 4            ; update x pos to center of sprite
+             sub   b               ; subtract the two x pos'
              bit   7,a             ; is the result negative (signed)?
              jp    z, +            ; if not, go ahead with test
              neg                   ; if so, do the abs() trick
 +:           add   a, 1            ; according to the formula above
              add   a ,a            ; also according to the formula
              jp    pe, ResetCarry    ; fix for wrap-around issue!
-
-             ld    a, b
-             add   a, a
-             ld    b, a
-
-             ld    a, c
-             add   a, a
-             ld    a, b
-
-             inc   a
-
-             cp    a              ; width + width + 1(width of the objects)
+             cp    17              ; 8 + 8 + 1(width of the objects)
              ret   nc              ; no horiz. overlap = no coll!
 
 ; Test for vertical overlap.
 
-             ld    a, l            ; get obj1 x pos (top left corner)
-             srl   b
-             add   a, b            ; update x pos to center of sprite
-             ld    l, a
-
-
-             ld    a, e         ; get obj2 x pos (top left corner)
-             srl   c
-             add   a, c            ; update x pos to center of sprite
-             sub   l               ; subtract the two x pos'
-             bit   7, a             ; is the result negative (signed)?
-             jp    z, +            ; if not, go ahead with test
+             ld    a, l         ; get obj1Y
+             add   a, 4            ; update to sprite's center
+             ld    b, a            ; save value in B
+             ld    a, e         ; get obj2Y
+             add   a, 4            ; update to sprite's center
+             sub   b               ; subtract the two y pos'
+             bit   7,a             ; is the result negative (signed)?
+             jp    z, +            ; if not, go ahead
              neg                   ; if so, do the abs() trick
-+:           add   a, 1            ; according to the formula above
++:           add   a, 1            ; according to the formula
              add   a ,a            ; also according to the formula
-             jp    pe, ResetCarry    ; fix for wrap-around issue!
-
-             ld    a, b
-             add   a, a
-             ld    b, a
-
-             ld    a, c
-             add   a, a
-             ld    a, b
-
-             inc   a
-
-             cp    a              ; width + width + 1(width of the objects)
+             jp    pe, ResetCarry    ; fix for wrap-around issue
+             cp    17              ; 2 x 8 + 1
              ret                   ; exit: if carry then collision
 
 ResetCarry:

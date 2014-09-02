@@ -43,8 +43,8 @@ ThugDelay db
 thugInit:
              ld    ix, thugState
              ld    (ix + 0), THUGSTAN
-             ld    (ix + 1), 100
-             ld    (ix + 2), 110
+             ld    (ix + 1), 80
+             ld    (ix + 2), 120
              ld    (ix + 4), 8
 
              ld    c, THUGSTAN     ; charcode for goSprite
