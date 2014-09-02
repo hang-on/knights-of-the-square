@@ -14,12 +14,22 @@
 .define SCROLL     0
 
 .ramsection "Thug ram" slot 3
-thugStat     db
+
+; What state is the thug in at the moment?
+
+thugState db
+
+
 thugX        db
 thugY        db
 thugCoun     db
 thugLife     db
 thugFlag     db                    ; * see below
+thugHSP      db                    ; thug's horizontal speed
+
+; How long the thug waits until he attacks.
+
+ThugDelay db
 .ends
 
 ; * thugFlag, bits: xxxx xxps
@@ -31,7 +41,7 @@ thugFlag     db                    ; * see below
 ; initialize thug with default values
 ; call this every time the thug is brought into play
 thugInit:
-             ld    ix, thugStat
+             ld    ix, thugState
              ld    (ix + 0), THUGSTAN
              ld    (ix + 1), 100
              ld    (ix + 2), 110
@@ -50,10 +60,17 @@ thugInit:
 ; handle the thug object each pass in the game loop
 ; put a call to this function in the main game loop
 thugLoop:
+            ; clear status flag
+             xor   a
+             ld    (thugFlag), a
+             
+             call  _Attack
+
+
 ; -------------------------------------------------------------------
 ;                 COLLISION DETECTION: SWORD AND THUG               ;
 ; -------------------------------------------------------------------
-             ld    a, (thugStat)
+             ld    a, (thugState)
              cp    THUGSTAN
              jp   nz, thugLp1
 
@@ -74,7 +91,7 @@ thugLoop:
 
 ; Update thug mode to "hurting" and set counter for duration.
 
-             ld    ix, thugStat     ; point to data block
+             ld    ix, thugState     ; point to data block
              ld    (ix + 0), THUGHURT  ; set mode = hurting
              ld    (ix + 3), 7    ; set counter
 
@@ -101,7 +118,7 @@ thugLoop:
 ; -------------------------------------------------------------------
 
 thugLp1:     ; is thug status = hurting (he is taking damage)
-             ld    a, (thugStat)
+             ld    a, (thugState)
              cp    THUGHURT
              jp    nz, thugLp2
 
@@ -116,7 +133,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
              ld    c, ORANGE       ; prepare for an orange shirt
              call  dfColor           ;  define color in CRAM
 
-             ld    hl, thugStat     ; point to soldier's mode variable
+             ld    hl, thugState     ; point to soldier's mode variable
              ld    (hl), THUGSTAN   ; switch back to standing
              jp    thugLp2               ; jump to next objects
 
@@ -129,7 +146,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
 ;                 CHECK THUG HEALTH                                 ;
 ; -------------------------------------------------------------------
 thugLp2:
-             ld    a, (thugStat)
+             ld    a, (thugState)
              cp    THUGSTAN
              jp    nz, thugLp3
 
@@ -137,7 +154,7 @@ thugLp2:
              rla                   ; life below 0?
              jp    nc, thugLp3
 
-             ld    ix, thugStat
+             ld    ix, thugState
              ld   (ix + 3), 0      ; if so, reset counter
              ld   (ix + 0), THUGDIE  ; update mode to "dying"
 
@@ -145,7 +162,7 @@ thugLp2:
 ;                 THUG IS DYING                                     ;
 ; -------------------------------------------------------------------
 thugLp3:
-             ld    a, (thugStat)
+             ld    a, (thugState)
              cp    THUGDIE
              jp    nz, thugLp4
 
@@ -153,11 +170,13 @@ thugLp3:
              ld    a, (hl)   ; get counter
              cp    12              ; he is lying flat by now?
              jp    nz, +
-             ld    hl, thugStat     ;
+             ld    hl, thugState     ;
              ld    (hl), THUGDEAD   ;
+             ld    hl, thugFlag
+             set   1, (hl)          ; signal to score module...
              jp    thugLp4
 +:
-             ld    hl, solDying    ; param: animation script
+             ld    hl, thugDie    ; param: animation script
              ld    a, (thugCoun)   ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
@@ -171,49 +190,42 @@ thugLp3:
              ld    hl, thugCoun
              inc   (hl)
 
-; Soldier is dead, add to player's score. (should go into player or score object)
-; we can set a flag here?
-;             ld    hl, score + 3   ; point to the hundreds column
-;             ld    b,  2           ; one soldier is worth 200 points!
-;             call  goScore         ; call the score updater routine
-
-
 ; -------------------------------------------------------------------
 ;                 THUG SCROLLER                                     ;
 ; -------------------------------------------------------------------
 thugLp4:
-             ld    a, (thugStat)
+             ld    a, (thugState)
              cp    THUGOFF             ; don't scroll if he is off
              jp    z, thugLp5
 
-             ld    a, (thugFlag)
-             bit   SCROLL, a            ; is flag set for scrolling?
-             jp    z, thugLp5
+             ld    a, (scrlFlag)
+             cp    1                   ; is flag set for scrolling?
+             jp    nz, thugLp5
 
-             ; reset flag
-             res   SCROLL, a
-             ld    (thugFlag), a
-
-             ld   hl, thugX         ; point to soldier x pos
+             ld   hl, thugX         ; point to  x pos
              dec  (hl)             ; decrement it
              ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ; is chest x = 0 (blanked clmn)?
+             cp   0                ;
              jp   nz, +     ; if not, forward...
 
 ; thug has scrolled off screen, so destroy him.
+
+             xor   a
+             ld    (thugX), a
+             ld    (thugY), a
 
              ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
              ld    e, 0            ; reset y pos
              ld    b, THUGSAT     ; B = the chest's index in SAT
              call  goSprite        ; update SAT RAM buffer
-             ld    hl, thugStat     ; point to chest mode
+             ld    hl, thugState     ; point to chest mode
              ld    (hl), THUGOFF  ; set chect mode to OFF
              jp    thugLp5
 
 ; Update thug sprite position.
 +:
-             ld    a, (thugStat)
+             ld    a, (thugState)
              ld    c, a            ; chest mode
              ld    d, (hl)         ; D
              inc   hl
@@ -221,8 +233,39 @@ thugLp4:
              ld    b, THUGSAT     ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
 
+; -------------------------------------------------------------------
+;                 SCROLL THUG?                                      ;
+; -------------------------------------------------------------------
 thugLp5:
+
+
+; -------------------------------------------------------------------
+;                 THUG MOVEMENT                                     ;
+; -------------------------------------------------------------------
+thugLp6:
+/*
+; Move thug horizontally according to hSpeed.
+
+             ld    a, (thugHSP)    ; get horizontal speed
+             ld    b, a            ; store it in B
+             ld    a, (thugX)       ; get current x pos of player
+             add   a, b            ; add speed to current x pos
+             ld    (thugX), a       ; and put it into current player x
+             xor   a               ; clear A
+             ld    (thugHSP), a     ; set speed to zero
+*/
              ret
+
+
+; Handle the thug's occasional attempt to attack the player.
+
+_Attack:
+;             call  goRandom
+;             ld    (ThugDelay), a
+;             ret
+
+
+
 .ends
 
 .section "Thug data" free
