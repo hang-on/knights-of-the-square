@@ -137,4 +137,55 @@ goRandom:    push  hl
              ret                   ; return random number in a
 
 
+; -------------------------------------------------------------------
+; COLLISION DETECTION - IMPROVED!
+; H = Obj1X, L = Obj1Y, B = Obj1Size
+; D = Obj2X, E = Obj2Y  C = Obj2Size
+; Returns with carry flag set if the two objects overlap
+
+
+
+DetectCollision:
+
+; Test for horizontal overlap.
+
+             ld    a, (hl)         ; get obj1 x pos (top left corner)
+             add   a, 4            ; update x pos to center of sprite
+             ld    b, a            ; save it in B
+             ld    a, (de)         ; get obj2 x pos (top left corner)
+             add   a, 4            ; update x pos to center of sprite
+             sub   b               ; subtract the two x pos'
+             bit   7,a             ; is the result negative (signed)?
+             jp    z, +            ; if not, go ahead with test
+             neg                   ; if so, do the abs() trick
++:           add   a, 1            ; according to the formula above
+             add   a ,a            ; also according to the formula
+             jp    pe, resCarry2    ; fix for wrap-around issue!
+             cp    17              ; 8 + 8 + 1(width of the objects)
+             ret   nc              ; no horiz. overlap = no coll!
+
+; Test for vertical overlap.
+
+             inc   hl              ; move hl from obj1X to obj1Y
+             inc   de              ; move de from obj2X to obj2Y
+             ld    a, (hl)         ; get obj1Y
+             add   a, 4            ; update to sprite's center
+             ld    b, a            ; save value in B
+             ld    a, (de)         ; get obj2Y
+             add   a, 4            ; update to sprite's center
+             sub   b               ; subtract the two y pos'
+             bit   7,a             ; is the result negative (signed)?
+             jp    z, +            ; if not, go ahead
+             neg                   ; if so, do the abs() trick
++:           add   a, 1            ; according to the formula
+             add   a ,a            ; also according to the formula
+             jp    pe, resCarry2    ; fix for wrap-around issue
+             cp    17              ; 2 x 8 + 1
+             ret                   ; exit: if carry then collision
+
+resCarry2:    or    a               ; reset carry flag
+             ret                   ; return to overlap test
+
+
+
 .ends
