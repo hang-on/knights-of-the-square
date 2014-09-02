@@ -69,6 +69,9 @@ rndSeed      dw                    ; used by goRandom as seed
 ; VBlank handling
 .include "sections\vblank.asm"
 
+; Debugger panel w. flags
+.include "sections\debug.asm"
+
 
 ; --------------------------------------------------------------------
 
@@ -110,6 +113,10 @@ init:        call  initBlib        ; initialize bluelib
 
              call PSGInit          ; initialize PSGLib
 
+; Initialize debug panel
+
+             call  InitializeDebugPanel
+
 ; Turn display on.
 
              ld     a, DSPON       ; get display constant
@@ -129,7 +136,8 @@ gameLoop:
              call  ManageChestLoop
 
              call  scorLoop
-             
+             call  ManageDebugPanelLoop
+
              halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?
              jp    gameLoop        ; then over again...
