@@ -272,11 +272,14 @@ _StartAttack:
              ld    h, a
              ld    a, (plrY)
              ld    l, a
+             ld    b, 8            ; size of player box
              ld    a, (thugX)
              sub   4
              ld    d, a
              ld    a, (thugY)
              ld    e, a
+             ld    c, 8            ; size of thug box
+
              call  DetectCollision
 
              ret   nc
