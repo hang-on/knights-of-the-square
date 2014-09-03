@@ -149,10 +149,10 @@ DetectCollision:
 
              ld    a, h         ; get obj1 x pos (top left corner)
              add   a, 4            ; update x pos to center of sprite
-             ld    b, a            ; save it in B
+             ld    h, a            ; save it in B
              ld    a, d         ; get obj2 x pos (top left corner)
              add   a, 4            ; update x pos to center of sprite
-             sub   b               ; subtract the two x pos'
+             sub   h               ; subtract the two x pos'
              bit   7,a             ; is the result negative (signed)?
              jp    z, +            ; if not, go ahead with test
              neg                   ; if so, do the abs() trick
@@ -166,10 +166,10 @@ DetectCollision:
 
              ld    a, l         ; get obj1Y
              add   a, 4            ; update to sprite's center
-             ld    b, a            ; save value in B
+             ld    l, a            ; save value in B
              ld    a, e         ; get obj2Y
              add   a, 4            ; update to sprite's center
-             sub   b               ; subtract the two y pos'
+             sub   l               ; subtract the two y pos'
              bit   7,a             ; is the result negative (signed)?
              jp    z, +            ; if not, go ahead
              neg                   ; if so, do the abs() trick
