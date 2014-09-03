@@ -40,7 +40,6 @@ ManageDebugPanelLoop:
 
              ret   nc
 
-             ld    e, YELLOW_FLAG
              call  _SetFlag1
 
              ret
@@ -65,14 +64,14 @@ _SetFlag1:
 
 ; Entry: E holds the flag color
 
+             ld    e, GREEN_FLAG
              ld    d, FLAG1
              call  putTile
              ret
 
 _SetFlag2:
 
-; Entry: E holds the flag color
-
+             ld    e, YELLOW_FLAG
              ld    d, FLAG2
              call  putTile
              ret
