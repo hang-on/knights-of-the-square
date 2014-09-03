@@ -17,7 +17,7 @@
 
 ; What state is the thug in at the moment?
 
-thugState db
+ThugState db
 
 
 thugX        db
@@ -41,7 +41,7 @@ ThugDelay db
 ; initialize thug with default values
 ; call this every time the thug is brought into play
 thugInit:
-             ld    ix, thugState
+             ld    ix, ThugState
              ld    (ix + 0), THUGSTAN
              ld    (ix + 1), 80
              ld    (ix + 2), 120
@@ -70,7 +70,7 @@ thugLoop:
 ; -------------------------------------------------------------------
 ;                 COLLISION DETECTION: SWORD AND THUG               ;
 ; -------------------------------------------------------------------
-             ld    a, (thugState)
+             ld    a, (ThugState)
              cp    THUGSTAN
              jp   nz, thugLp1
 
@@ -91,7 +91,7 @@ thugLoop:
 
 ; Update thug mode to "hurting" and set counter for duration.
 
-             ld    ix, thugState     ; point to data block
+             ld    ix, ThugState     ; point to data block
              ld    (ix + 0), THUGHURT  ; set mode = hurting
              ld    (ix + 3), 7    ; set counter
 
@@ -118,7 +118,7 @@ thugLoop:
 ; -------------------------------------------------------------------
 
 thugLp1:     ; is thug status = hurting (he is taking damage)
-             ld    a, (thugState)
+             ld    a, (ThugState)
              cp    THUGHURT
              jp    nz, thugLp2
 
@@ -133,7 +133,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
              ld    c, ORANGE       ; prepare for an orange shirt
              call  dfColor           ;  define color in CRAM
 
-             ld    hl, thugState     ; point to soldier's mode variable
+             ld    hl, ThugState     ; point to soldier's mode variable
              ld    (hl), THUGSTAN   ; switch back to standing
              jp    thugLp2               ; jump to next objects
 
@@ -146,7 +146,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
 ;                 CHECK THUG HEALTH                                 ;
 ; -------------------------------------------------------------------
 thugLp2:
-             ld    a, (thugState)
+             ld    a, (ThugState)
              cp    THUGSTAN
              jp    nz, thugLp3
 
@@ -154,7 +154,7 @@ thugLp2:
              rla                   ; life below 0?
              jp    nc, thugLp3
 
-             ld    ix, thugState
+             ld    ix, ThugState
              ld   (ix + 3), 0      ; if so, reset counter
              ld   (ix + 0), THUGDIE  ; update mode to "dying"
 
@@ -162,7 +162,7 @@ thugLp2:
 ;                 THUG IS DYING                                     ;
 ; -------------------------------------------------------------------
 thugLp3:
-             ld    a, (thugState)
+             ld    a, (ThugState)
              cp    THUGDIE
              jp    nz, thugLp4
 
@@ -170,7 +170,7 @@ thugLp3:
              ld    a, (hl)   ; get counter
              cp    12              ; he is lying flat by now?
              jp    nz, +
-             ld    hl, thugState     ;
+             ld    hl, ThugState     ;
              ld    (hl), THUGDEAD   ;
              ld    hl, thugFlag
              set   1, (hl)          ; signal to score module...
@@ -194,7 +194,7 @@ thugLp3:
 ;                 THUG SCROLLER                                     ;
 ; -------------------------------------------------------------------
 thugLp4:
-             ld    a, (thugState)
+             ld    a, (ThugState)
              cp    THUGOFF             ; don't scroll if he is off
              jp    z, thugLp5
 
@@ -219,13 +219,13 @@ thugLp4:
              ld    e, 0            ; reset y pos
              ld    b, THUGSAT     ; B = the chest's index in SAT
              call  goSprite        ; update SAT RAM buffer
-             ld    hl, thugState     ; point to chest mode
+             ld    hl, ThugState     ; point to chest mode
              ld    (hl), THUGOFF  ; set chect mode to OFF
              jp    thugLp5
 
 ; Update thug sprite position.
 +:
-             ld    a, (thugState)
+             ld    a, (ThugState)
              ld    c, a            ; chest mode
              ld    d, (hl)         ; D
              inc   hl
