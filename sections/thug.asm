@@ -67,7 +67,7 @@ thugLoop:
              xor   a
              ld    (thugFlag), a
 
-             ; call  _MaintainAttack
+             call  _MaintainAttack
 
 
 ; -------------------------------------------------------------------
@@ -264,22 +264,42 @@ thugLp6:
 
 _StartAttack:
 
+             ld    a, (ThugState)
+             cp    THUG_STANDING
+             ret   nz
+
+             ld    a, (plrX)
+             ld    h, a
+             ld    a, (plrY)
+             ld    l, a
+             ld    a, (thugX)
+             sub   8
+             ld    d, a
+             ld    a, (thugY)
+             ld    e, a
+             call  DetectCollision
+
+             ret   nc
+
              ld     a, THUG_ATTACKING
              ld    (ThugState), a
              ld    a, 10
              ld    (ThugCounter), a
 
              ld    c, THUG_ATTACKING
-             ld    d, (ix + 1)
-             ld    e, (ix + 2)
+             ld    a, (thugX)
+             ld    d, a
+             ld    a, (thugY)
+             ld    e, a
              ld    b, THUGSAT
              call  goSprite
 
              ld    c, THUG_WEAPON
-             ld    a, (ix + 1)
+             ld    a, (thugX)
              sub   8
              ld    d, a
-             ld    e, (ix + 2)
+             ld    a, (thugY)
+             ld    e, a
              ld    b, THUG_WEAPON_SAT
              call  goSprite
 
@@ -287,12 +307,15 @@ _StartAttack:
 
 _MaintainAttack:
 
+             call  _StartAttack
+
              ld    a, (ThugState)
              cp    THUG_ATTACKING
              ret   nz
-
-             ld    a, (ThugCounter)
-             dec   a
+debug:
+             ld    hl, ThugCounter
+             dec   (hl)
+             ld    a, (hl)
              cp    0
              ret   nz
 
@@ -302,8 +325,10 @@ _MaintainAttack:
              ld    (ThugState), a
 
              ld    c, THUG_STANDING
-             ld    d, (ix + 1)
-             ld    e, (ix + 2)
+             ld    a, (thugX)
+             ld    d, a
+             ld    a, (thugY)
+             ld    e, a
              ld    b, THUGSAT
              call  goSprite
 
