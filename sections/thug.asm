@@ -6,6 +6,9 @@
 .define THUGSTAN   $30
 .define THUGHURT   $01
 .define THUGDIE    $02
+.define THUG_ATTACKING $36
+.define THUG_WEAPON $35
+.define THUG_WEAPON_SAT 6
 
 .define THUGOFF    $00             ; switched off
 .define THUGDEAD   $34             ; dead
@@ -22,7 +25,7 @@ ThugState db
 
 thugX        db
 thugY        db
-thugCoun     db
+ThugCounter     db
 thugLife     db
 thugFlag     db                    ; * see below
 thugHSP      db                    ; thug's horizontal speed
@@ -63,8 +66,8 @@ thugLoop:
             ; clear status flag
              xor   a
              ld    (thugFlag), a
-             
-             call  _Attack
+
+             ; call  _MaintainAttack
 
 
 ; -------------------------------------------------------------------
@@ -122,7 +125,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
              cp    THUGHURT
              jp    nz, thugLp2
 
-             ld    hl, thugCoun    ; point to counter
+             ld    hl, ThugCounter    ; point to counter
              ld    a, (hl)         ; get value
              cp    0               ; is counter = 0? (end hurt)
              jp    nz, +           ; if not, skip forward...
@@ -139,7 +142,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
 
 ; C) Hurt sequence is just going on...
 
-+:           ld    hl, thugCoun
++:           ld    hl, ThugCounter
              dec   (hl)            ; decrease counter
 
 ; -------------------------------------------------------------------
@@ -166,7 +169,7 @@ thugLp3:
              cp    THUGDIE
              jp    nz, thugLp4
 
-             ld    hl, thugCoun
+             ld    hl, ThugCounter
              ld    a, (hl)   ; get counter
              cp    12              ; he is lying flat by now?
              jp    nz, +
@@ -177,7 +180,7 @@ thugLp3:
              jp    thugLp4
 +:
              ld    hl, thugDie    ; param: animation script
-             ld    a, (thugCoun)   ; param: freshly updated anim.
+             ld    a, (ThugCounter)   ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
              ld    a, (thugX)       ; get player's x position
@@ -187,7 +190,7 @@ thugLp3:
              ld    b, THUGSAT       ; B = plr sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
 
-             ld    hl, thugCoun
+             ld    hl, ThugCounter
              inc   (hl)
 
 ; -------------------------------------------------------------------
@@ -259,12 +262,28 @@ thugLp6:
 
 ; Handle the thug's occasional attempt to attack the player.
 
-_Attack:
-;             call  goRandom
-;             ld    (ThugDelay), a
-;             ret
+_StartAttack:
 
+             ld     a, THUG_ATTACKING
+             ld    (ThugState), a
+             ld    a, 10
+             ld    (ThugCounter), a
 
+             ld    c, THUG_ATTACKING
+             ld    d, (ix + 1)
+             ld    e, (ix + 2)
+             ld    b, THUGSAT
+             call  goSprite
+
+             ld    c, THUG_WEAPON
+             ld    a, (ix + 1)
+             sub   8
+             ld    d, a
+             ld    e, (ix + 2)
+             ld    b, THUG_WEAPON_SAT
+             call  goSprite
+
+             ret
 
 .ends
 
