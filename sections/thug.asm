@@ -3,7 +3,7 @@
 ; Header ------------------------------------------------------------
 
 .define THUGSAT    5
-.define THUGSTAN   $30
+.define THUG_STANDING $30
 .define THUGHURT   $01
 .define THUGDIE    $02
 .define THUG_ATTACKING $36
@@ -45,12 +45,12 @@ ThugDelay db
 ; call this every time the thug is brought into play
 thugInit:
              ld    ix, ThugState
-             ld    (ix + 0), THUGSTAN
+             ld    (ix + 0), THUG_STANDING
              ld    (ix + 1), 80
              ld    (ix + 2), 120
              ld    (ix + 4), 8
 
-             ld    c, THUGSTAN     ; charcode for goSprite
+             ld    c, THUG_STANDING     ; charcode for goSprite
              ld    d, (ix + 1)     ; x-pos for goSprite
              ld    e, (ix + 2)     ; y-pos for goSprite
              ld    b, THUGSAT      ; SAT index for goSprite
@@ -74,7 +74,7 @@ thugLoop:
 ;                 COLLISION DETECTION: SWORD AND THUG               ;
 ; -------------------------------------------------------------------
              ld    a, (ThugState)
-             cp    THUGSTAN
+             cp    THUG_STANDING
              jp   nz, thugLp1
 
              ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
@@ -137,7 +137,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
              call  dfColor           ;  define color in CRAM
 
              ld    hl, ThugState     ; point to soldier's mode variable
-             ld    (hl), THUGSTAN   ; switch back to standing
+             ld    (hl), THUG_STANDING   ; switch back to standing
              jp    thugLp2               ; jump to next objects
 
 ; C) Hurt sequence is just going on...
@@ -150,7 +150,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
 ; -------------------------------------------------------------------
 thugLp2:
              ld    a, (ThugState)
-             cp    THUGSTAN
+             cp    THUG_STANDING
              jp    nz, thugLp3
 
              ld    a, (thugLife)   ;
@@ -285,13 +285,43 @@ _StartAttack:
 
              ret
 
+_MaintainAttack:
+
+             ld    a, (ThugState)
+             cp    THUG_ATTACKING
+             ret   nz
+
+             ld    a, (ThugCounter)
+             dec   a
+             cp    0
+             ret   nz
+
+; End attack state.
+
+             ld    a, THUG_STANDING
+             ld    (ThugState), a
+
+             ld    c, THUG_STANDING
+             ld    d, (ix + 1)
+             ld    e, (ix + 2)
+             ld    b, THUGSAT
+             call  goSprite
+
+             ld    c, 0
+             ld    d, 0
+             ld    e, 0
+             ld    b, THUG_WEAPON_SAT
+             call  goSprite
+
+             ret
+
 .ends
 
 .section "Thug data" free
 ; cel array for animating collapsing thug
 thugDie:
-.redefine C1 THUGSTAN+2
-.redefine C2 THUGSTAN+3
-.redefine C3 THUGSTAN+4
+.redefine C1 THUG_STANDING+2
+.redefine C2 THUG_STANDING+3
+.redefine C3 THUG_STANDING+4
 .db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C3 $ff
 .ends
