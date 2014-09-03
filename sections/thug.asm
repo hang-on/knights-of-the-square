@@ -67,7 +67,7 @@ thugLoop:
              xor   a
              ld    (thugFlag), a
 
-             call  _MaintainAttack
+             call  _HandleAttack
 
 
 ; -------------------------------------------------------------------
@@ -273,7 +273,7 @@ _StartAttack:
              ld    a, (plrY)
              ld    l, a
              ld    a, (thugX)
-             sub   8
+             sub   4
              ld    d, a
              ld    a, (thugY)
              ld    e, a
@@ -305,14 +305,14 @@ _StartAttack:
 
              ret
 
-_MaintainAttack:
+_HandleAttack:
 
              call  _StartAttack
 
              ld    a, (ThugState)
              cp    THUG_ATTACKING
              ret   nz
-debug:
+
              ld    hl, ThugCounter
              dec   (hl)
              ld    a, (hl)
