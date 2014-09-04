@@ -6,6 +6,7 @@
 .define THUG_STANDING $30
 .define THUGHURT   $01
 .define THUGDIE    $02
+.define THUG_WAITING 3
 .define THUG_ATTACKING $36
 .define THUG_WEAPON $35
 .define THUG_WEAPON_SAT 6
@@ -272,28 +273,6 @@ thugLp6:
 
 _StartAttack:
 
-             ld    a, (ThugState)
-             cp    THUG_STANDING
-             ret   nz
-
-             ; NOTE: Will only attack to the left!
-
-             ld    a, (plrX)
-             ld    h, a
-             ld    a, (plrY)
-             ld    d, a
-             ld    b, 8            ; size of player box
-             ld    a, (thugX)
-             sub   2
-             ld    l, a
-             ld    a, (thugY)
-             ld    e, a
-             ld    c, 8            ; size of thug box
-
-             call  DetectCollision
-
-             ret   nc
-
              ld     a, THUG_ATTACKING
              ld    (ThugState), a
              ld    a, 10
@@ -320,7 +299,8 @@ _StartAttack:
 
 _HandleAttack:
 
-             call  _StartAttack
+             call  _DetectProximity
+             call  _PrepareAttack
 
              ld    a, (ThugState)
              cp    THUG_ATTACKING
@@ -352,6 +332,49 @@ _HandleAttack:
              call  goSprite
 
              ret
+
+_PrepareAttack:
+             ld    a, (ThugState)
+             cp    THUG_WAITING
+             ret   nz
+
+             ld    hl, ThugCounter
+             dec   (hl)
+             ret   nz
+
+             call  _StartAttack
+
+             ret
+
+_DetectProximity:
+
+             ld    a, (ThugState)
+             cp    THUG_STANDING
+             ret   nz
+
+             ld    a, (plrX)
+             ld    h, a
+             ld    a, (plrY)
+             ld    d, a
+             ld    b, 8            ; size of player box
+             ld    a, (thugX)
+             sub   2
+             ld    l, a
+             ld    a, (thugY)
+             ld    e, a
+             ld    c, 8            ; size of thug box
+
+             call  DetectCollision
+
+             ret   nc
+             
+             ld    a, 20
+             ld    (ThugCounter), a
+             ld    a, THUG_WAITING
+             ld    (ThugState), a
+
+             ret
+
 
 .ends
 
