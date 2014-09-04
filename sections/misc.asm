@@ -186,6 +186,7 @@ TestOverlap:
              ; Update A to contain the center of Obj2.
              ld    a, l            ; load Obj2Pos into A
              add   a, c            ; Obj2Pos + (Obj2Size/2) = center
+             pop   bc              ; restore non-halved sizes
 
              ; Perform (Obj1Pos - Obj2Pos).
              sub   h               ; subtract the two coordinates
@@ -200,13 +201,12 @@ TestOverlap:
              add   a ,a            ; add the * 2
 
              ; Fix for screen wrap-around collision.
-             jp  pe, ResetCarry
-
-             ; Prepare stuff for the equation's left side.
-             pop   bc              ; retrieve non-halved sizes
-             push  af              ; save right side of equation
+             jp  po, +             ; if no overflow, then proceed...
+             or    a               ; else, reset carry flag
+             ret                   ; and return no-carry 
 
              ; Do the Obj1Size + Obj2Size + 1.
++:           push  af
              ld    a, b            ; store Obj1 size in A
              add   a, c            ; add Obj2 size
              inc   a               ; add + 1 (left side is complete)
@@ -216,8 +216,6 @@ TestOverlap:
              ret                   ; return (with carry set/reset)
 
 ResetCarry:
-             or    a               ; reset carry flag
-             ret                   ; return to overlap test
 
 /*
              ; Example of DetectCollision in action.
