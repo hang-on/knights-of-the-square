@@ -173,12 +173,16 @@ DetectCollision:
              ret   nc              ; no horiz. overlap = no coll!
 
 ; Test for vertical overlap.
+             push  bc
+             srl   b
+             srl   c
 
              ld    a, l         ; get obj1Y
-             add   a, 4            ; update to sprite's center
+             add   a, b            ; update to sprite's center
              ld    l, a            ; save value in B
              ld    a, e         ; get obj2Y
-             add   a, 4            ; update to sprite's center
+             add   a, c            ; update to sprite's center
+             pop   bc
              sub   l               ; subtract the two y pos'
              bit   7,a             ; is the result negative (signed)?
              jp    z, +            ; if not, go ahead
@@ -186,7 +190,15 @@ DetectCollision:
 +:           add   a, 1            ; according to the formula
              add   a ,a            ; also according to the formula
              jp    pe, ResetCarry    ; fix for wrap-around issue
-             cp    17              ; 2 x 8 + 1
+             push  af
+             ld    a, b
+             add   a, c
+             inc   a
+             ld    b, a
+             pop   af
+             cp    b              ; 8 + 8 + 1(width of the objects)
+
+;             cp    17              ; 2 x 8 + 1
              ret                   ; exit: if carry then collision
 
 ResetCarry:
