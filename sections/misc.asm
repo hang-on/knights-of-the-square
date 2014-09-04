@@ -141,7 +141,7 @@ goRandom:    push  hl
 ; COLLISION DETECTION
 ; Detects collision between two square objects on a 2D field.
 ; Each object has a (x,y) position (like in the SAT).
-; The size of each object is the object's width/height in pixels.
+; The size of each object is the object's width or height in pixels.
 ; The collision detection routine makes the following two tests:
 ; 1) Overlap on x-axis?
 ;    Obj1Size + Obj2Size + 1 <= (Abs(Obj1X - Obj2X) + 1)2
@@ -170,34 +170,74 @@ DetectCollision:
 
 TestOverlap:
 
+             ; Start by working out the right side of the equation.
+             ; Pos (position) is either X or Y: Depends on the test.
+
+             ; Prepare stuff.
              push  bc              ; save BC for later
              srl   b               ; get half of Obj1's size
              srl   c               ; get half of Obj2's size
-             ld    a, h            ; load Obj1X into A
-             add   a, b            ; Obj1X + (Obj1Size/2) = center
 
-             ld    h, a
-             ld    a, l
-             add   a, c
-             pop   bc
-             sub   h               ; subtract the two x pos'
+             ; Update H to contain the center of Obj1.
+             ld    a, h            ; load Obj1Pos into A
+             add   a, b            ; Obj1Pos + (Obj1Size/2) = center
+             ld    h, a            ; update H
+
+             ; Update A to contain the center of Obj2.
+             ld    a, l            ; load Obj2Pos into A
+             add   a, c            ; Obj2Pos + (Obj2Size/2) = center
+
+             ; Perform (Obj1Pos - Obj2Pos).
+             sub   h               ; subtract the two coordinates
+
+             ; Make sure we got the absolute value, Abs().
              bit   7,a             ; is the result negative (signed)?
              jp    z, +            ; if not, go ahead with test
-             neg                   ; if so, do the abs() trick
-+:           add   a, 1            ; according to the formula above
-             add   a ,a            ; also according to the formula
-             call  pe, ResetCarry    ; fix for wrap-around issue!
-             push  af
-             ld    a, b
-             add   a, c
-             inc   a
-             ld    b, a
-             pop   af
-             cp    b              ; 8 + 8 + 1(width of the objects)
-             ret                   ; no horiz. overlap = no coll!
+             neg                   ; if so, do the Abs() trick
+
+             ; Complete the right side (Abs(Obj1Pos - Obj2Pos)+1)2.
++:           inc   a               ; add the + 1
+             add   a ,a            ; add the * 2
+
+             ; Fix for screen wrap-around collision.
+             call  pe, ResetCarry
+
+             ; Prepare stuff for the equation's left side.
+             pop   bc              ; retrieve non-halved sizes
+             push  af              ; save right side of equation
+
+             ; Do the Obj1Size + Obj2Size + 1.
+             ld    a, b            ; store Obj1 size in A
+             add   a, c            ; add Obj2 size
+             inc   a               ; add + 1 (left side is complete)
+             ld    b, a            ; copy left side into B
+             pop   af              ; retrieve right side of equation
+             cp    b               ; compare left and right side
+             ret                   ; return (with carry set/reset)
 
 ResetCarry:
              or    a               ; reset carry flag
              ret                   ; return to overlap test
+
+/*
+             ; Example of DetectCollision in action.
+             ; The following detects collision between the player
+             ; object (plrX, plrY) and a thug object (thugX, thugY)
+
+             ld    a, (plrX)       ; set up the paramters
+             ld    h, a
+             ld    a, (plrY)
+             ld    d, a
+             ld    b, 8            ; the player is an 8x8 box
+             ld    a, (thugX)
+             ld    l, a
+             ld    a, (thugY)
+             ld    e, a
+             ld    c, 8            ; the thug is also an 8x8 box
+
+             call  DetectCollision ; invoke the routine
+             call  c, HandleCollision  ; branch in case of collision
+*/
+
 
 .ends
