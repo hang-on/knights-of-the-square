@@ -149,7 +149,30 @@ goRandom:    push  hl
 
 DetectCollision:
 
-; Test for horizontal overlap.
+; Improved flow:
+; load hl with x,x
+; test
+; if collision - then test vert. coll.
+; load hl, with y,y
+; test
+             push  hl
+             push  de
+
+             ld    l, d
+             call  TestOverlap
+             pop   de
+             pop   hl
+             ret   nc
+
+
+             ld    h, l
+             ld    l, e
+             call  TestOverlap
+
+             ret
+
+TestOverlap:
+; Test for overlap, coords. passed in hl.
 
              push  bc
              srl   b
@@ -157,8 +180,8 @@ DetectCollision:
              ld    a, h         ; get obj1 x pos (top left corner)
              add   a, b            ; update x pos to center of sprite
 
-             ld    h, a            ; save it in B
-             ld    a, d         ; get obj2 x pos (top left corner)
+             ld    h, a
+             ld    a, l         ; get obj2 x pos (top left corner)
              add   a, c            ; update x pos to center of sprite
              pop   bc
              sub   h               ; subtract the two x pos'
@@ -167,7 +190,7 @@ DetectCollision:
              neg                   ; if so, do the abs() trick
 +:           add   a, 1            ; according to the formula above
              add   a ,a            ; also according to the formula
-             jp    pe, ResetCarry    ; fix for wrap-around issue!
+             call  pe, ResetCarry    ; fix for wrap-around issue!
              push  af
              ld    a, b
              add   a, c
@@ -175,7 +198,12 @@ DetectCollision:
              ld    b, a
              pop   af
              cp    b              ; 8 + 8 + 1(width of the objects)
-             ret   nc              ; no horiz. overlap = no coll!
+             ret                   ; no horiz. overlap = no coll!
+
+
+
+
+
 
 ; Test for vertical overlap.
              push  bc
