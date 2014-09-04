@@ -163,7 +163,13 @@ DetectCollision:
 +:           add   a, 1            ; according to the formula above
              add   a ,a            ; also according to the formula
              jp    pe, ResetCarry    ; fix for wrap-around issue!
-             cp    17              ; 8 + 8 + 1(width of the objects)
+             push  af
+             ld    a, b
+             add   a, c
+             inc   a
+             ld    b, a
+             pop   af
+             cp    b              ; 8 + 8 + 1(width of the objects)
              ret   nc              ; no horiz. overlap = no coll!
 
 ; Test for vertical overlap.
