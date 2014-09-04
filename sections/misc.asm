@@ -192,8 +192,7 @@ TestOverlap:
              sub   h               ; subtract the two coordinates
 
              ; Make sure we got the absolute value, Abs().
-             bit   7,a             ; is the result negative (signed)?
-             jp    z, +            ; if not, go ahead with test
+             jp    p, +            ; is the result negative (signed)?
              neg                   ; if so, do the Abs() trick
 
              ; Complete the right side (Abs(Obj1Pos - Obj2Pos)+1)2.
