@@ -23,7 +23,7 @@ InitializeDebugPanel:
 
 ManageDebugPanelLoop:
 
-               call  _ResetFlag1
+/*               call  _ResetFlag1
 
              ld    a, (plrX)
              ld    h, a
@@ -42,7 +42,7 @@ ManageDebugPanelLoop:
              ret   nc
 
              call  _SetFlag1
-
+*/
              ret
 
 ; -------------------------------------------------------------------
