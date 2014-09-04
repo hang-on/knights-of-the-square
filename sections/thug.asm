@@ -35,20 +35,25 @@ ThugDelay db
 ; -------------------------------------------------------------------
 
 .section "Thug initialize" free
-; initialize thug with default values
-; call this every time the thug is brought into play
-thugInit:
+; Initialize the thug with default values.
+; Call this every time the thug is brought into play.
+ThugInit:
+             
+; Put initial values into the thug's variables.
+
              ld    ix, ThugState
              ld    (ix + 0), THUG_STANDING
              ld    (ix + 1), 80
              ld    (ix + 2), 120
              ld    (ix + 4), 8
 
-             ld    c, THUG_STANDING     ; charcode for goSprite
-             ld    d, (ix + 1)     ; x-pos for goSprite
-             ld    e, (ix + 2)     ; y-pos for goSprite
-             ld    b, THUGSAT      ; SAT index for goSprite
-             call  goSprite        ; update SAT buffer (RAM)
+; Put a standing thug sprite on the screen.
+
+             ld    c, THUG_STANDING
+             ld    d, (ix + 1)
+             ld    e, (ix + 2)
+             ld    b, THUGSAT
+             call  goSprite
 
              ret
 .ends

@@ -98,7 +98,7 @@ init:        call  initBlib        ; initialize bluelib
 
 ; Initialize the thug.
 
-             call  thugInit
+             call  ThugInit
 
 ; Initialize player character.
 
