@@ -358,7 +358,7 @@ _DetectProximity:
              ld    d, a
              ld    b, 8            ; size of player box
              ld    a, (thugX)
-             sub   2
+             sub   4
              ld    l, a
              ld    a, (thugY)
              ld    e, a
@@ -367,8 +367,11 @@ _DetectProximity:
              call  DetectCollision
 
              ret   nc
-             
-             ld    a, 20
+
+             ;ld    a, 20
+             call   goRandom
+             and    %00001110
+             add    a, 10
              ld    (ThugCounter), a
              ld    a, THUG_WAITING
              ld    (ThugState), a
