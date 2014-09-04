@@ -2,11 +2,6 @@
 Knights of the Square
 */
 
-; -------------------------------------------------------------------
-; Command line options
-.define PSASSETS                  ; enable PSP assets
-; -------------------------------------------------------------------
-
 
 ; creates 3 x 16 KB slots for ROM and 1 x 8 KB slot for RAM
 ; TODO: Initialize the mapper a'la Charles MacDonald!!
@@ -157,24 +152,12 @@ gameLoop:
 .section "Level 1 data: Village on fire (abbrev. 'fire')" free
 ; Sprite tiles in pattern generator bank 1:
 fireSPR:
-.ifdef PSASSETS
 
 .include "tile\ps\fireSPR.inc"
 ; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
 firePal:
 .include "palette\firePal1.inc"
 .include "palette\ps\firePal2.inc"
-
-.else
-
-.include "tile\fireSPR.inc"
-; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
-firePal:
-.include "palette\firePal1.inc"
-.include "palette\firePal2.inc"
-
-.endif
-
 
 ; Background tiles in pattern generator bank 2:
 fireBG:
