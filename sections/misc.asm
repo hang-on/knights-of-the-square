@@ -146,12 +146,16 @@ goRandom:    push  hl
 DetectCollision:
 
 ; Test for horizontal overlap.
-
+             push  bc
+             srl   b
+             srl   c
              ld    a, h         ; get obj1 x pos (top left corner)
-             add   a, 4            ; update x pos to center of sprite
+             add   a, b            ; update x pos to center of sprite
+
              ld    h, a            ; save it in B
              ld    a, d         ; get obj2 x pos (top left corner)
-             add   a, 4            ; update x pos to center of sprite
+             add   a, c            ; update x pos to center of sprite
+             pop   bc
              sub   h               ; subtract the two x pos'
              bit   7,a             ; is the result negative (signed)?
              jp    z, +            ; if not, go ahead with test

@@ -268,13 +268,15 @@ _StartAttack:
              cp    THUG_STANDING
              ret   nz
 
+             ; NOTE: Will only attack to the left!
+
              ld    a, (plrX)
              ld    h, a
              ld    a, (plrY)
              ld    l, a
              ld    b, 8            ; size of player box
              ld    a, (thugX)
-             sub   4
+             sub   2
              ld    d, a
              ld    a, (thugY)
              ld    e, a
