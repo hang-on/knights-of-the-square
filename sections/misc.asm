@@ -141,11 +141,16 @@ goRandom:    push  hl
 ; COLLISION DETECTION - IMPROVED!
 ; H = Obj1X, L = Obj1Y, B = Obj1Size
 ; D = Obj2X, E = Obj2Y  C = Obj2Size
+; Math: Obj1Size + Obj2Size + 1 <= (Abs(Obj1X - Obj2X) + 1)2 [horiz.]
+; Math: Obj1Size + Obj2Size + 1 <= (Abs(Obj1Y - Obj2Y) + 1)2 [vert.]
+; If both tests are true, then we have a collision!
 ; Returns with carry flag set if the two objects overlap
+; (c)arry = (c)ollision - oh, clever :)
 
 DetectCollision:
 
 ; Test for horizontal overlap.
+
              push  bc
              srl   b
              srl   c
