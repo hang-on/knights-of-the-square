@@ -19,25 +19,17 @@
 .define SCROLL     0
 
 .ramsection "Thug ram" slot 3
-
-; What state is the thug in at the moment?
-
 ThugState db
-
-
-thugX        db
-thugY        db
-ThugCounter     db
-thugLife     db
-thugFlag     db                    ; * see below
-thugHSP      db                    ; thug's horizontal speed
-
-; How long the thug waits until he attacks.
-
+ThugX db
+ThugY db
+ThugCounter db
+ThugLife db
+ThugFlag db
+ThugSpeed db
 ThugDelay db
 .ends
 
-; * thugFlag, bits: xxxx xxps
+; * ThugFlag, bits: xxxx xxps
 ; s = scroll thug left next vblank
 ; p = points ready to be added to player's score (for slaying!)
 ; -------------------------------------------------------------------
@@ -67,7 +59,7 @@ thugInit:
 thugLoop:
             ; clear status flag
              xor   a
-             ld    (thugFlag), a
+             ld    (ThugFlag), a
 
              call  _HandleAttack
 
@@ -101,9 +93,9 @@ thugLoop:
 
 +:           ld    a, (wponY)
              ld    d, a
-             ld    a, (thugX)
+             ld    a, (ThugX)
              ld    l, a
-             ld    a, (thugY)
+             ld    a, (ThugY)
              ld    e, a
              ld    b, 4
              ld    c, 8
@@ -130,9 +122,9 @@ thugLoop:
              ld    a, (wponDam)    ; get weapon damage modifier
              add   a, b            ; add random damage to modifier
              ld    b, a            ; store this total amount of dam.
-             ld    a, (thugLife)    ; get soldier's life variable
+             ld    a, (ThugLife)    ; get soldier's life variable
              sub   b               ; subtract total damage
-             ld    (thugLife), a    ; and put the result back in var.
+             ld    (ThugLife), a    ; and put the result back in var.
 
 ; -------------------------------------------------------------------
 ;                 STATUS = HURTING                                  ;
@@ -171,7 +163,7 @@ thugLp2:
              cp    THUG_STANDING
              jp    nz, thugLp3
 
-             ld    a, (thugLife)   ;
+             ld    a, (ThugLife)   ;
              rla                   ; life below 0?
              jp    nc, thugLp3
 
@@ -193,7 +185,7 @@ thugLp3:
              jp    nz, +
              ld    hl, ThugState     ;
              ld    (hl), THUG_DEAD   ;
-             ld    hl, thugFlag
+             ld    hl, ThugFlag
              set   1, (hl)          ; signal to score module...
              jp    thugLp4
 +:
@@ -201,9 +193,9 @@ thugLp3:
              ld    a, (ThugCounter)   ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
-             ld    a, (thugX)       ; get player's x position
+             ld    a, (ThugX)       ; get player's x position
              ld    d, a            ; put it in D (param)
-             ld    a, (thugY)       ; get player's y position
+             ld    a, (ThugY)       ; get player's y position
              ld    e, a            ; put it in E (param)
              ld    b, THUGSAT       ; B = plr sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
@@ -223,7 +215,7 @@ thugLp4:
              cp    1                   ; is flag set for scrolling?
              jp    nz, thugLp5
 
-             ld   hl, thugX         ; point to  x pos
+             ld   hl, ThugX         ; point to  x pos
              dec  (hl)             ; decrement it
              ld   a, (hl)          ; put value in A for a comparison
              cp   0                ;
@@ -232,8 +224,8 @@ thugLp4:
 ; thug has scrolled off screen, so destroy him.
 
              xor   a
-             ld    (thugX), a
-             ld    (thugY), a
+             ld    (ThugX), a
+             ld    (ThugY), a
 
              ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
@@ -267,13 +259,13 @@ thugLp6:
 /*
 ; Move thug horizontally according to hSpeed.
 
-             ld    a, (thugHSP)    ; get horizontal speed
+             ld    a, (ThugSpeed)    ; get horizontal speed
              ld    b, a            ; store it in B
-             ld    a, (thugX)       ; get current x pos of player
+             ld    a, (ThugX)       ; get current x pos of player
              add   a, b            ; add speed to current x pos
-             ld    (thugX), a       ; and put it into current player x
+             ld    (ThugX), a       ; and put it into current player x
              xor   a               ; clear A
-             ld    (thugHSP), a     ; set speed to zero
+             ld    (ThugSpeed), a     ; set speed to zero
 */
              ret
 
@@ -288,18 +280,18 @@ _StartAttack:
              ld    (ThugCounter), a
 
              ld    c, THUG_ATTACKING
-             ld    a, (thugX)
+             ld    a, (ThugX)
              ld    d, a
-             ld    a, (thugY)
+             ld    a, (ThugY)
              ld    e, a
              ld    b, THUGSAT
              call  goSprite
 
              ld    c, THUG_WEAPON
-             ld    a, (thugX)
+             ld    a, (ThugX)
              sub   8
              ld    d, a
-             ld    a, (thugY)
+             ld    a, (ThugY)
              ld    e, a
              ld    b, THUG_WEAPON_SAT
              call  goSprite
@@ -327,9 +319,9 @@ _HandleAttack:
              ld    (ThugState), a
 
              ld    c, THUG_STANDING
-             ld    a, (thugX)
+             ld    a, (ThugX)
              ld    d, a
-             ld    a, (thugY)
+             ld    a, (ThugY)
              ld    e, a
              ld    b, THUGSAT
              call  goSprite
@@ -366,10 +358,10 @@ _DetectProximity:
              ld    a, (plrY)
              ld    d, a
              ld    b, 8            ; size of player box
-             ld    a, (thugX)
+             ld    a, (ThugX)
              sub   4
              ld    l, a
-             ld    a, (thugY)
+             ld    a, (ThugY)
              ld    e, a
              ld    c, 8            ; size of thug box
 

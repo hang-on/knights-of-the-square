@@ -30,10 +30,10 @@ ManageDebugPanelLoop:
              ld    a, (plrY)
              ld    d, a
              ld    b, 8            ; size of player box
-             ld    a, (thugX)
+             ld    a, (ThugX)
              sub   2
              ld    l, a
-             ld    a, (thugY)
+             ld    a, (ThugY)
              ld    e, a
              ld    c, 8            ; size of thug box
 
