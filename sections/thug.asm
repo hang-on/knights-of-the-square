@@ -77,25 +77,19 @@ thugLoop:
              cp    THUG_STANDING
              jp   nz, thugLp1
 
-/*             ld    hl, wponX       ; hl = obj1 (x,y) - Arthur's sword
-             ld    a, (plrDir)     ; adjust depending on direction
-             cp    LEFT
-             jp    nz, +
-             inc   (hl)            ; the sword is not 8 pix wide
-             inc   (hl)
-             inc   (hl)
-             jp    ++
-+:           dec (hl)              ;
-             dec (hl)
-             dec (hl)
-++:          ld    de, thugX       ;
-             call  clDetect        ; coll. between obj1 and obj2?
-             jp    nc, thugLp1         ; if no coll. > skip
-
-*/
              ld    a, (wponX)
              ld    h, a
-             ld    a, (wponY)
+
+             ; Adjust x-pos if player is facing left because the
+             ; sword is only 4 pixels wide.
+             ld    a, (plrDir)
+             cp    LEFT
+             jp    nz, +
+             ld    a, 4
+             add   a, h
+             ld    h, a
+
++:           ld    a, (wponY)
              ld    d, a
              ld    a, (thugX)
              ld    l, a
