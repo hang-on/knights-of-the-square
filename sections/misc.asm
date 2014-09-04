@@ -200,7 +200,7 @@ TestOverlap:
              add   a ,a            ; add the * 2
 
              ; Fix for screen wrap-around collision.
-             call  pe, ResetCarry
+             jp  pe, ResetCarry
 
              ; Prepare stuff for the equation's left side.
              pop   bc              ; retrieve non-halved sizes
