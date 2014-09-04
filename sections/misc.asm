@@ -155,7 +155,8 @@ goRandom:    push  hl
 ; D = Obj1Y, E = Obj2Y
 ; B = Obj1Size, C = Obj2Size
 ;
-; Returns with carry flag set if the two objects overlap
+; Returns with carry flag set if the two objects overlap on both axes
+; = collision!
 ; (c)arry = (c)ollision - oh, clever :)
 
 DetectCollision:
@@ -213,8 +214,6 @@ TestOverlap:
              pop   af              ; retrieve right side of equation
              cp    b               ; compare left and right side
              ret                   ; return (with carry set/reset)
-
-ResetCarry:
 
 /*
              ; Example of DetectCollision in action.
