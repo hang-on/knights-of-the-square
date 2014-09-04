@@ -74,11 +74,19 @@ thugLoop:
 ; -------------------------------------------------------------------
 ;                 COLLISION DETECTION: SWORD AND THUG               ;
 ; -------------------------------------------------------------------
+             
+             ; Thug is vulnerable when he is standing or preparing
+             ; for an attack.
              ld    a, (ThugState)
              cp    THUG_STANDING
-             jp   nz, thugLp1
+             jp    z, +
+             cp    THUG_WAITING
+             jp    z, +
 
-             ld    a, (wponX)
+             ; If none of the above, skip to next section.
+             jp   thugLp1
+
++:           ld    a, (wponX)
              ld    h, a
 
              ; Adjust x-pos if player is facing left because the
