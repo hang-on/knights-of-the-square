@@ -273,11 +273,11 @@ _StartAttack:
              ld    a, (plrX)
              ld    h, a
              ld    a, (plrY)
-             ld    l, a
+             ld    d, a
              ld    b, 8            ; size of player box
              ld    a, (thugX)
              sub   2
-             ld    d, a
+             ld    l, a
              ld    a, (thugY)
              ld    e, a
              ld    c, 8            ; size of thug box

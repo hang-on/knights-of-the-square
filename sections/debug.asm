@@ -23,7 +23,7 @@ InitializeDebugPanel:
 
 ManageDebugPanelLoop:
 
-             call  _ResetFlag1
+/*             call  _ResetFlag1
 
 ; Set a yellow flag1 if player enters thug's attack box.
 
@@ -41,7 +41,7 @@ ManageDebugPanelLoop:
              ret   nc
 
              call  _SetFlag1
-
+*/
              ret
 
 ; -------------------------------------------------------------------

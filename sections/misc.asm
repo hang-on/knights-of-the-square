@@ -155,17 +155,10 @@ DetectCollision:
 ; if collision - then test vert. coll.
 ; load hl, with y,y
 ; test
-             push  hl
-             push  de
 
-             ld    l, d
              call  TestOverlap
-             pop   de
-             pop   hl
              ret   nc
-
-
-             ld    h, l
+             ld    h, d
              ld    l, e
              call  TestOverlap
 
