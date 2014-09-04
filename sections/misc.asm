@@ -138,44 +138,47 @@ goRandom:    push  hl
 
 
 ; -------------------------------------------------------------------
-; COLLISION DETECTION - IMPROVED!
-; H = Obj1X, L = Obj1Y, B = Obj1Size
-; D = Obj2X, E = Obj2Y  C = Obj2Size
-; Math: Obj1Size + Obj2Size + 1 <= (Abs(Obj1X - Obj2X) + 1)2 [horiz.]
-; Math: Obj1Size + Obj2Size + 1 <= (Abs(Obj1Y - Obj2Y) + 1)2 [vert.]
+; COLLISION DETECTION
+; Detects collision between two square objects on a 2D field.
+; Each object has a (x,y) position (like in the SAT).
+; The size of each object is the object's width/height in pixels.
+; The collision detection routine makes the following two tests:
+; 1) Overlap on x-axis?
+;    Obj1Size + Obj2Size + 1 <= (Abs(Obj1X - Obj2X) + 1)2
+;
+; 2) Overlap on y-axis?
+; 2) Obj1Size + Obj2Size + 1 <= (Abs(Obj1Y - Obj2Y) + 1)2
+;
 ; If both tests are true, then we have a collision!
+; The following parameters are expected on entry:
+; H = Obj1X, L = Obj2X,
+; D = Obj1Y, E = Obj2Y
+; B = Obj1Size, C = Obj2Size
+;
 ; Returns with carry flag set if the two objects overlap
 ; (c)arry = (c)ollision - oh, clever :)
 
 DetectCollision:
 
-; Improved flow:
-; load hl with x,x
-; test
-; if collision - then test vert. coll.
-; load hl, with y,y
-; test
+             call  TestOverlap     ; test for x-axis overlap
+             ret   nc              ; if no overlap, skip next test
+             ld    h, d            ; load Obj1Y into h
+             ld    l, e            ; load Obj2Y into l
+             call  TestOverlap     ; test for y-axis overlap
 
-             call  TestOverlap
-             ret   nc
-             ld    h, d
-             ld    l, e
-             call  TestOverlap
-
-             ret
+             ret                   ; return (w. carry flag set/reset)
 
 TestOverlap:
-; Test for overlap, coords. passed in hl.
 
-             push  bc
-             srl   b
-             srl   c
-             ld    a, h         ; get obj1 x pos (top left corner)
-             add   a, b            ; update x pos to center of sprite
+             push  bc              ; save BC for later
+             srl   b               ; get half of Obj1's size
+             srl   c               ; get half of Obj2's size
+             ld    a, h            ; load Obj1X into A
+             add   a, b            ; Obj1X + (Obj1Size/2) = center
 
              ld    h, a
-             ld    a, l         ; get obj2 x pos (top left corner)
-             add   a, c            ; update x pos to center of sprite
+             ld    a, l
+             add   a, c
              pop   bc
              sub   h               ; subtract the two x pos'
              bit   7,a             ; is the result negative (signed)?
@@ -192,40 +195,6 @@ TestOverlap:
              pop   af
              cp    b              ; 8 + 8 + 1(width of the objects)
              ret                   ; no horiz. overlap = no coll!
-
-
-
-
-
-
-; Test for vertical overlap.
-             push  bc
-             srl   b
-             srl   c
-
-             ld    a, l         ; get obj1Y
-             add   a, b            ; update to sprite's center
-             ld    l, a            ; save value in B
-             ld    a, e         ; get obj2Y
-             add   a, c            ; update to sprite's center
-             pop   bc
-             sub   l               ; subtract the two y pos'
-             bit   7,a             ; is the result negative (signed)?
-             jp    z, +            ; if not, go ahead
-             neg                   ; if so, do the abs() trick
-+:           add   a, 1            ; according to the formula
-             add   a ,a            ; also according to the formula
-             jp    pe, ResetCarry    ; fix for wrap-around issue
-             push  af
-             ld    a, b
-             add   a, c
-             inc   a
-             ld    b, a
-             pop   af
-             cp    b              ; 8 + 8 + 1(width of the objects)
-
-;             cp    17              ; 2 x 8 + 1
-             ret                   ; exit: if carry then collision
 
 ResetCarry:
              or    a               ; reset carry flag
