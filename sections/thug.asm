@@ -1,20 +1,21 @@
-; Thug module.
+;-------------------------------------------------------------------;
+;                          THUG MODULE                              ;
+; ------------------------------------------------------------------;
 
-; Header ------------------------------------------------------------
-
-.define THUGSAT    5
+.define THUGSAT 5
+.define THUG_OFF $00
+.define THUG_DEAD $34
 .define THUG_STANDING $30
-.define THUGHURT   $01
-.define THUGDIE    $02
+.define THUG_HURTING 1
+.define THUG_DYING 2
 .define THUG_WAITING 3
 .define THUG_ATTACKING $36
+.define THUG_SHIRT $19
+
 .define THUG_WEAPON $35
 .define THUG_WEAPON_SAT 6
 
-.define THUGOFF    $00             ; switched off
-.define THUGDEAD   $34             ; dead
-.define THUGSHIR   $19             ; palette index for shirt
-
+; Used by ThugFlag.
 .define SCROLL     0
 
 .ramsection "Thug ram" slot 3
@@ -112,12 +113,12 @@ thugLoop:
 ; Update thug mode to "hurting" and set counter for duration.
 
              ld    ix, ThugState     ; point to data block
-             ld    (ix + 0), THUGHURT  ; set mode = hurting
+             ld    (ix + 0), THUG_HURTING  ; set mode = hurting
              ld    (ix + 3), 7    ; set counter
 
 ; Give him a yellow shirt
 
-             ld    b, THUGSHIR     ; soldier's shirt is col. 7, bnk 2
+             ld    b, THUG_SHIRT     ; soldier's shirt is col. 7, bnk 2
              ld    c, YELLOW       ; set up for a yellow shirt
              call  dfColor         ; define color in CRAM
 
@@ -139,7 +140,7 @@ thugLoop:
 
 thugLp1:     ; is thug status = hurting (he is taking damage)
              ld    a, (ThugState)
-             cp    THUGHURT
+             cp    THUG_HURTING
              jp    nz, thugLp2
 
              ld    hl, ThugCounter    ; point to counter
@@ -149,7 +150,7 @@ thugLp1:     ; is thug status = hurting (he is taking damage)
 
 ; B) The hurting sequence has ended - give him his orange shirt back.
 
-             ld    b, THUGSHIR         ; shirt is color 7 in CRAM bank 2
+             ld    b, THUG_SHIRT         ; shirt is color 7 in CRAM bank 2
              ld    c, ORANGE       ; prepare for an orange shirt
              call  dfColor           ;  define color in CRAM
 
@@ -176,14 +177,14 @@ thugLp2:
 
              ld    ix, ThugState
              ld   (ix + 3), 0      ; if so, reset counter
-             ld   (ix + 0), THUGDIE  ; update mode to "dying"
+             ld   (ix + 0), THUG_DYING  ; update mode to "dying"
 
 ; -------------------------------------------------------------------
 ;                 THUG IS DYING                                     ;
 ; -------------------------------------------------------------------
 thugLp3:
              ld    a, (ThugState)
-             cp    THUGDIE
+             cp    THUG_DYING
              jp    nz, thugLp4
 
              ld    hl, ThugCounter
@@ -191,7 +192,7 @@ thugLp3:
              cp    12              ; he is lying flat by now?
              jp    nz, +
              ld    hl, ThugState     ;
-             ld    (hl), THUGDEAD   ;
+             ld    (hl), THUG_DEAD   ;
              ld    hl, thugFlag
              set   1, (hl)          ; signal to score module...
              jp    thugLp4
@@ -215,7 +216,7 @@ thugLp3:
 ; -------------------------------------------------------------------
 thugLp4:
              ld    a, (ThugState)
-             cp    THUGOFF             ; don't scroll if he is off
+             cp    THUG_OFF             ; don't scroll if he is off
              jp    z, thugLp5
 
              ld    a, (scrlFlag)
@@ -240,7 +241,7 @@ thugLp4:
              ld    b, THUGSAT     ; B = the chest's index in SAT
              call  goSprite        ; update SAT RAM buffer
              ld    hl, ThugState     ; point to chest mode
-             ld    (hl), THUGOFF  ; set chect mode to OFF
+             ld    (hl), THUG_OFF  ; set chect mode to OFF
              jp    thugLp5
 
 ; Update thug sprite position.
