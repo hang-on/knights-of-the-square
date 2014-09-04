@@ -59,77 +59,22 @@ ThugInit:
 .ends
 
 .section "Thug loop" free
-; handle the thug object each pass in the game loop
-; put a call to this function in the main game loop
-thugLoop:
-            ; clear status flag
+; Put a call to this function in the main game loop
+ManageThugLoop:
+            
+; Clear the status flag.
+
              xor   a
              ld    (ThugFlag), a
 
+; Detect proximity of player, prepare for attck, etc.
+
              call  _HandleAttack
 
+; Check for collision between player's sword and thug.
 
-; -------------------------------------------------------------------
-;                 COLLISION DETECTION: SWORD AND THUG               ;
-; -------------------------------------------------------------------
-             
-             ; Thug is vulnerable when he is standing or preparing
-             ; for an attack.
-             ld    a, (ThugState)
-             cp    THUG_STANDING
-             jp    z, +
-             cp    THUG_WAITING
-             jp    z, +
+             call   _HitThug
 
-             ; If none of the above, skip to next section.
-             jp   thugLp1
-
-+:           ld    a, (wponX)
-             ld    h, a
-
-             ; Adjust x-pos if player is facing left because the
-             ; sword is only 4 pixels wide.
-             ld    a, (plrDir)
-             cp    LEFT
-             jp    nz, +
-             ld    a, 4
-             add   a, h
-             ld    h, a
-
-+:           ld    a, (wponY)
-             ld    d, a
-             ld    a, (ThugX)
-             ld    l, a
-             ld    a, (ThugY)
-             ld    e, a
-             ld    b, 4
-             ld    c, 8
-             call  DetectCollision
-             jp    nc, thugLp1
-
-; Update thug mode to "hurting" and set counter for duration.
-
-             ld    ix, ThugState     ; point to data block
-             ld    (ix + 0), THUG_HURTING  ; set mode = hurting
-             ld    (ix + 3), 7    ; set counter
-
-; Give him a yellow shirt
-
-             ld    b, THUG_SHIRT     ; soldier's shirt is col. 7, bnk 2
-             ld    c, YELLOW       ; set up for a yellow shirt
-             call  dfColor         ; define color in CRAM
-
-; Deal damage to thug using formula: (0 - 3) + weapon modifier.
-
-             call  goRandom        ; put a pseudo-random number in A
-             and   %00000011       ; mask to give us interval 0 - 3
-             ld    b, a            ; store masked random number
-             ld    a, (wponDam)    ; get weapon damage modifier
-             add   a, b            ; add random damage to modifier
-             ld    b, a            ; store this total amount of dam.
-             ld    a, (ThugLife)    ; get soldier's life variable
-             sub   b               ; subtract total damage
-             ld    (ThugLife), a    ; and put the result back in var.
 
 ; -------------------------------------------------------------------
 ;                 STATUS = HURTING                                  ;
@@ -274,6 +219,70 @@ thugLp6:
 */
              ret
 
+
+
+_HitThug:
+
+; Thug is vulnerable when he is standing or preparing to attack.
+
+             ld    a, (ThugState)
+             cp    THUG_STANDING
+             jp    z, +
+             cp    THUG_WAITING
+             jp    z, +
+
+; If none of the above, skip to next section.
+
+             ret
+
++:           ld    a, (wponX)
+             ld    h, a
+
+; Adjust x-pos if player faces left (sword is just 4 pixels wide).
+             
+             ld    a, (plrDir)
+             cp    LEFT
+             jp    nz, +
+             ld    a, 4
+             add   a, h
+             ld    h, a
+
++:           ld    a, (wponY)
+             ld    d, a
+             ld    a, (ThugX)
+             ld    l, a
+             ld    a, (ThugY)
+             ld    e, a
+             ld    b, 4
+             ld    c, 8
+             call  DetectCollision
+             ret    nc
+
+; Update thug mode to "hurting" and set counter for duration.
+
+             ld    ix, ThugState
+             ld    (ix + 0), THUG_HURTING
+             ld    (ix + 3), 7
+
+; Give him a yellow shirt of pain.
+
+             ld    b, THUG_SHIRT
+             ld    c, YELLOW
+             call  dfColor
+
+; Deal damage to thug using formula: (0 - 3) + weapon modifier.
+
+             call  goRandom        ; put a pseudo-random number in A
+             and   %00000011       ; mask to give us interval 0 - 3
+             ld    b, a            ; store masked random number
+             ld    a, (wponDam)    ; get weapon damage modifier
+             add   a, b            ; add random damage to modifier
+             ld    b, a            ; store this total amount of dam.
+             ld    a, (ThugLife)   ; get soldier's life variable
+             sub   b               ; subtract total damage
+             ld    (ThugLife), a   ; and put the result back in var.
+
+             ret
 
 ; Handle the thug's occasional attempt to attack the player.
 

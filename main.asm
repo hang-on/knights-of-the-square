@@ -127,7 +127,7 @@ gameLoop:
 
              call  stagLoop
              call  plrLoop
-             call  thugLoop        ; update the thug object
+             call  ManageThugLoop        ; update the thug object
              call  ManageChestLoop
 
              call  scorLoop
