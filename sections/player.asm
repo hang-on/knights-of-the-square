@@ -151,13 +151,7 @@ _step3:
 
              call  getPlr1         ; get formatted input in A
              rra                   ; rotate 'up bit' into carry
-             push  af              ; save input
-             call  c, mvNorth      ; if bit is set: Attempt mv. north
-             pop   af              ; retrieve input
              rra                   ; carry = down bit
-             push  af              ; save input
-             call  c, mvSouth      ; if bit is set, then mv. south
-             pop   af              ; retrieve input
              rra                   ; carry = left bit
              push  af              ; save input
              call  c, mvWest       ; should we atttempt to go west?
