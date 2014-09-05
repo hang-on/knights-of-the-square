@@ -129,8 +129,8 @@ _ScrollThug:
 
 ; Update thug sprite position.
 
-+:           ld    a, (ThugState)
-             ld    c, a
++:           ; ld    a, (ThugState)  ; TODO: Fix this! charcode >< state
+             ld    c, THUG_STANDING
              ld    a, (ThugX)
              ld    d, a
              ld    a, (ThugY)
