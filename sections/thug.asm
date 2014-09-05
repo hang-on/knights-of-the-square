@@ -74,29 +74,10 @@ ManageThugLoop:
 ; Check for collision between player's sword and thug.
 
              call   _HitThug
-             
+
 ; Handle affairs if thug state is 'hurting'.
 
              call  _HurtThug
-
-
-
-
-; -------------------------------------------------------------------
-;                 CHECK THUG HEALTH                                 ;
-; -------------------------------------------------------------------
-thugLp2:
-             ld    a, (ThugState)
-             cp    THUG_STANDING
-             jp    nz, thugLp3
-
-             ld    a, (ThugLife)   ;
-             rla                   ; life below 0?
-             jp    nc, thugLp3
-
-             ld    ix, ThugState
-             ld   (ix + 3), 0      ; if so, reset counter
-             ld   (ix + 0), THUG_DYING  ; update mode to "dying"
 
 ; -------------------------------------------------------------------
 ;                 THUG IS DYING                                     ;
@@ -222,6 +203,18 @@ _HurtThug:
 
              ld    hl, ThugState
              ld    (hl), THUG_STANDING
+
+; Check the thug's life meter.
+
+             ld    a, (ThugLife)
+             rla
+             ret    nc
+
+; Life is below zero - switch state to 'dying'.
+
+             ld    ix, ThugState
+             ld   (ix + 3), 0
+             ld   (ix + 0), THUG_DYING
              ret
 
 ; The hurt state is just going on, so decrease counter.
