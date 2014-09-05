@@ -43,8 +43,8 @@ ThugInit:
 
              ld    ix, ThugState
              ld    (ix + 0), THUG_STANDING
-             ld    (ix + 1), 80
-             ld    (ix + 2), 120
+             ld    (ix + 1), 160
+             ld    (ix + 2), BASELINE
              ld    (ix + 4), 8
 
 ; Put a standing thug sprite on the screen.
