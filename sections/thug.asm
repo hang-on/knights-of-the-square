@@ -78,39 +78,14 @@ ManageThugLoop:
 ; Handle affairs if thug state is 'hurting'.
 
              call  _HurtThug
+             
+; Handle a possible dying thug.
+
+             call  _KillThug
 
 ; -------------------------------------------------------------------
 ;                 THUG IS DYING                                     ;
 ; -------------------------------------------------------------------
-thugLp3:
-             ld    a, (ThugState)
-             cp    THUG_DYING
-             jp    nz, thugLp4
-
-             ld    hl, ThugCounter
-             ld    a, (hl)   ; get counter
-             cp    12              ; he is lying flat by now?
-             jp    nz, +
-             ld    hl, ThugState     ;
-             ld    (hl), THUG_DEAD   ;
-             ld    hl, ThugFlag
-             set   1, (hl)          ; signal to score module...
-             jp    thugLp4
-+:
-             ld    hl, thugDie    ; param: animation script
-             ld    a, (ThugCounter)   ; param: freshly updated anim.
-             call  arrayItm        ; get charcode from anim. script
-             ld    c, a            ; put charcode in C (param)
-             ld    a, (ThugX)       ; get player's x position
-             ld    d, a            ; put it in D (param)
-             ld    a, (ThugY)       ; get player's y position
-             ld    e, a            ; put it in E (param)
-             ld    b, THUGSAT       ; B = plr sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-             ld    hl, ThugCounter
-             inc   (hl)
-
 ; -------------------------------------------------------------------
 ;                 THUG SCROLLER                                     ;
 ; -------------------------------------------------------------------
@@ -175,6 +150,48 @@ thugLp6:
              xor   a               ; clear A
              ld    (ThugSpeed), a     ; set speed to zero
 */
+             ret
+
+_KillThug:
+             ld    a, (ThugState)
+             cp    THUG_DYING
+             ret    nz
+
+; Check if 'dying' state has expired.
+
+             ld    hl, ThugCounter
+             ld    a, (hl)
+             cp    12
+             jp    nz, +
+
+; Switch thug to new state = 'dead'.
+
+             ld    hl, ThugState
+             ld    (hl), THUG_DEAD
+
+; Signal to score module and return.
+
+             ld    hl, ThugFlag
+             set   1, (hl)
+             ret
+
+; Dying state still active - play next cel in dying animation.
+
++:           ld    hl, thugDie
+             ld    a, (ThugCounter)
+             call  arrayItm
+             ld    c, a
+             ld    a, (ThugX)
+             ld    d, a
+             ld    a, (ThugY)
+             ld    e, a
+             ld    b, THUGSAT
+             call  goSprite
+
+; Increase counter and return = one step closer to death!
+
+             ld    hl, ThugCounter
+             inc   (hl)
              ret
 
 
