@@ -92,9 +92,9 @@ init:        call  initBlib        ; initialize bluelib
              inc   hl              ; point to MSB
              ld    (hl), a         ; update MSB of seed
 
-             call scorInit         ; init score module
+;             call scorInit         ; init score module
 
-             call InitializeChest          ; initialize chest
+;             call InitializeChest          ; initialize chest
 
 ; Initialize the thug.
 
@@ -110,7 +110,7 @@ init:        call  initBlib        ; initialize bluelib
 
 ; Initialize debug panel
 
-             call  InitializeDebugPanel
+;             call  InitializeDebugPanel
 
 ; Turn display on.
 
@@ -125,13 +125,13 @@ init:        call  initBlib        ; initialize bluelib
 
 gameLoop:
 
-             call  stagLoop
+ ;            call  stagLoop
              call  plrLoop
              call  ManageThugLoop        ; update the thug object
-             call  ManageChestLoop
+ ;            call  ManageChestLoop
 
-             call  scorLoop
-             call  ManageDebugPanelLoop
+ ;            call  scorLoop
+ ;            call  ManageDebugPanelLoop
 
              halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?
@@ -153,17 +153,21 @@ gameLoop:
 ; Sprite tiles in pattern generator bank 1:
 fireSPR:
 ; .include "tile\ps\fireSPR.inc"
-.include "tile\zoom\sprites.inc"
+;.include "tile\zoom\sprites.inc"
+.include "tile\zoomed\Sprite-tiles.inc"
 
 
 ; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
 firePal:
-.include "palette\firePal1.inc"
-.include "palette\ps\firePal2.inc"
+;.include "palette\firePal1.inc"
+;.include "palette\ps\firePal2.inc"
+.include "palette\zoomed\Background-palette.inc"
+.include "palette\zoomed\Sprite-palette.inc"
 
 ; Background tiles in pattern generator bank 2:
 fireBG:
-.include "tile\fireBG.inc"
+; .include "tile\fireBG.inc"
+.include "tile\zoomed\Background-tiles.inc"
 
 ; sound effect:
 sfxSword:
