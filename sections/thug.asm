@@ -59,7 +59,9 @@ ThugInit:
 .ends
 
 .section "Thug loop" free
-; Put a call to this function in the main game loop
+
+; Put a call to this function in the main game loop.
+
 ManageThugLoop:
 
 ; Clear the status flag.
@@ -78,79 +80,67 @@ ManageThugLoop:
 ; Handle affairs if thug state is 'hurting'.
 
              call  _HurtThug
-             
+
 ; Handle a possible dying thug.
 
              call  _KillThug
 
-; -------------------------------------------------------------------
-;                 THUG IS DYING                                     ;
-; -------------------------------------------------------------------
-; -------------------------------------------------------------------
-;                 THUG SCROLLER                                     ;
-; -------------------------------------------------------------------
-thugLp4:
+; Scroll thug if the stage scrolls.
+
+             call  _ScrollThug
+
+             ret
+
+
+_ScrollThug:
              ld    a, (ThugState)
-             cp    THUG_OFF             ; don't scroll if he is off
-             jp    z, thugLp5
+             cp    THUG_OFF
+             ret    z
+
+; Check the stage's scroll flag to see if scrolling will happen.
 
              ld    a, (scrlFlag)
-             cp    1                   ; is flag set for scrolling?
-             jp    nz, thugLp5
+             cp    1
+             ret    nz
 
-             ld   hl, ThugX         ; point to  x pos
-             dec  (hl)             ; decrement it
-             ld   a, (hl)          ; put value in A for a comparison
-             cp   0                ;
-             jp   nz, +     ; if not, forward...
+; Scroll thug.
+; TODO: Better to apply -1 to thug's horizontal speed!
 
-; thug has scrolled off screen, so destroy him.
+             ld   hl, ThugX
+             dec  (hl)
+             cp   0
+             jp   nz, +
+
+; Thug has scrolled off screen, so destroy him.
 
              xor   a
              ld    (ThugX), a
              ld    (ThugY), a
 
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, THUGSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, ThugState     ; point to chest mode
-             ld    (hl), THUG_OFF  ; set chect mode to OFF
-             jp    thugLp5
+             ld    c, 0
+             ld    d, 0
+             ld    e, 0
+             ld    b, THUGSAT
+             call  goSprite
+
+             ld    hl, ThugState
+             ld    (hl), THUG_OFF
+             ret
 
 ; Update thug sprite position.
-+:
-             ld    a, (ThugState)
-             ld    c, a            ; chest mode
-             ld    d, (hl)         ; D
-             inc   hl
-             ld    e, (hl)         ; E
-             ld    b, THUGSAT     ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
 
-; -------------------------------------------------------------------
-;                 SCROLL THUG?                                      ;
-; -------------------------------------------------------------------
-thugLp5:
-
-
-; -------------------------------------------------------------------
-;                 THUG MOVEMENT                                     ;
-; -------------------------------------------------------------------
-thugLp6:
-/*
-; Move thug horizontally according to hSpeed.
-
-             ld    a, (ThugSpeed)    ; get horizontal speed
-             ld    b, a            ; store it in B
-             ld    a, (ThugX)       ; get current x pos of player
-             add   a, b            ; add speed to current x pos
-             ld    (ThugX), a       ; and put it into current player x
-             xor   a               ; clear A
-             ld    (ThugSpeed), a     ; set speed to zero
-*/
++:           ld    a, (ThugState)
+             ld    c, a
+             ld    a, (ThugX)
+             ld    d, a
+             ld    a, (ThugY)
+             ld    e, a
+             ld    b, THUGSAT
+             call  goSprite
              ret
+
+
+
 
 _KillThug:
              ld    a, (ThugState)
