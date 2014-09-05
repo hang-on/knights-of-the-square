@@ -51,7 +51,7 @@ scorLoop:
 
 GetThugPoints:
 
-             ld    a, (thugFlag)
+             ld    a, (ThugFlag)
              bit   1, a
              ret   z
              ld    hl, score + 3   ; point to the hundreds column

@@ -73,6 +73,11 @@ stagLoop:
              cp    SCRLTRIG        ; player on the scroll trigger?
              jp    nz, _step1           ; if not, then no scrolling
 
+
+             ld    a, (plrState)
+             cp    ATTACK
+             jp    z, _step1
+
              call  getPlr1         ; get player 1 input indirectly
              bit   CTRIGHT, a      ; standing on trigger pushing right?
              jp    z, _step1
