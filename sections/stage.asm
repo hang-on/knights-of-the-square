@@ -28,6 +28,9 @@ META_5:
 .db $0A $1A $0B $1B                ; Fence
 
 
+DummyFill:
+.db 0 1 1 1 1 2 2 0 0 0 0 0
+
 .ramsection "Stage variables" slot 3
 scrlFlag     db                    ; shall we scroll screen at int.?
 scrlReg      db                    ; mirror of value in scroll reg.
