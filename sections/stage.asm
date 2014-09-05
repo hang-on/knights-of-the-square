@@ -65,6 +65,7 @@ stagInit:
              call  wrteVRAM        ; load tiles into tilebank
 
 
+/*
 ; Initialize variables for horizontal scrolling.
 
              ld    de, fireMap     ; start address lev. 1 map data
@@ -87,7 +88,7 @@ stagInit:
              ld    a, 0            ; target first column
              call  setClmn2        ; load next column from lev. map
              ld    (nextClmn), a   ; initialize variable
-
+*/
              ret
 .ends
 
@@ -268,10 +269,15 @@ ldName2:      ld    a, l            ; load destination LSB into L
              ret   nz              ; if not, just return
              xor   a               ; return 0 as next column
              ret                   ; and then return
+
+; Here comes a new function to LoadBackgroundBuffer
+
+; And another function LoadScrollColumn (from BackgroundBuffer)
+
 .ends
 
 .section "Stage data" free
 ; Tile map of whole level, organized column-by-column:
 fireMap:
-.include "tilemap\fireMap.inc"
+;.include "tilemap\fireMap.inc"
 .ends
