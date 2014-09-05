@@ -305,7 +305,7 @@ _StartAttack:
 
              ld    c, THUG_WEAPON
              ld    a, (ThugX)
-             sub   8
+             sub   12
              ld    d, a
              ld    a, (ThugY)
              ld    e, a
@@ -373,13 +373,13 @@ _DetectProximity:
              ld    h, a
              ld    a, (plrY)
              ld    d, a
-             ld    b, 8            ; size of player box
+             ld    b, 16            ; size of player box
              ld    a, (ThugX)
-             sub   4
+             sub   10
              ld    l, a
              ld    a, (ThugY)
              ld    e, a
-             ld    c, 8            ; size of thug box
+             ld    c, 4            ; size of thug box
 
              call  DetectCollision
 
