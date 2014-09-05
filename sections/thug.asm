@@ -27,6 +27,7 @@ ThugLife db
 ThugFlag db
 ThugSpeed db
 ThugDelay db
+ThugCharCode db
 .ends
 
 ; * ThugFlag, bits: xxxx xxps
@@ -46,6 +47,7 @@ ThugInit:
              ld    (ix + 1), 160
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 8
+             ld    (ix + 8), THUG_STANDING  ; ThugCharCode
 
 ; Put a standing thug sprite on the screen.
 
@@ -130,7 +132,7 @@ _ScrollThug:
 ; Update thug sprite position.
 
 +:           ; ld    a, (ThugState)  ; TODO: Fix this! charcode >< state
-             ld    c, THUG_STANDING
+             ld    c, THUG_STANDING  ; !!!!! BAAAAAAAD!!!!!
              ld    a, (ThugX)
              ld    d, a
              ld    a, (ThugY)
