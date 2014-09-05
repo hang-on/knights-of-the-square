@@ -86,8 +86,8 @@ SOURCES AND INSPIRATION
 .define SMAPADDR   $3800           ; screen map address (default set.)
 
 ; for toggling the display: (assuming bluelib std VDP settings)
-.define DSPOFF     %10100000       ; display off
-.define DSPON      %11100000       ; display on
+.define DSPOFF     %10100001       ; display off
+.define DSPON      %11100001       ; display on
 
 
 ; for defining character patterns:
@@ -315,7 +315,7 @@ wtPlr2:      call  getPlr2
 ; TOGGLE DISPLAY: Turn the screen on or off
 ; Parameter: A = enableDisplay or disableDisplay (definitions)
 ; Note: Frame interrupts and 8 x 8 sprites are alsO enabled each time
-; this function is called.
+; this function is called. TODO: This must be fixed!!!
 ; Note: Remember to disable interrupts prior to calling this function.
 toglDSP:     out   (VDPCOM), a
              ld     a, $81
@@ -351,11 +351,13 @@ initVDP:     ld    b, 11
 ; requirements of bluelib.
 ; NOTE: Ended up being pretty specific to Blockquest horiz. scroller
 VDPStd:
-    .db %01100110                  ; b4 = line interrupt (disabled)
+    .db %01100110                  ;
+                                   ; b4 = line interrupt (disabled)
                                    ; b5 = blank left column (enabled)
                                    ; b6 = dont scroll top two rows
 
-    .db %10100000                  ; b5 = frame interrupt (enabled)
+    .db %10100001                  ; b0 = zoomed sprites!
+                                   ; b5 = frame interrupt (enabled)
                                    ; b6 = turn display off
     .db $FF                        ; name table at $3800
     .db $FF                        ; always $ff
