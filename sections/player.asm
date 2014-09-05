@@ -53,7 +53,7 @@ plrInit:
              ld    hl, plrX        ; address of player x position
              ld    (hl), 8         ; load initial x pos. on screen
              inc   hl              ; forward to player y position
-             ld    (hl), 119       ; load initial y pos. on screen
+             ld    (hl), BASELINE       ; load initial y pos. on screen
 
 ; Give him standard sword and life.
 

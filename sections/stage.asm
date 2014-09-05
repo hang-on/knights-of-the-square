@@ -5,6 +5,7 @@
 .define NUMBG      41              ; # of tiles in bg. bank (2)
 
 .define SCRLTRIG   126
+.define BASELINE   136
 
 .ramsection "Stage variables" slot 3
 scrlFlag     db                    ; shall we scroll screen at int.?
