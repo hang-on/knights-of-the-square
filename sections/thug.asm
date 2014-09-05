@@ -61,49 +61,26 @@ ThugInit:
 .section "Thug loop" free
 ; Put a call to this function in the main game loop
 ManageThugLoop:
-            
+
 ; Clear the status flag.
 
              xor   a
              ld    (ThugFlag), a
 
-; Detect proximity of player, prepare for attck, etc.
+; Detect proximity of player, prepare for attack, etc.
 
              call  _HandleAttack
 
 ; Check for collision between player's sword and thug.
 
              call   _HitThug
+             
+; Handle affairs if thug state is 'hurting'.
+
+             call  _HurtThug
 
 
-; -------------------------------------------------------------------
-;                 STATUS = HURTING                                  ;
-; -------------------------------------------------------------------
 
-thugLp1:     ; is thug status = hurting (he is taking damage)
-             ld    a, (ThugState)
-             cp    THUG_HURTING
-             jp    nz, thugLp2
-
-             ld    hl, ThugCounter    ; point to counter
-             ld    a, (hl)         ; get value
-             cp    0               ; is counter = 0? (end hurt)
-             jp    nz, +           ; if not, skip forward...
-
-; B) The hurting sequence has ended - give him his orange shirt back.
-
-             ld    b, THUG_SHIRT         ; shirt is color 7 in CRAM bank 2
-             ld    c, ORANGE       ; prepare for an orange shirt
-             call  dfColor           ;  define color in CRAM
-
-             ld    hl, ThugState     ; point to soldier's mode variable
-             ld    (hl), THUG_STANDING   ; switch back to standing
-             jp    thugLp2               ; jump to next objects
-
-; C) Hurt sequence is just going on...
-
-+:           ld    hl, ThugCounter
-             dec   (hl)            ; decrease counter
 
 ; -------------------------------------------------------------------
 ;                 CHECK THUG HEALTH                                 ;
@@ -219,6 +196,39 @@ thugLp6:
 */
              ret
 
+
+_HurtThug:
+
+; Is thug status = hurting? (Paralyzed from being hit).
+
+             ld    a, (ThugState)
+             cp    THUG_HURTING
+             ret    nz
+
+; Has the hurt state expired?
+
+             ld    hl, ThugCounter
+             ld    a, (hl)
+             cp    0
+             jp    nz, +
+
+; The hurt state has expired - give him back his orange shirt.
+
+             ld    b, THUG_SHIRT
+             ld    c, ORANGE
+             call  dfColor
+
+; Switch state back to standing and return.
+
+             ld    hl, ThugState
+             ld    (hl), THUG_STANDING
+             ret
+
+; The hurt state is just going on, so decrease counter.
+
++:           ld    hl, ThugCounter
+             dec   (hl)
+             ret
 
 
 _HitThug:
