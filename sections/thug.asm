@@ -51,7 +51,7 @@ ThugInit:
 
 ; Put a standing thug sprite on the screen.
 
-             ld    c, THUG_STANDING
+             ld    c, (ix + 8)
              ld    d, (ix + 1)
              ld    e, (ix + 2)
              ld    b, THUGSAT
@@ -131,8 +131,9 @@ _ScrollThug:
 
 ; Update thug sprite position.
 
-+:           ; ld    a, (ThugState)  ; TODO: Fix this! charcode >< state
-             ld    c, THUG_STANDING  ; !!!!! BAAAAAAAD!!!!!
++:
+             ld    a, (ThugCharCode)
+             ld    c, a            ; does this work better?
              ld    a, (ThugX)
              ld    d, a
              ld    a, (ThugY)
@@ -172,6 +173,7 @@ _KillThug:
 +:           ld    hl, thugDie
              ld    a, (ThugCounter)
              call  arrayItm
+             ld    (ThugCharCode), a  ; store new charcode
              ld    c, a
              ld    a, (ThugX)
              ld    d, a
@@ -294,6 +296,7 @@ _StartAttack:
 
              ld     a, THUG_ATTACKING
              ld    (ThugState), a
+             ld    (ThugCharCode), a
              ld    a, 10
              ld    (ThugCounter), a
 
@@ -335,6 +338,7 @@ _HandleAttack:
 
              ld    a, THUG_STANDING
              ld    (ThugState), a
+             ld    (ThugCharCode), a
 
              ld    c, THUG_STANDING
              ld    a, (ThugX)
