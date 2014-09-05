@@ -219,13 +219,13 @@ _step4:
              jp    nz, +
              ld    c, ARTSWORD     ; C = charcode (param)
              ld    a, (plrX)       ; get player x position
-             add   a, 8
+             add   a, 12
              ld    d, a            ; put it in D
              jp    ++
 +:
-             ld    c, ARTSWORD+4   ; C = charcode (param)
+             ld    c, ARTSWORD     ; C = charcode (param)
              ld    a, (plrX)       ; get player x position
-             sub   8
+             sub   12
              ld    d, a            ; put it in D
 
 ++:
