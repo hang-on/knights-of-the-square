@@ -152,8 +152,10 @@ gameLoop:
 .section "Level 1 data: Village on fire (abbrev. 'fire')" free
 ; Sprite tiles in pattern generator bank 1:
 fireSPR:
+; .include "tile\ps\fireSPR.inc"
+.include "tile\zoom\sprites.inc"
 
-.include "tile\ps\fireSPR.inc"
+
 ; Palette data for CRAM banks 1 (backgr.) and 2 (backgr. + sprites):
 firePal:
 .include "palette\firePal1.inc"
