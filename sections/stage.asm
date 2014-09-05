@@ -7,12 +7,37 @@
 .define SCRLTRIG   126
 .define BASELINE   136
 
+; Dictionary of meta tiles.
+
+META_0:
+.db $00 $10 $01 $11                ; Solid black square
+
+META_1:
+.db $02 $12 $03 $13                ; The sky
+
+META_2:
+.db $04 $14 $05 $15                ; The ground
+
+META_3:
+.db $06 $16 $07 $17                ; Tree
+
+META_4:
+.db $08 $18 $09 $19                ; House
+
+META_5:
+.db $0A $1A $0B $1B                ; Fence
+
+
 .ramsection "Stage variables" slot 3
 scrlFlag     db                    ; shall we scroll screen at int.?
 scrlReg      db                    ; mirror of value in scroll reg.
 nextClmn     db                    ; next name tab. clmn to be blanked
 mapData      dw                    ; pointer to nxt column of map data
 scrlBrk      db                    ; block scrolling
+
+
+; Two buffer columns to hold 12 meta tiles, ready for the screen.
+BackgroundBuffer dsb 2 * 24 * 2
 .ends
 ; -------------------------------------------------------------------
 
