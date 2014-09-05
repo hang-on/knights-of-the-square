@@ -245,26 +245,18 @@ _HitThug:
 
              ret
 
+; Detect collision between the player's sword and the thug's body.
+
 +:           ld    a, (wponX)
              ld    h, a
-
-; Adjust x-pos if player faces left (sword is just 4 pixels wide).
-             
-             ld    a, (plrDir)
-             cp    LEFT
-             jp    nz, +
-             ld    a, 4
-             add   a, h
-             ld    h, a
-
-+:           ld    a, (wponY)
+             ld    a, (wponY)
              ld    d, a
              ld    a, (ThugX)
              ld    l, a
              ld    a, (ThugY)
              ld    e, a
-             ld    b, 4
-             ld    c, 8
+             ld    b, 8
+             ld    c, 16
              call  DetectCollision
              ret    nc
 
