@@ -2,7 +2,7 @@
 
 ; Header ------------------------------------------------------------
 .define NUMSPR     64              ; # of tiles in sprite bank (1)
-.define NUMBG      83              ; # of tiles in bg. bank (2)
+.define NUMBG      $52              ; # of tiles in bg. bank (2)
 
 .define SCRLTRIG   126
 .define BASELINE   136
