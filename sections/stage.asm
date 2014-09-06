@@ -142,12 +142,9 @@ stagLoop:
 
 ; Read from map data to see if the next byte is the terminator ($ff).
 
-             ld    ix, mapData     ; mapData is a 16-bit pointer
-             ld    e, (ix + 0)     ; LSB to E
-             ld    d, (ix + 1)     ; MSB to D
-             ld    a, (de)         ; get next byte from map data block
-             cp    $ff             ; is it the terminator?
-             jp    z, _step1            ; if so, then no scrolling
+             ld    a, (MetaTileScriptIndex)
+             cp    END_OF_LEVEL
+             jp    z, _step1            
 
 ; Scrolling OK. Set the scroll flag
 

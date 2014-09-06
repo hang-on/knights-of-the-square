@@ -125,7 +125,7 @@ init:        call  initBlib        ; initialize bluelib
 
 gameLoop:
 
- ;            call  stagLoop
+             call  stagLoop
              call  plrLoop
              call  ManageThugLoop        ; update the thug object
  ;            call  ManageChestLoop
