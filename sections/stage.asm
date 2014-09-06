@@ -5,7 +5,7 @@
 .define NUMBG      $52              ; # of tiles in bg. bank (2)
 
 .define SCRLTRIG   126
-.define BASELINE   136
+.define BASELINE   92
 
 .section "Stagestuff" free
 
