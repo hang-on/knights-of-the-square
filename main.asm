@@ -133,7 +133,7 @@ gameLoop:
  ;            call  scorLoop
  ;            call  ManageDebugPanelLoop
 
-             halt                  ; finish loop by waiting for ints.
+            ; halt                  ; finish loop by waiting for ints.
              halt                  ; = this game runs at 30 FPS?
              jp    gameLoop        ; then over again...
 .ends
