@@ -85,14 +85,6 @@ NextColumn db
 
 .section "Stage initialize" free
 InitializeStage:
-
-             call  TestLoadColumn
-             ret
-
-
-stagInit:
-; Load graphical assets for level 1: Village on Fire.
-
              ld    hl, firePal     ; firePal: Lev. 1 palette data
              call  setCRAM         ; define all colors in CRAM
 
@@ -108,33 +100,11 @@ stagInit:
              ld    hl, fireBG      ; source data: Background tiles
              ld    bc, NUMBG*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
-
-/*
-
-; Initialize variables for horizontal scrolling.
-
-             ld    de, fireMap     ; start address lev. 1 map data
-             ld    hl, mapData     ; current level's map data
-             ld    (hl), e         ; transfer LSB of 16-bit pointer
-             inc   hl
-             ld    (hl), d         ; transfer MSB of 16-bit pointer
-
-; Draw initial name table with column routine.
-
-             ld    b, 32           ; the screen is 32 columns wide
-             ld    a, 0            ; start with the first column
--:           push  bc              ; save the counter B
-             call  setClmn2        ; load 1 column of names to table
-             pop   bc              ; retrieve counter
-             djnz  -               ; shall we load another column?
-
-; Fill next scroll column with next level map column.
-
-             ld    a, 0            ; target first column
-             call  setClmn2        ; load next column from lev. map
-             ld    (nextClmn), a   ; initialize variable
+             
+             call  TestLoadColumn
              ret
-*/
+
+
 
 .ends
 
