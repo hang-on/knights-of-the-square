@@ -35,7 +35,7 @@ banks 2
 .define NUMBER_OF_SPRITE_TILES 64
 .define NUMBER_OF_BACKGROUND_TILES $52
 
-.define SCRLTRIG   126             ; step here to scroll the screen
+.define SCROLL_TRIGGER   126       ; step here to scroll the screen
 .define BASELINE   92              ; where is the common ground?
 
 
@@ -384,7 +384,7 @@ InitializeStage:
 stagLoop:
              ld    hl, plrX        ; the horizontal pos. of player
              ld    a, (hl)         ; read from variable to register
-             cp    SCRLTRIG        ; player on the scroll trigger?
+             cp    SCROLL_TRIGGER        ; player on the scroll trigger?
              jp    nz, _step1           ; if not, then no scrolling
 
 
