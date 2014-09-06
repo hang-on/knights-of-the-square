@@ -104,7 +104,7 @@ InitializeStage:
 ; Create initial name table setup.
 
 
-             ld    a, 0
+             ld    a, 1
 -:
              push  af
              call  LoadColumn      ; don't worry, the screen is off
@@ -113,7 +113,8 @@ InitializeStage:
              cp    32
              jp    nz, -
 
-
+             ld   a, 0
+             call LoadColumn
              ret
 
 
