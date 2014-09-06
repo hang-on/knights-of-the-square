@@ -32,38 +32,38 @@ META_5:
 
 ColumnDummyFill:
 ; column 0
-.db $01 $00 $01 $10   ; black
+.db $00 $01 $10 $01   ; black
 
-.db $01 $02 $01 $12  ;sky
-.db $01 $02 $01 $12
-.db $01 $02 $01 $12
-.db $01 $02 $01 $12
+.db $02 $01 $12 $01  ;sky
+.db $02 $01 $12 $01
+.db $02 $01 $12 $01
+.db $02 $01 $12 $01
 
-.db $01 $04 $01 $14    ; road
-.db $01 $04 $01 $14
+.db $04 $01 $14 $01    ; road
+.db $04 $01 $14 $01
 
-.db $01 $00 $01 $10    ; black
-.db $01 $00 $01 $10
-.db $01 $00 $01 $10
-.db $01 $00 $01 $10
-.db $01 $00 $01 $10
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
 
 ; column 1:
-.db $01 $01 $01 $11
+.db $00 $01 $10 $01   ; black
 
-.db $01 $03 $01 $13
-.db $01 $03 $01 $13
-.db $01 $03 $01 $13
-.db $01 $03 $01 $13
+.db $02 $01 $12 $01  ;sky
+.db $02 $01 $12 $01
+.db $02 $01 $12 $01
+.db $02 $01 $12 $01
 
-.db $01 $05 $01 $15
-.db $01 $05 $01 $15
+.db $04 $01 $14 $01    ; road
+.db $04 $01 $14 $01
 
-.db $01 $01 $01 $11
-.db $01 $01 $01 $11
-.db $01 $01 $01 $11
-.db $01 $01 $01 $11
-.db $01 $01 $01 $11
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
+.db $00 $01 $10 $01   ; black
 
 .ends
 
@@ -325,6 +325,12 @@ TestLoadColumn:
              ld    hl, ColumnDummyFill
              ld    bc,  24*2*2
              ldir
+
+             ld    a, 1
+             call  LoadColumn        ; load 1 column of names to table
+             ld    a, 2
+             call  LoadColumn        ; load 1 column of names to table
+
              ret
 .ends
 
