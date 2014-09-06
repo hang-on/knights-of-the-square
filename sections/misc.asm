@@ -339,11 +339,10 @@ FillColumnBuffer:
              ld    (ColumnBuffer + 16), a
              inc   a
              ld    (ColumnBuffer + 16 + 48), a
-             dec   a
              add   a, 16
-             ld    (ColumnBuffer + 18), a
-             inc   a
              ld    (ColumnBuffer + 18 + 48), a
+             dec   a
+             ld    (ColumnBuffer + 18), a
 
 
 
