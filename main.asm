@@ -24,8 +24,8 @@ banks 2
 
 ; ATTENTION! Update the following vars when changing the graphics.
 
-.define NUMSPR     64              ; # of tiles in sprite bank (1)
-.define NUMBG      $52             ; # of tiles in bg. bank (2)
+.define NUMBER_OF_SPRITE_TILES 64
+.define NUMBER_OF_BACKGROUND_TILES $52
 
 .define SCRLTRIG   126             ; step here to scroll the screen
 .define BASELINE   92              ; where is the common ground?
@@ -333,14 +333,14 @@ InitializeStage:
              ld    hl, $0000       ; start in bank 1, index = 00
              call  prepVRAM        ; tell this to VDP
              ld    hl, fireSPR     ; source data: Sprite tiles
-             ld    bc, NUMSPR*32   ; tiles x 32, each tile = 32 bytes
+             ld    bc, NUMBER_OF_SPRITE_TILES*32   ; tiles x 32, each tile = 32 bytes
              call  wrteVRAM        ; load tiles into tilebank
 
 
              ld    hl, $2000       ; start at bank 2 (index = 256)
              call  prepVRAM        ; tell this to VDP
              ld    hl, fireBG      ; source data: Background tiles
-             ld    bc, NUMBG*32       ; no. of tiles x 32
+             ld    bc, NUMBER_OF_BACKGROUND_TILES*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
              
              call  InitializeColumnBuffer
