@@ -30,10 +30,6 @@ banks 2
 .define SCRLTRIG   126
 .define BASELINE   92
 
-; colors
-.define YELLOW     $0f
-.define ORANGE     $07
-
 
 ; All variables default to 0, because ram is cleared by bluelib.
 ; --------------------------------------------------------------------

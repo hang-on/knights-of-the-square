@@ -15,6 +15,12 @@
 .define THUG_WEAPON $35
 .define THUG_WEAPON_SAT 6
 
+; colors
+.define YELLOW     $0f
+.define ORANGE     $07
+
+
+
 ; Used by ThugFlag.
 .define SCROLL     0
 
