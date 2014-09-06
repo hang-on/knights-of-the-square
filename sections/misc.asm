@@ -317,12 +317,48 @@ LoadColumn:
 
 FillColumnBuffer:
 
+             ; better: Dont have all this stuff in the buffer
+             ; just write it every time
+             ; buffer is only for the two next meta tiles?! 
+             ; is that even necess.?
+
              ; fill the buffer with dummy stuff
              ld    de, ColumnBuffer
              ld    hl, ColumnDummyFill
              ld    bc,  24*2*2
              ldir
+
+
+             ; the next meta tile
+
+             ld    hl, MetaTileScript
+             ld    a, (MetaTileScriptIndex)
+             call  arrayItm ; now we got the item in A
+
+             add   a, a
+             ld    (ColumnBuffer + 16), a
+             inc   a
+             ld    (ColumnBuffer + 16 + 48), a
+             dec   a
+             add   a, 16
+             ld    (ColumnBuffer + 18), a
+             inc   a
+             ld    (ColumnBuffer + 18 + 48), a
+
+
+
+             ld    hl, MetaTileScriptIndex
+             inc   (hl)
+
+             ; now we got them, put them in!
              
+
+
+
              ret
+
+
+
+
 
 .ends
