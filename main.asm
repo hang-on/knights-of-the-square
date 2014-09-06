@@ -82,6 +82,8 @@ rndSeed      dw                    ; used by goRandom as seed
 .section "Initialize game" free
 init:        call  initBlib        ; initialize bluelib
 
+             call  InitializeStage
+
              call  stagInit
 
 ; Initialize random number seed.

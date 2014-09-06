@@ -82,8 +82,12 @@ NextColumn db
 ; -------------------------------------------------------------------
 
 .section "Stage initialize" free
+InitializeStage:
 
-/*
+             call  TestLoadColumn
+             ret
+
+
 stagInit:
 ; Load graphical assets for level 1: Village on Fire.
 
@@ -103,7 +107,7 @@ stagInit:
              ld    bc, NUMBG*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
 
-
+/*
 
 ; Initialize variables for horizontal scrolling.
 
@@ -316,8 +320,8 @@ TestLoadColumn:
 
              ; fill the buffer with dummy stuff
              ld    de, ColumnBuffer
-             ld    hl, Dummyfill
-             ld    bc  24*2*2
+             ld    hl, DummyFill
+             ld    bc,  24*2*2
              ldir
              ret
 .ends
