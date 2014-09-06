@@ -306,10 +306,23 @@ LoadColumn:
              xor   a
              ld    (NextColumn), a
 
+             call  FillColumnBuffer
              ; TODO:
              ; Load new two new columns of data into the column buffer.
              ; Should be a flag, that is read by the stage module
              ; so update is not taking up vblank time.
+
+
+             ret
+
+FillColumnBuffer:
+
+             ; fill the buffer with dummy stuff
+             ld    de, ColumnBuffer
+             ld    hl, ColumnDummyFill
+             ld    bc,  24*2*2
+             ldir
+             
              ret
 
 .ends

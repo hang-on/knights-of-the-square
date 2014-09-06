@@ -101,6 +101,7 @@ InitializeStage:
              ld    bc, NUMBG*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
              
+             call  FillColumnBuffer
              call  TestLoadColumn
              ret
 
@@ -289,12 +290,6 @@ ldName2:      ld    a, l            ; load destination LSB into L
 
 ; Test routine for developing LoadColumn
 TestLoadColumn:
-
-             ; fill the buffer with dummy stuff
-             ld    de, ColumnBuffer
-             ld    hl, ColumnDummyFill
-             ld    bc,  24*2*2
-             ldir
 
              ld    b, 32
              ld    a, 0
