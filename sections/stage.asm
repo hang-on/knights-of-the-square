@@ -9,6 +9,11 @@
 
 .section "Stagestuff" free
 
+
+; Meta tile dictionary:
+; 0 = Black square    1 = Sky        2 = Road
+; 3 = Tree            4 = House      5 = Fence
+
 MetaTileScript:
 .db 1 1 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 
