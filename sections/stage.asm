@@ -15,8 +15,9 @@
 ; 3 = Tree            4 = House      5 = Fence
 
 MetaTileScript:
-.db 1 1 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+.db 1 1 1 1 1 1 1 1 3 1 4 5 5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 
+.define END_OF_LEVEL 50            ; level length in meta tiles
 
 ColumnDummyFill:
 ; column 0
@@ -94,7 +95,22 @@ InitializeStage:
              call  wrteVRAM        ; load tiles into tilebank
              
              call  InitializeColumnBuffer
-             call  TestLoadColumn
+             
+; Create initial name table setup.
+
+             ld    b, 32
+             ld    a, 0
+-:
+             push  af
+             push  bc
+             call  LoadColumn      ; don't worry, the screen is off
+             pop   bc
+             pop   af
+             inc   a
+             djnz  -
+
+
+
              ret
 
 
@@ -280,20 +296,7 @@ ldName2:      ld    a, l            ; load destination LSB into L
              ret                   ; and then return
 
 
-; Test routine for developing LoadColumn
-TestLoadColumn:
 
-             ld    b, 32
-             ld    a, 0
--:
-             push  af
-             push  bc
-             call  LoadColumn        ; load 1 column of names to table
-             pop   bc
-             pop   af
-             inc   a
-             djnz  -
-             ret
 .ends
 
 
