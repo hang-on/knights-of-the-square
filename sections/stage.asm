@@ -309,8 +309,4 @@ TestLoadColumn:
              ret
 .ends
 
-.section "Stage data" free
-; Tile map of whole level, organized column-by-column:
-fireMap:
-;.include "tilemap\fireMap.inc"
-.ends
+
