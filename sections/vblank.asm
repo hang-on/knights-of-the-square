@@ -89,11 +89,14 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
              cp    0               ; next column completely hidden?
              jp    nz, resFlag     ; if not > skip the following...
 
-; Update the hidden column in the name table (minus status bar!).
+; Update the hidden column in the name table .
 
              ld    a, (nextClmn)   ; which clmn is currently hidden?
+             push  af
 ;             call  setClmn         ; update it (minus status bar!)
              call   LoadColumn
+             pop   af
+             inc   a
              ld    (nextClmn), a   ; store next hidden column number
 
 
