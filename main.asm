@@ -1,10 +1,14 @@
-/*
-Knights of the Square
-*/
+; ------------------------------------------------------------------;
+;                    KNIGHTS OF THE SQUARE                          ;
+; ------------------------------------------------------------------;
+
+; Work in progress, 2014
+
+; -------------------------------------------------------------------
 
 
-; creates 3 x 16 KB slots for ROM and 1 x 8 KB slot for RAM
-; TODO: Initialize the mapper a'la Charles MacDonald!!
+; Create 3 x 16 KB slots for ROM and 1 x 8 KB slot for RAM.
+
 .memorymap
 defaultslot 2
 slotsize $4000
@@ -15,12 +19,16 @@ slotsize $2000
 slot 3 $C000
 .endme
 
-; maps 32 KB of ROM into 2 x 16 KB banks
+; Map 32 KB of ROM into 2 x 16 KB banks.
+
 .rombankmap
 bankstotal 2
 banksize $4000
 banks 2
 .endro
+
+; TODO: Initialize the mapper a'la Charles MacDonald.
+; - if I ever need paging...
 
 ; ATTENTION! Update the following vars when changing the graphics.
 
