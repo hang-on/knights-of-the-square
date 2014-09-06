@@ -40,7 +40,8 @@ scrlBrk      db                    ; block scrolling
 
 
 ; Two buffer columns to hold 12 meta tiles, ready for the screen.
-BackgroundBuffer dsb 2 * 24 * 2
+ColumnBuffer dsb 2 * 24 * 2
+NextBufferColumn db
 .ends
 ; -------------------------------------------------------------------
 
@@ -270,9 +271,84 @@ ldName2:      ld    a, l            ; load destination LSB into L
              xor   a               ; return 0 as next column
              ret                   ; and then return
 
-; Here comes a new function to LoadBackgroundBuffer
+; Here comes a new function to LoadScrollColumnBuffer
 
-; And another function LoadScrollColumn (from BackgroundBuffer)
+; And another function LoadScrollColumn (from ScrollColumnBuffer)
+
+; LoadScrollColumn
+; Fills the entire scroll column in the name table, top to bottom.
+; Source is ScrollColumnBuffer
+; Entry: A = column in name table (0-31 - destination)
+; Exit:  A = next column (entry + 1)
+; WARNING:ACTUAL VDP writing must happen during vblank!!!!!!!! FIX!
+; Load pointer to source data into DE.
+
+LoadScrollColumn:
+
+; Shall we load from buffer column 0 or 1?
+
+             ld    de, ColumnBuffer
+             ld    a, NextBufferColumn
+             cp    0
+             jp    z, +
+
+; we need to add a column to the offset
+             ld    h, 0
+             ld    l, 48
+             add   hl, de
+             ex    de, hl
+
+; DE is pointing to first word to load to column
++:
+
+; Calculate destination nametable address and store in HL.
+
+             push  af              ; save param. destination column
+             ld    h, $38          ; all clmns start somewhere $30xx
+             cp    0               ; is destination the first column?
+             jp    z, ++           ; if so, then skip to data loading
+             ld    b, a            ; loop count: no. of clmns to skip
+             ld    a, 0            ; start with offset + 0
+
+-:           add   a, $2           ; add 2 to offset for every clmn
+             djnz  -               ; stop looping if we are at dest.
+
+++:          ld    l, a            ; HL = addr. of name table dest.
+             ld    b, 24           ; loop count: 24 rows in a column
+
+; Load a word from source DE to name table at address HL.
+
+-:           ld    a, l            ; load destination LSB into L
+             out   (VDPCOM), a     ; send it to VDP command port
+             ld    a, h            ; load destination MSB into H
+             or    CMDWRITE        ; or it with write VRAM command
+             out   (VDPCOM), a     ; set result to VDP command port
+
+             ld    a, (de)         ; load source LSB into A
+             out   (VDPDATA), a    ; send it to VRAM
+             inc   de              ; point DE to MSB of source word
+             ld    a, (de)         ; load it into A
+             out   (VDPDATA), a    ; and send it to VRAM
+             inc   de              ; point DE to LSB of next tile
+
+             push  bc              ; save counter
+             ld    bc, $0040       ; step down one row ($40 = 32 * 2)
+             add   hl, bc          ; update destination pointer
+             pop   bc              ; restore counter
+
+             djnz  -               ; load another word-sized name?
+
+; Update NextBufferColumn
+
+             ld    a, (NextBufferColumn)
+             inc   a
+             cp    2
+             ret   nz
+             xor   a
+             ld    (NextBufferColumn), a
+             ret
+
+
 
 .ends
 
