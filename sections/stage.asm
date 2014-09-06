@@ -15,9 +15,10 @@
 ; 3 = Tree            4 = House      5 = Fence
 
 MetaTileScript:
-.db 1 1 1 3 1 1 1 1 1 1 1 1 3 1 1 1  1 1 1 1 1 1 1 1 1 1 1
+.db 1 1 1 3 1 1 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+.db 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 
-.define END_OF_LEVEL 50            ; level length in meta tiles
+.define END_OF_LEVEL 24            ; level length in meta tiles
 
 ColumnDummyFill:
 ; column 0
@@ -146,7 +147,7 @@ stagLoop:
 
              ld    a, (MetaTileScriptIndex)
              cp    END_OF_LEVEL
-             jp    z, _step1
+             jp    nc, _step1
 
 ; Scrolling OK. Set the scroll flag
 
