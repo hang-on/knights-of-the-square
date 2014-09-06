@@ -15,10 +15,13 @@
 ; 3 = Tree            4 = House      5 = Fence
 
 MetaTileScript:
-.db 1 1 1 3 1 1 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-.db 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+; One screen is 15 meta tiles
+.db 1 1 1 1 1 1 1 1 1 1 1 1 1 1 4
+.db 1 1 1 1 1 1 1 1 1 1 1 1 1 1 3
+MetaTileScriptEnd:
 
-.define END_OF_LEVEL 24            ; level length in meta tiles
+; END_OF_LEVEL = amount of meta tiles + 1
+.define END_OF_LEVEL 31            
 
 ColumnDummyFill:
 ; column 0
@@ -27,7 +30,7 @@ ColumnDummyFill:
 .db $02 $01 $12 $01  ;sky
 .db $02 $01 $12 $01
 .db $02 $01 $12 $01
-.db $02 $01 $12 $01  
+.db $02 $01 $12 $01
 
 .db $04 $01 $14 $01    ; road
 .db $04 $01 $14 $01
