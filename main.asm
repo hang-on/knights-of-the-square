@@ -22,17 +22,16 @@ banksize $4000
 banks 2
 .endro
 
-; Definitions
+; ATTENTION! Update the following vars when changing the graphics.
 
 .define NUMSPR     64              ; # of tiles in sprite bank (1)
-.define NUMBG      $52              ; # of tiles in bg. bank (2)
+.define NUMBG      $52             ; # of tiles in bg. bank (2)
 
-.define SCRLTRIG   126
-.define BASELINE   92
+.define SCRLTRIG   126             ; step here to scroll the screen
+.define BASELINE   92              ; where is the common ground?
 
 
 ; All variables default to 0, because ram is cleared by bluelib.
-; --------------------------------------------------------------------
 .ramsection "Variables" slot 3
 rndSeed      dw                    ; used by goRandom as seed
 
