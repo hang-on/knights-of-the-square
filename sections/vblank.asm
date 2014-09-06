@@ -133,7 +133,7 @@ LoadColumn:
 ; DE is now pointing to first word to load to column.
 ; Calculate destination nametable address and store in HL.
 
-+:           pop   af              
++:           pop   af
              ld    h, $38          ; all clmns start somewhere $30xx
              cp    0               ; is destination the first column?
              jp    z, ++           ; if so, then skip to data loading
@@ -173,6 +173,7 @@ LoadColumn:
              ld    a, (NextColumn)
              inc   a
              cp    2
+             ld    (NextColumn), a
              ret   nz
              xor   a
              ld    (NextColumn), a
