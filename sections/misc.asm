@@ -315,19 +315,17 @@ LoadColumn:
 
              ret
 
-FillColumnBuffer:
-
-             ; better: Dont have all this stuff in the buffer
-             ; just write it every time
-             ; buffer is only for the two next meta tiles?! 
-             ; is that even necess.?
-
+InitializeColumnBuffer:
+             
              ; fill the buffer with dummy stuff
              ld    de, ColumnBuffer
              ld    hl, ColumnDummyFill
              ld    bc,  24*2*2
              ldir
 
+             ret
+
+FillColumnBuffer:
 
              ; the next meta tile
 
