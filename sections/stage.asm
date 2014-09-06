@@ -9,27 +9,6 @@
 
 .section "Stagestuff" free
 
-; Dictionary of meta tiles.
-
-META_0:
-.db $00 $10 $01 $11                ; Solid black square
-
-META_1:
-.db $02 $12 $03 $13                ; The sky
-
-META_2:
-.db $04 $14 $05 $15                ; The ground
-
-META_3:
-.db $06 $16 $07 $17                ; Tree
-
-META_4:
-.db $08 $18 $09 $19                ; House
-
-META_5:
-.db $0A $1A $0B $1B                ; Fence
-
-
 MetaTileScript:
 .db 1 1 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
 
@@ -58,7 +37,7 @@ ColumnDummyFill:
 .db $02 $01 $12 $01  ;sky
 .db $02 $01 $12 $01
 .db $02 $01 $12 $01
-.db $07 $01 $17 $01
+.db $02 $01 $12 $01
 
 .db $04 $01 $14 $01    ; road
 .db $04 $01 $14 $01
@@ -109,7 +88,7 @@ InitializeStage:
              ld    bc, NUMBG*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
              
-             call  FillColumnBuffer
+             call  InitializeColumnBuffer
              call  TestLoadColumn
              ret
 
