@@ -29,7 +29,41 @@ META_5:
 
 
 DummyFill:
-.db 0 1 1 1 1 2 2 0 0 0 0 0
+; column 0
+.db $01 $00 $01 $10   ; black
+
+.db $01 $02 $01 $12  ;sky
+.db $01 $02 $01 $12
+.db $01 $02 $01 $12
+.db $01 $02 $01 $12
+
+.db $01 $04 $01 $14    ; road
+.db $01 $04 $01 $14
+
+.db $01 $00 $01 $10    ; black
+.db $01 $00 $01 $10
+.db $01 $00 $01 $10
+.db $01 $00 $01 $10
+.db $01 $00 $01 $10
+
+; column 1:
+.db $01 $01 $01 $11
+
+.db $01 $03 $01 $13
+.db $01 $03 $01 $13
+.db $01 $03 $01 $13
+.db $01 $03 $01 $13
+
+.db $01 $05 $01 $15
+.db $01 $05 $01 $15
+
+.db $01 $01 $01 $11
+.db $01 $01 $01 $11
+.db $01 $01 $01 $11
+.db $01 $01 $01 $11
+.db $01 $01 $01 $11
+
+
 
 .ramsection "Stage variables" slot 3
 scrlFlag     db                    ; shall we scroll screen at int.?
@@ -48,6 +82,8 @@ NextColumn db
 ; -------------------------------------------------------------------
 
 .section "Stage initialize" free
+
+/*
 stagInit:
 ; Load graphical assets for level 1: Village on Fire.
 
@@ -68,7 +104,7 @@ stagInit:
              call  wrteVRAM        ; load tiles into tilebank
 
 
-/*
+
 ; Initialize variables for horizontal scrolling.
 
              ld    de, fireMap     ; start address lev. 1 map data
@@ -91,8 +127,9 @@ stagInit:
              ld    a, 0            ; target first column
              call  setClmn2        ; load next column from lev. map
              ld    (nextClmn), a   ; initialize variable
-*/
              ret
+*/
+
 .ends
 
 
@@ -274,7 +311,15 @@ ldName2:      ld    a, l            ; load destination LSB into L
              ret                   ; and then return
 
 
+; Test routine for developing LoadColumn
+TestLoadColumn:
 
+             ; fill the buffer with dummy stuff
+             ld    de, ColumnBuffer
+             ld    hl, Dummyfill
+             ld    bc  24*2*2
+             ldir
+             ret
 .ends
 
 .section "Stage data" free
