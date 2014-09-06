@@ -326,11 +326,16 @@ TestLoadColumn:
              ld    bc,  24*2*2
              ldir
 
-             ld    a, 1
+             ld    b, 32
+             ld    a, 0
+-:
+             push  af
+             push  bc
              call  LoadColumn        ; load 1 column of names to table
-             ld    a, 2
-             call  LoadColumn        ; load 1 column of names to table
-
+             pop   bc
+             pop   af
+             inc   a
+             djnz  -
              ret
 .ends
 
