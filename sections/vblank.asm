@@ -92,7 +92,8 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
 ; Update the hidden column in the name table (minus status bar!).
 
              ld    a, (nextClmn)   ; which clmn is currently hidden?
-             call  setClmn         ; update it (minus status bar!)
+;             call  setClmn         ; update it (minus status bar!)
+             call   LoadColumn
              ld    (nextClmn), a   ; store next hidden column number
 
 
