@@ -64,7 +64,7 @@ mapData      dw                    ; pointer to nxt column of map data
 scrlBrk      db                    ; block scrolling
 
 
-; Two buffer columns to hold 12 meta tiles, ready for the screen.
+; Two buffer columns to hold 1 complete meta tile.
 ColumnBuffer dsb 2 * 24 * 2
 
 ; Which of the two buffer columns is the next one to load from?
