@@ -15,7 +15,7 @@
 ; 3 = Tree            4 = House      5 = Fence
 
 MetaTileScript:
-.db 1 1 1 1 1 1 1 1 3 1 4 5 5 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+.db 1 1 1 3 1 1 1 1 1 1 1 1 3 1 1 1  1 1 1 1 1 1 1 1 1 1 1
 
 .define END_OF_LEVEL 50            ; level length in meta tiles
 
@@ -98,19 +98,20 @@ InitializeStage:
              
              call  InitializeColumnBuffer
              
+             ld    a, 1
+             ld    (nextClmn), a
+
 ; Create initial name table setup.
 
-             ld    b, 32
+
              ld    a, 0
 -:
              push  af
-             push  bc
              call  LoadColumn      ; don't worry, the screen is off
-             pop   bc
              pop   af
              inc   a
-             djnz  -
-
+             cp    32
+             jp    nz, -
 
 
              ret
@@ -144,7 +145,7 @@ stagLoop:
 
              ld    a, (MetaTileScriptIndex)
              cp    END_OF_LEVEL
-             jp    z, _step1            
+             jp    z, _step1
 
 ; Scrolling OK. Set the scroll flag
 
