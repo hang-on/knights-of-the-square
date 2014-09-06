@@ -114,11 +114,11 @@ noScroll:    ret                   ; return to frame int. handler
 ; Source is the NextColumn in ColumnBuffer
 ; Entry: A = column in name table (0-31 - destination)
 
-
+ ; A is corrupted along the way!
 LoadColumn:
 
 ; Shall we load from buffer column 0 or 1?
-
+             push  af
              ld    de, ColumnBuffer
              ld    a, (NextColumn)
              cp    0
@@ -133,7 +133,7 @@ LoadColumn:
 ; DE is now pointing to first word to load to column.
 ; Calculate destination nametable address and store in HL.
 
-+:           push  af              ; save param. destination column
++:           pop   af              
              ld    h, $38          ; all clmns start somewhere $30xx
              cp    0               ; is destination the first column?
              jp    z, ++           ; if so, then skip to data loading
