@@ -7,6 +7,8 @@
 .define SCRLTRIG   126
 .define BASELINE   136
 
+.section "Stagestuff" free
+
 ; Dictionary of meta tiles.
 
 META_0:
@@ -28,7 +30,7 @@ META_5:
 .db $0A $1A $0B $1B                ; Fence
 
 
-DummyFill:
+ColumnDummyFill:
 ; column 0
 .db $01 $00 $01 $10   ; black
 
@@ -63,7 +65,7 @@ DummyFill:
 .db $01 $01 $01 $11
 .db $01 $01 $01 $11
 
-
+.ends
 
 .ramsection "Stage variables" slot 3
 scrlFlag     db                    ; shall we scroll screen at int.?
@@ -320,7 +322,7 @@ TestLoadColumn:
 
              ; fill the buffer with dummy stuff
              ld    de, ColumnBuffer
-             ld    hl, DummyFill
+             ld    hl, ColumnDummyFill
              ld    bc,  24*2*2
              ldir
              ret
