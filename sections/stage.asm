@@ -30,6 +30,10 @@ META_5:
 .db $0A $1A $0B $1B                ; Fence
 
 
+MetaTileScript:
+.db 1 1 1 1 1 1 1 1 3 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+
+
 ColumnDummyFill:
 ; column 0
 .db $00 $01 $10 $01   ; black
@@ -80,6 +84,10 @@ ColumnBuffer dsb 2 * 24 * 2
 
 ; Which of the two buffer columns is the next one to load from?
 NextColumn db
+
+; The next byte to read from the MetaTileScript?
+MetaTileScriptIndex db
+
 .ends
 ; -------------------------------------------------------------------
 
