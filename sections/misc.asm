@@ -306,7 +306,7 @@ LoadColumn:
              xor   a
              ld    (NextColumn), a
 
-             call  FillColumnBuffer
+             call  PutMetaTileInColumnBuffer
              ; TODO:
              ; Load new two new columns of data into the column buffer.
              ; Should be a flag, that is read by the stage module
@@ -325,7 +325,7 @@ InitializeColumnBuffer:
 
              ret
 
-FillColumnBuffer:
+PutMetaTileInColumnBuffer:
 
              ; the next meta tile
 
