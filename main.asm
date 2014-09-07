@@ -317,7 +317,10 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
              call   LoadColumn
              pop   af
              inc   a
-             ld    (nextClmn), a   ; store next hidden column number
+             cp    32
+             jp    nz, +
+             xor   a
++:           ld    (nextClmn), a   ; store next hidden column number
 
 
 
