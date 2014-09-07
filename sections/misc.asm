@@ -335,17 +335,14 @@ PutMetaTileInColumnBuffer:
 
 
              ; adjust tile offset
+             xor   b
              cp    8
              jp    c, +
-             add   a, a
-             add   a, 16
-             jp    ++
-             ; put four tiles in the buffer
-+:
-             add   a, a
-             jp    ++
-++:
+             ld    b, 16
++:           add   a, a
+             add   a, b
 
+             ; put four tiles in the buffer
              ld    (ColumnBuffer + 16), a
              inc   a
              ld    (ColumnBuffer + 16 + 48), a
