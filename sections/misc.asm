@@ -23,7 +23,7 @@ putTile:
              call  prepVRAM        ; prepare VRAM for writes at HL
              ld    a, e            ; put tile index in A (param.)
              out   (VDPDATA), a    ; write tile index to name table
-             ld    a, $08          ; use sprite colors
+             ld    a, $01          ; use bg. colors and tile bank 1
              out   (VDPDATA), a    ; tell it to VDP
              ret                   ; return
 
@@ -316,7 +316,7 @@ LoadColumn:
              ret
 
 InitializeColumnBuffer:
-             
+
              ; fill the buffer with dummy stuff
              ld    de, ColumnBuffer
              ld    hl, ColumnDummyFill
@@ -355,5 +355,8 @@ PutMetaTileInColumnBuffer:
              inc   (hl)
 
              ret
+
+
+
 
 .ends
