@@ -77,7 +77,7 @@ MetaTileScript:
 MetaTileScriptEnd:
 
 ; END_OF_LEVEL = amount of meta tiles + 1
-.define END_OF_LEVEL 31
+.define END_OF_LEVEL 46
 
 ColumnDummyFill:
 ; column 0
