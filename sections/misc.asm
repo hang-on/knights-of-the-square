@@ -333,7 +333,19 @@ PutMetaTileInColumnBuffer:
              ld    a, (MetaTileScriptIndex)
              call  arrayItm ; now we got the item in A
 
+
+             ; adjust tile offset
+             cp    8
+             jp    c, +
              add   a, a
+             add   a, 16
+             jp    ++
+             ; put four tiles in the buffer
++:
+             add   a, a
+             jp    ++
+++:
+
              ld    (ColumnBuffer + 16), a
              inc   a
              ld    (ColumnBuffer + 16 + 48), a
@@ -342,20 +354,9 @@ PutMetaTileInColumnBuffer:
              dec   a
              ld    (ColumnBuffer + 18), a
 
-
-
              ld    hl, MetaTileScriptIndex
              inc   (hl)
 
-             ; now we got them, put them in!
-             
-
-
-
              ret
-
-
-
-
 
 .ends
