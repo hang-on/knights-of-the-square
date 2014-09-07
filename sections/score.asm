@@ -1,7 +1,7 @@
 ; Score module
 
 
-.define DIGITS     $10             ; tile bank index of digits
+.define DIGITS     $40             ; tile bank index of digits
 .define SCORE      19              ; where to begin the score display
 
 .ramsection "Score variables" slot 3
