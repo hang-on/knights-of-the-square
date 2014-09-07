@@ -170,7 +170,7 @@ init:        call  initBlib        ; initialize bluelib
              inc   hl              ; point to MSB
              ld    (hl), a         ; update MSB of seed
 
-;             call scorInit         ; init score module
+             call scorInit         ; init score module
 
 ;             call InitializeChest          ; initialize chest
 
@@ -208,7 +208,7 @@ gameLoop:
              call  ManageThugLoop        ; update the thug object
  ;            call  ManageChestLoop
 
- ;            call  scorLoop
+             call  scorLoop
  ;            call  ManageDebugPanelLoop
 
             ; halt                  ; finish loop by waiting for ints.
