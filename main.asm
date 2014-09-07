@@ -358,8 +358,11 @@ InitializeStage:
              
              call  InitializeColumnBuffer
              
+; ***** THIS IS IMPORTANT ******************
              ld    a, 1
              ld    (nextClmn), a
+; I need to find a better place for it!!!
+; ******************************************
 
 ; Create initial name table setup.
 
