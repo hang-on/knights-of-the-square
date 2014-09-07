@@ -38,7 +38,6 @@ banks 2
 .define SCROLL_TRIGGER   126       ; step here to scroll the screen
 .define BASELINE   92              ; where is the common ground?
 
-
 ; All variables default to 0, because ram is cleared by bluelib.
 .ramsection "Variables" slot 3
 rndSeed      dw                    ; used by goRandom as seed
