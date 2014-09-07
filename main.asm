@@ -244,6 +244,27 @@ gameLoop:
 .section "Update score display" free
 ;TODO - make this a buffer to be otir'ed every frame...
 updScore:
+; Write the word "SCORE" on the status bar.
+
+             ld    d, SCORE        ; where to start putting tiles
+             ld    e, DIGITS + 10  ; "SCORE" comes after the digits
+             call  putTile         ; write "S"
+             inc   d               ; next destination
+             inc   e               ; next source ("C")
+             call  putTile         ; write it
+             inc   d               ; next destination
+             inc   e         ;    ; "O" is just like zero here
+             call  putTile         ; so write O/zero
+             inc   d               ; and so on...
+             inc   e
+             call  putTile
+             inc   d
+             inc   e
+             call  putTile
+
+
+
+
              ld    d, SCORE + 6    ; point to 100.000 digit (dest.)
              ld    ix, score       ; point to score
              ld    a, (ix + 0)     ; get MSB of score
