@@ -60,7 +60,15 @@ NextColumn db
 ; The next byte to read from the MetaTileScript?
 MetaTileScriptIndex db
 
+
+MetaTileBuffer dsb 4
+
+MetaTileBufferIndex db
+
 .ends
+
+.define FIRST_PART 0
+.define SECOND_PART 1
 
 .section "Stagestuff" free
 
