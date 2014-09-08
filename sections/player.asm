@@ -326,7 +326,9 @@ _step11:
 
              ld    hl, plrX        ; point HL to player x,y data
              ld    de, ChestX        ; point DE to chest x,y
-             call  clDetect        ; call the collision detection sub
+
+; NOTE: Implement new collision detection handler
+;             call  clDetect        ; call the collision detection sub
              jp    nc, _step13              ; if no carry, then no collision
 
 ; Check if chest is closed or open.

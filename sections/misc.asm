@@ -27,53 +27,6 @@ putTile:
              out   (VDPDATA), a    ; tell it to VDP
              ret                   ; return
 
-; -------------------------------------------------------------------
-; COLLISION DETECTION
-; Check for collision between two 8x8 objects/sprites (width = 8)
-; Math: obj1Width + obj2Width + 1 <= (abs(obj1X - obj2X) + 1)2
-; Entry: HL = pointer to obj 1 x,y, DE = pointer to obj2 x,y
-; Exit: carry flag is set if collision is detected
-
-clDetect:
-
-; Test for horizontal overlap.
-
-             ld    a, (hl)         ; get obj1 x pos (top left corner)
-             add   a, 4            ; update x pos to center of sprite
-             ld    b, a            ; save it in B
-             ld    a, (de)         ; get obj2 x pos (top left corner)
-             add   a, 4            ; update x pos to center of sprite
-             sub   b               ; subtract the two x pos'
-             bit   7,a             ; is the result negative (signed)?
-             jp    z, +            ; if not, go ahead with test
-             neg                   ; if so, do the abs() trick
-+:           add   a, 1            ; according to the formula above
-             add   a ,a            ; also according to the formula
-             jp    pe, resCarry    ; fix for wrap-around issue!
-             cp    17              ; 8 + 8 + 1(width of the objects)
-             ret   nc              ; no horiz. overlap = no coll!
-
-; Test for vertical overlap.
-
-             inc   hl              ; move hl from obj1X to obj1Y
-             inc   de              ; move de from obj2X to obj2Y
-             ld    a, (hl)         ; get obj1Y
-             add   a, 4            ; update to sprite's center
-             ld    b, a            ; save value in B
-             ld    a, (de)         ; get obj2Y
-             add   a, 4            ; update to sprite's center
-             sub   b               ; subtract the two y pos'
-             bit   7,a             ; is the result negative (signed)?
-             jp    z, +            ; if not, go ahead
-             neg                   ; if so, do the abs() trick
-+:           add   a, 1            ; according to the formula
-             add   a ,a            ; also according to the formula
-             jp    pe, resCarry    ; fix for wrap-around issue
-             cp    17              ; 2 x 8 + 1
-             ret                   ; exit: if carry then collision
-
-resCarry:    or    a               ; reset carry flag
-             ret                   ; return to overlap test
 
 
 
