@@ -309,39 +309,6 @@ PutMetaTileInColumnBuffer:
 
              ret
 
-;
-LoadHalfMetaTileToNameTable:
-
-; are we at the first or second half of the meta tile?
-; write the tiles in the given half
-; was it the first half? > point to second half
-; was it the second half?
-;                 > load new meta tile
-;                 > point to first half         
-
-
-             ld    hl, MetaTileScript
-             ld    a, (MetaTileScriptIndex)
-             call  arrayItm ; now we got the item in A
-
-
-             ; adjust tile offset
-             xor   b
-             cp    8
-             jp    c, +
-             ld    b, 16
-+:           add   a, a
-             add   a, b
-
-             ; put four tiles in the buffer
-             ld    (ColumnBuffer + 16), a
-             inc   a
-             ld    (ColumnBuffer + 16 + 48), a
-             add   a, 16
-             ld    (ColumnBuffer + 18 + 48), a
-             dec   a
-             ld    (ColumnBuffer + 18), a
-
 
 
 .ends
