@@ -344,8 +344,6 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
 
              ld    a, (nextClmn)   ; which clmn is currently hidden?
              push  af
-;             call  setClmn         ; update it (minus status bar!)
-;             call   LoadColumn
              call  LoadHalfMetaTileToNameTable
              pop   af
              inc   a
@@ -395,21 +393,6 @@ InitializeStage:
 ; ******************************************
 
 ; Create initial name table setup.
-
-/* Makes the background transparant initially
-             ld    a, 1
--:
-             push  af
-             call  LoadColumn      ; don't worry, the screen is off
-             pop   af
-             inc   a
-             cp    32
-             jp    nz, -
-
-             ld   a, 0
-             call LoadColumn
-
-*/
 
 
 ; Get VDP ready for writes to the name table.
