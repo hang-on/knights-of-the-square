@@ -82,7 +82,7 @@ MetaTileScript:
 .db 1 1 1 1 11 3 1 6 1 1 1 3 3 1 4
 .db 1 6 6 11 1 1 3 1 1 3 4 5 4 5 5
 .db 5 5 4 5 5 11 1 1 8 9 10 4 7 12 4
-.db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7 
+.db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7
 .db 5 5 5 5
 MetaTileScriptEnd:
 
@@ -345,7 +345,8 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
              ld    a, (nextClmn)   ; which clmn is currently hidden?
              push  af
 ;             call  setClmn         ; update it (minus status bar!)
-             call   LoadColumn
+;             call   LoadColumn
+             call  LoadHalfMetaTileToNameTable
              pop   af
              inc   a
              cp    32
@@ -395,7 +396,7 @@ InitializeStage:
 
 ; Create initial name table setup.
 
-
+/* Makes the background transparant initially
              ld    a, 1
 -:
              push  af
@@ -407,6 +408,8 @@ InitializeStage:
 
              ld   a, 0
              call LoadColumn
+
+*/
              ret
 
 
@@ -457,36 +460,112 @@ _step1:
 ;
 LoadHalfMetaTileToNameTable:
 
-; are we at the first or second half of the meta tile?
-; write the tiles in the given half
-; was it the first half? > point to second half
-; was it the second half?
-;                 > load new meta tile
-;                 > point to first half
+; To be called in LoadColumn's place.
+; Meta tiles are 16 x 16. They are occupying rows 9 and 10. The
+; background does not change except for the tiles in the 'meta tile
+; band' that runs across the screen.
 
 
-             ld    hl, MetaTileScript
-             ld    a, (MetaTileScriptIndex)
-             call  arrayItm ; now we got the item in A
+
+; Loads just to tiles from meta tile data to a fixed position on the
+; name table.
+; info: meta tiles are placed in the rows:
+; column 0: $3a00 3a02 ... 3a3e
+;           $3a40          3a7e
+
+; Get the destination address on the name table into HL.
+
+             ld    a, (nextClmn)
+             cp    0
+             jp    z, +            ; go straight to writing
+
+             ld    b, a
+             ld    a, 0
+-:           add   a, 2            ; elements are word-sized
+             djnz  -
+
++:           push  af              ; save the offset LSB
+             ld    h, $3a
+             ld    l, a            ; now HL points to destination
+
+; Prepare VDP for writes to VRAM (the name table).
+
+             ld    a, l            ; load destination LSB into L
+             out   (VDPCOM), a     ; send it to VDP command port
+             ld    a, h            ; load destination MSB into H
+             or    CMDWRITE        ; or it with write VRAM command
+             out   (VDPCOM), a     ; send result to VDP command port
+
+; Is it time to reload the meta tile buffer?
+
+             ld    a, (MetaTileBufferIndex)
+             cp    0
+             jp    nz, +
+
+             ; load new tilemap into buffer !!
+             ld    hl, DummyData
+             ld    de, MetaTileBuffer
+             ld    bc, 4
+             ldir
 
 
-             ; adjust tile offset
-             xor   b
-             cp    8
-             jp    c, +
-             ld    b, 16
-+:           add   a, a
-             add   a, b
+; Get the meta tile char code (source) to write to name table.
 
-             ; put four tiles in the buffer
-             ld    (ColumnBuffer + 16), a
-             inc   a
-             ld    (ColumnBuffer + 16 + 48), a
-             add   a, 16
-             ld    (ColumnBuffer + 18 + 48), a
-             dec   a
-             ld    (ColumnBuffer + 18), a
++:           ld    hl, MetaTileBuffer
+             call  arrayItm        ; source charcode now in A
 
+; Increment the buffer index.
+
+             ld    hl, MetaTileBufferIndex
+             inc   (hl)
+
+; Write name table word (char code + '01') to name table.
+
+             out   (VDPDATA), a    ; write the char code
+             ld    a, 01           ; '01' says: tile is in bank 2
+             out   (VDPDATA), a    ; write the second byte
+
+; First tile has been written to VRAM.
+; Prepare the VDP for writes to the address of the name table element
+; that corresponds to the tile just below the one set above.
+
+             pop  af               ; retrieve the destination LSB
+             add  a, $40           ; point to the tile just below
+
+
+             out   (VDPCOM), a     ; send it to VDP command port
+             ld    a, $3a          ; stil the same MSB
+             or    CMDWRITE        ; or it with write VRAM command
+             out   (VDPCOM), a     ; send result to VDP command port
+
+; Now VDP is ready at the new address. Get the source charcode.
+
+             ld    hl, MetaTileBuffer
+             ld    a, (MetaTileBufferIndex)
+             call  arrayItm        ; now A holds the char code
+             push   af
+; Increment the buffer index
+
+             ld    hl, MetaTileBufferIndex
+             inc   (hl)
+
+             ld    a, (MetaTileBufferIndex)
+             cp    4
+             jp    nz, +
+             xor   a
+             ld    (MetaTileBufferIndex), a
++:
+             pop  af
+; Write name table word (char code + '01') to name table.
+             out   (VDPDATA), a    ; write the char code
+             ld    a, 01           ; '01' says: tile is in bank 2
+             out   (VDPDATA), a    ; write the second byte
+
+             ret
+
+; charcodes for a tree.
+DummyData:
+.db          6 $16 7 $17
 
 
 .ends
