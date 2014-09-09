@@ -70,27 +70,6 @@ MetaTileBufferIndex db
 
 .ends
 
-
-.section "Stagestuff" free
-
-; Meta tile dictionary:
-; 0 = Black square    1 = Sky        2 = Road
-; 3 = Tree            4 = House      5 = Fence
-
-MetaTileScript:
-; One screen is 15 meta tiles
-.db 3 1 1 1 11 3 1 6 1 1 1 3 3 1 4
-.db 1 6 6 11 1 1 3 1 1 3 4 5 4 5 5
-.db 5 5 4 5 5 11 1 1 8 9 10 4 7 12 4
-.db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7
-.db 5 5 5 5
-
-; END_OF_LEVEL = amount of meta tiles + 1
-.define END_OF_LEVEL 65
-
-.ends
-
-
 ; --------------------------------------------------------------------
 
 .bank 0 slot 0
@@ -586,6 +565,22 @@ DummyData:
 ; -------------------------------------------------------------------
 
 .section "Level 1 data: Village on fire (abbrev. 'fire')" free
+
+; Meta tile dictionary:
+; 0 = Black square    1 = Sky        2 = Road
+; 3 = Tree            4 = House      5 = Fence
+
+MetaTileScript:
+; One screen is 15 meta tiles
+.db 3 1 1 1 11 3 1 6 1 1 1 3 3 1 4
+.db 1 6 6 11 1 1 3 1 1 3 4 5 4 5 5
+.db 5 5 4 5 5 11 1 1 8 9 10 4 7 12 4
+.db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7
+.db 5 5 5 5
+
+; END_OF_LEVEL = amount of meta tiles + 1
+.define END_OF_LEVEL 65
+
 ; Sprite tiles in pattern generator bank 1:
 fireSPR:
 ; .include "tile\ps\fireSPR.inc"
