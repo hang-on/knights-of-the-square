@@ -30,10 +30,12 @@ banks 2
 ; TODO: Initialize the mapper a'la Charles MacDonald.
 ; - if I ever need paging...
 
-; ATTENTION! Update the following vars when changing the graphics.
-
-.define NUMBER_OF_SPRITE_TILES 64
-.define NUMBER_OF_BACKGROUND_TILES $52
+; ATTENTION! Update the following vars when changing the graphics --;
+;                                                                   ;
+.define NUMBER_OF_SPRITE_TILES 64                                   ;
+.define NUMBER_OF_BACKGROUND_TILES $52                              ;
+;                                                                   ;
+; -------------------------------------------------------------------
 
 .define SCROLL_TRIGGER   126       ; step here to scroll the screen
 .define BASELINE   92              ; where is the common ground?
@@ -51,17 +53,15 @@ scrlBrk      db                    ; block scrolling
 ; The next byte to read from the MetaTileScript?
 MetaTileScriptIndex db
 
+; Each meta tile is made of 4 tiles. The buffer holds the char codes.
 MetaTileBuffer dsb 4
 
+; Which byte in the buffer are we going to read next?
 MetaTileBufferIndex db
 
 .ends
 
-.define FIRST_PART 0
-.define SECOND_PART 1
-
 .section "Stagestuff" free
-
 
 ; Meta tile dictionary:
 ; 0 = Black square    1 = Sky        2 = Road
@@ -74,56 +74,17 @@ MetaTileScript:
 .db 5 5 4 5 5 11 1 1 8 9 10 4 7 12 4
 .db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7
 .db 5 5 5 5
-MetaTileScriptEnd:
 
 ; END_OF_LEVEL = amount of meta tiles + 1
 .define END_OF_LEVEL 65
 
-ColumnDummyFill:
-; column 0
-.db $00 $01 $10 $01   ; black
-
-.db $02 $01 $12 $01  ;sky
-.db $02 $01 $12 $01
-.db $02 $01 $12 $01
-.db $02 $01 $12 $01
-
-.db $04 $01 $14 $01    ; road
-.db $04 $01 $14 $01
-
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-
-; column 1:
-.db $00 $01 $10 $01   ; black
-
-.db $02 $01 $12 $01  ;sky
-.db $02 $01 $12 $01
-.db $02 $01 $12 $01
-.db $02 $01 $12 $01
-
-.db $04 $01 $14 $01    ; road
-.db $04 $01 $14 $01
-
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-.db $00 $01 $10 $01   ; black
-
 .ends
-
-
 
 ; semi-generic SMS library
 .include "lib\bluelib.inc"
 
 ; sound handling. Thank you Sverx!
 .include "lib\psglib.inc"
-
 
 ; misc. functions
 .include "sections\misc.asm"
