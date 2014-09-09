@@ -78,14 +78,16 @@ MetaTileBufferIndex db
              di                    ; disable interrupts
              im    1               ; interrupt mode 1
              ld    sp, $dff0       ; stack pointer near end of RAM
-             jp    init            ; begin initializing game
+             jp    InitializeGame            
 .ends
 
 .section "Initialize game" free
 ; TODO: Initialize the mapper a'la Charles MacDonald.
 ; - if I ever need paging...
 
-init:        call  initBlib        ; initialize bluelib
+InitializeGame:
+
+             call  initBlib
 
              call  InitializeStage
 
@@ -97,7 +99,7 @@ init:        call  initBlib        ; initialize bluelib
              inc   hl              ; point to MSB
              ld    (hl), a         ; update MSB of seed
 
-             call scorInit         ; init score module
+             call scorInit         ; InitializeGame score module
 
 ;             call InitializeChest          ; initialize chest
 
