@@ -79,7 +79,7 @@ MetaTileBufferIndex db
 
 MetaTileScript:
 ; One screen is 15 meta tiles
-.db 1 1 1 1 11 3 1 6 1 1 1 3 3 1 4
+.db 3 1 1 1 11 3 1 6 1 1 1 3 3 1 4
 .db 1 6 6 11 1 1 3 1 1 3 4 5 4 5 5
 .db 5 5 4 5 5 11 1 1 8 9 10 4 7 12 4
 .db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7
@@ -385,9 +385,9 @@ InitializeStage:
              ld    hl, fireBG      ; source data: Background tiles
              ld    bc, NUMBER_OF_BACKGROUND_TILES*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
-             
+
              call  InitializeColumnBuffer
-             
+
 ; ***** THIS IS IMPORTANT ******************
              ld    a, 1
              ld    (nextClmn), a
@@ -499,19 +499,23 @@ LoadHalfMetaTileToNameTable:
 ; Is it time to reload the meta tile buffer?
 
              ld    a, (MetaTileBufferIndex)
+             push  af
              cp    0
              jp    nz, +
 
              ; load new tilemap into buffer !!
-             ld    hl, DummyData
+/*             ld    hl, DummyData
              ld    de, MetaTileBuffer
              ld    bc, 4
              ldir
+*/
+             call  LoadMetaTileToBuffer
 
 
 ; Get the meta tile char code (source) to write to name table.
 
-+:           ld    hl, MetaTileBuffer
++:           pop   af 
+             ld    hl, MetaTileBuffer
              call  arrayItm        ; source charcode now in A
 
 ; Increment the buffer index.
@@ -562,6 +566,40 @@ LoadHalfMetaTileToNameTable:
              out   (VDPDATA), a    ; write the second byte
 
              ret
+
+
+
+LoadMetaTileToBuffer:
+
+             ld    hl, MetaTileScript
+             ld    a, (MetaTileScriptIndex)
+             call  arrayItm ; now we got the item in A
+
+
+             ; adjust tile offset
+             xor   b
+             cp    8
+             jp    c, +
+             ld    b, 16
++:           add   a, a
+             add   a, b
+
+
+             ld    ix, MetaTileBuffer
+             ; put four tiles in the buffer
+             ld    (ix + 0), a
+             inc   a
+             ld    (ix + 2), a
+             add   a, 16
+             ld    (ix + 3), a
+             dec   a
+             ld    (ix + 1), a
+
+             ld    hl, MetaTileScriptIndex
+             inc   (hl)
+
+             ret
+
 
 ; charcodes for a tree.
 DummyData:
