@@ -410,6 +410,52 @@ InitializeStage:
              call LoadColumn
 
 */
+
+
+; Get VDP ready for writes to the name table.
+
+             ld    hl, NAME_TABLE
+             call  prepVRAM
+
+; Draw 2 black rows for the menu.
+
+             ld    b, 32*2
+-:           ld    a, 00
+             out   (VDPDATA), a
+             ld    a, 01
+             out   (VDPDATA), a
+             djnz  -
+
+; Draw 8 bright blue rows for the sky.
+
+.rept 2
+             ld    b, 32*4
+-:           ld    a, 02
+             out   (VDPDATA), a
+             ld    a, 01
+             out   (VDPDATA), a
+             djnz  -
+.endr
+
+; Draw 4 dark blue rows for the path.
+
+             ld    b, 32*4
+-:           ld    a, 04
+             out   (VDPDATA), a
+             ld    a, 01
+             out   (VDPDATA), a
+             djnz  -
+
+; Fill the bottom of the screen with evil blackness.
+
+.rept 2
+             ld    b, 32*5
+-:           ld    a, 00
+             out   (VDPDATA), a
+             ld    a, 01
+             out   (VDPDATA), a
+             djnz  -
+.endr
              ret
 
 
@@ -514,7 +560,7 @@ LoadHalfMetaTileToNameTable:
 
 ; Get the meta tile char code (source) to write to name table.
 
-+:           pop   af 
++:           pop   af
              ld    hl, MetaTileBuffer
              call  arrayItm        ; source charcode now in A
 
