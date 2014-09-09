@@ -7,6 +7,7 @@
 ; -------------------------------------------------------------------
 
 
+
 ; Create 3 x 16 KB slots for ROM and 1 x 8 KB slot for RAM.
 
 .memorymap
@@ -27,8 +28,16 @@ banksize $4000
 banks 2
 .endro
 
-; TODO: Initialize the mapper a'la Charles MacDonald.
-; - if I ever need paging...
+; Include libraries and modules.
+
+.include "lib\bluelib.inc"
+.include "lib\psglib.inc"
+.include "sections\misc.asm"
+.include "sections\chest.asm"
+.include "sections\thug.asm"
+.include "sections\player.asm"
+.include "sections\score.asm"
+.include "sections\debug.asm"
 
 ; ATTENTION! Update the following vars when changing the graphics --;
 ;                                                                   ;
@@ -80,30 +89,6 @@ MetaTileScript:
 
 .ends
 
-; semi-generic SMS library
-.include "lib\bluelib.inc"
-
-; sound handling. Thank you Sverx!
-.include "lib\psglib.inc"
-
-; misc. functions
-.include "sections\misc.asm"
-
-; chest object handling
-.include "sections\chest.asm"
-
-; thug module
-.include "sections\thug.asm"
-
-; player module
-.include "sections\player.asm"
-
-; score module
-.include "sections\score.asm"
-
-; Debugger panel w. flags
-.include "sections\debug.asm"
-
 
 ; --------------------------------------------------------------------
 
@@ -117,6 +102,9 @@ MetaTileScript:
 .ends
 
 .section "Initialize game" free
+; TODO: Initialize the mapper a'la Charles MacDonald.
+; - if I ever need paging...
+
 init:        call  initBlib        ; initialize bluelib
 
              call  InitializeStage
