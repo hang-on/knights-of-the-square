@@ -384,7 +384,6 @@ InitializeStage:
              ld    bc, NUMBER_OF_BACKGROUND_TILES*32       ; no. of tiles x 32
              call  wrteVRAM        ; load tiles into tilebank
 
-             call  InitializeColumnBuffer
 
 ; ***** THIS IS IMPORTANT ******************
              ld    a, 1
