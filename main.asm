@@ -48,18 +48,8 @@ nextClmn     db                    ; next name tab. clmn to be blanked
 mapData      dw                    ; pointer to nxt column of map data
 scrlBrk      db                    ; block scrolling
 
-
-; Two buffer columns (the width of one 16 x 16 meta tile).
-; 'Filler' name table elements are on both sides of the meta tile.
-; Refer to DummyColumnFill (menu, sky, road, black bottom).
-ColumnBuffer dsb 2 * 24 * 2
-
-; Which of the two buffer columns is the next one to load from?
-NextColumn db
-
 ; The next byte to read from the MetaTileScript?
 MetaTileScriptIndex db
-
 
 MetaTileBuffer dsb 4
 
