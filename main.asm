@@ -85,14 +85,6 @@ MetaTileBufferIndex db
 ; - if I ever need paging...
 
 InitializeGame:
-; Initialize random number seed.
-
-             ld    hl, rndSeed     ; point hl to random seed word
-             ld    a, r            ; get refresh register
-             ld    (hl), a         ; update LSB of seed
-             inc   hl              ; point to MSB
-             ld    (hl), a         ; update MSB of seed
-
              call  initBlib
 
              call  InitializeStage
@@ -111,7 +103,9 @@ InitializeGame:
 
              ld     a, DSPON       ; get display constant
              call   toglDSP        ; turn display on using bluelib
+
              ei                    ; enable interrupts
+
              jp     gameLoop       ; jump to main game loop
 .ends
 
