@@ -277,7 +277,7 @@ attack1:     ld    a, (plrDir)
 ;                    (DON'T) SCROLL PLAYER                          ;
 ; -------------------------------------------------------------------
 _step5:
-             ld    a, (scrlFlag)
+             ld    a, (ScrollFlag)
              cp    1
              jp    nz, _step6
              xor   a
@@ -377,7 +377,7 @@ stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
              ld    (plrY), a       ; revert y-pos to prev. value
 
              xor   a               ; clear A
-             ld    (scrlFlag), a   ; reset scroll flag = don't scroll
+             ld    (ScrollFlag), a   ; reset scroll flag = don't scroll
              ret
 
 ; Move the player one pixel south (down).
