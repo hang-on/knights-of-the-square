@@ -55,7 +55,7 @@ rndSeed      dw                    ; used by goRandom as seed
 scrlFlag     db                    ; shall we scroll screen at int.?
 scrlReg      db                    ; mirror of value in scroll reg.
 nextClmn     db                    ; next name tab. clmn to be blanked
-mapData      dw                    ; pointer to nxt column of map data
+;mapData      dw                    ; pointer to nxt column of map data
 scrlBrk      db                    ; block scrolling
 
 ; The next byte to read from the MetaTileScript?
