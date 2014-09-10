@@ -50,7 +50,7 @@ InitializeThug:
 
              ld    ix, ThugState
              ld    (ix + 0), THUG_STANDING
-             ld    (ix + 1), 160
+             ld    (ix + 1), 255   ; put him in the blanked column
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 8
              ld    (ix + 8), THUG_STANDING  ; ThugCharCode
