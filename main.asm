@@ -50,25 +50,17 @@ banks 2
 
 ; All variables default to 0, because ram is cleared by bluelib.
 .ramsection "Variables" slot 3
-rndSeed      dw                    ; used by goRandom as seed
+RandomizerSeed      dw             ; used by goRandom as seed
 
-scrlFlag     db                    ; shall we scroll screen at int.?
-scrlReg      db                    ; mirror of value in scroll reg.
-nextClmn     db                    ; next name tab. clmn to be blanked
-scrlBrk      db                    ; block scrolling
+ScrollFlag db                      ; shall we scroll screen at int.?
+HorizontalScrollRegister db        ; mirror of value in scroll reg.
+NextScrollColumn db                ; next name tab. clmn to be blanked
 
-; The next byte to read from the MetaTileScript?
-MetaTileScriptIndex db
-
-; Each meta tile is made of 4 tiles. The buffer holds the char codes.
-MetaTileBuffer dsb 4
-
-; Which byte in the buffer are we going to read next?
-MetaTileBufferIndex db
+MetaTileScriptIndex db             ; next MetaTileScript byte to read
+MetaTileBuffer dsb 4               ; the current meta tile's tiles
+MetaTileBufferIndex db             ; next MetaTileBuffer byte to read
 
 .ends
-
-; --------------------------------------------------------------------
 
 .bank 0 slot 0
 .org 0
@@ -202,13 +194,13 @@ UpdateScore:
 ManageScrolling:
 ; Every frame: Check ManageScrolling flag to see if screen needs scrolling.
 
-             ld    a, (scrlFlag)   ; read value of ManageScrolling flag
+             ld    a, (ScrollFlag)   ; read value of ManageScrolling flag
              cp    1               ; is it set?
              jp    nz, noScroll    ; if not, skip scrolling
 
 ; Scroll the background/tilemap one pixel to the left.
 
-             ld    hl, scrlReg     ; update register value variable
+             ld    hl, HorizontalScrollRegister     ; update register value variable
              dec   (hl)            ; scroll left = decrement
              ld    a, (hl)         ; get current value (0-255)
              out   (VDPCOM), a     ; send 1st byte of command word
@@ -219,14 +211,14 @@ ManageScrolling:
 ; The leftmost 8 pixels on screen hides (fully/partially) one column.
 ; Check scroll value to see if next column is hidden = ready to fill.
 
-chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
+chkClmn:     ld    a, (HorizontalScrollRegister)    ; H. scroll reg. (#8) RAM mirror
              and   %00000111       ; apply fine scroll mask
              cp    0               ; next column completely hidden?
              jp    nz, resFlag     ; if not > skip the following...
 
 ; Update the hidden column in the name table .
 
-             ld    a, (nextClmn)   ; which clmn is currently hidden?
+             ld    a, (NextScrollColumn)   ; which clmn is currently hidden?
              push  af
              call  UpdateScrollColumn
              pop   af
@@ -234,14 +226,14 @@ chkClmn:     ld    a, (scrlReg)    ; H. scroll reg. (#8) RAM mirror
              cp    32
              jp    nz, +
              xor   a
-+:           ld    (nextClmn), a   ; store next hidden column number
++:           ld    (NextScrollColumn), a   ; store next hidden column number
 
 
 
 ; Reset the scroll flag and return.
 
 resFlag:     xor    a              ; clear A
-             ld    (scrlFlag), a   ; clear scroll flag
+             ld    (ScrollFlag), a   ; clear scroll flag
 
 ; Finish scroll handler.
 
@@ -254,7 +246,7 @@ UpdateScrollColumn:
 
 ; Get the destination address on the name table into HL.
 
-             ld    a, (nextClmn)
+             ld    a, (NextScrollColumn)
              cp    0
              jp    z, +            ; go straight to writing
 
@@ -400,7 +392,7 @@ InitializeStage:
 
 ; ***** THIS IS IMPORTANT ******************
              ld    a, 1
-             ld    (nextClmn), a
+             ld    (NextScrollColumn), a
 ; I need to find a better place for it!!!
 ; ******************************************
 
@@ -510,7 +502,7 @@ ManageStageLoop:
 ; Scrolling OK. Set the scroll flag
 
              ld    a, 1            ; 1 = flag is set
-             ld    (scrlFlag), a   ; set ManageScrolling flag
+             ld    (ScrollFlag), a   ; set ManageScrolling flag
 
 _step1:
              ret
@@ -557,10 +549,10 @@ arrayItm:    ld    d, 0
 ; -------------------------------------------------------------------
 ; GET RANDOM NUMBER (goRandom)
 ; Adapted from SMS-Power (Phantasy Star)
-; Uses a 16-bit RAM variable called rndSeed for seed
+; Uses a 16-bit RAM variable called RandomizerSeed for seed
 ; Returns an 8-bit pseudo-random number in A
 goRandom:    push  hl
-             ld    hl,(rndSeed)
+             ld    hl,(RandomizerSeed)
              ld    a,h             ; get high byte
              rrca                  ; rotate right by 2
              rrca
@@ -573,12 +565,12 @@ goRandom:    push  hl
              rrca
              xor   l               ; xor again
              rra                   ; rotate right by 1 through carry
-             adc   hl,hl           ; add rndSeed to itself
+             adc   hl,hl           ; add RandomizerSeed to itself
              jr    nz,+
              ld    hl,$733c        ; if last xor resulted in zero then re-seed
 +:           ld    a,r             ; r = refresh register = semi-random number
              xor   l               ; xor with l which is fairly random
-             ld    (rndSeed),hl
+             ld    (RandomizerSeed),hl
              pop   hl
              ret                   ; return random number in a
 
