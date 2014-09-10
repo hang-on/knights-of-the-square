@@ -105,7 +105,7 @@ InitializeGame:
 
              call  PSGInit         ; initialize PSGLib
 
-;             call  InitializeDebugPanel
+             call  InitializeDebugPanel
 
 ; Turn display on.
 
