@@ -77,6 +77,11 @@ ManageThugLoop:
              xor   a
              ld    (ThugFlag), a
 
+; Maybe respawn the thug.
+
+             call  _SpawnThug
+
+
 ; Detect proximity of player, prepare for attack, etc.
 
              call  _HandleAttack
@@ -97,6 +102,19 @@ ManageThugLoop:
 
              call  _ScrollThug
 
+             ret
+
+
+_SpawnThug:
+             ld    a, (ThugState)
+             cp    THUG_OFF
+             ret    nz
+
+             call  goRandom
+             and   %11111100       ; more zeroes = more respawning
+             ret   nz
+
+             call  InitializeThug
              ret
 
 
