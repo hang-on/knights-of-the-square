@@ -41,7 +41,7 @@ InitializeScore:
 .ends
 
 .section "Score loop" free
-scorLoop:
+ManageScoreLoop:
 
              call  GetThugPoints
              call  GetChestPoints

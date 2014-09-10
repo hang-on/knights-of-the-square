@@ -114,17 +114,15 @@ InitializeGame:
 
 gameLoop:
 
-             call  stagLoop
-             call  plrLoop
-             call  ManageThugLoop        ; update the thug object
- ;            call  ManageChestLoop
+; Invoke the modules' loop handlers.
+             call  ManageStageLoop
+             call  ManagePlayerLoop
+             call  ManageThugLoop
+             call  ManageScoreLoop
 
-             call  scorLoop
- ;            call  ManageDebugPanelLoop
+             halt
+             jp    gameLoop
 
-            ; halt                  ; finish loop by waiting for ints.
-             halt                  ; = this game runs at 30 FPS?
-             jp    gameLoop        ; then over again...
 .ends
 
 .orga $0038
@@ -355,7 +353,7 @@ InitializeStage:
 ; -------------------------------------------------------------------
 ;                           CHECK SCROLL TRIGGER                    ;
 ; -------------------------------------------------------------------
-stagLoop:
+ManageStageLoop:
              ld    hl, plrX        ; the horizontal pos. of player
              ld    a, (hl)         ; read from variable to register
              cp    SCROLL_TRIGGER        ; player on the scroll trigger?

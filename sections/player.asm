@@ -67,7 +67,7 @@ InitializePlayer:
 
 
 .section "Player loop" free
-plrLoop:
+ManagePlayerLoop:
 
 ; Clear status flag.
 
