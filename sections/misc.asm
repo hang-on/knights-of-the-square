@@ -1,34 +1,5 @@
 .section "Misc. functions" free
 
-; -------------------------------------------------------------------
-; PUT TILE
-; Puts a tile somewhere in the first 256 positions in the name table.
-; Use it to update score, lives, stuff in the top status bar.
-; Entry: D = Destination (0-63), E = Source (tile index in bank 1)
-; Using colors from bank 2 (sprite colors)
-
-putTile:
-
-; Update HL so that it points to destination name table element.
-
-             ld    h, $38          ; MSB on nametable will be $38
-             ld    a, 0            ; start from the beginning
-             ld    b, d            ; feed destination to loop counter
--:           add   a, 2            ; name table consist of words
-             djnz  -               ; loop until we get to destination
-             ld    l, a            ; put multiplied value in l
-
-; Write a word of data to the name table.
-
-             call  prepVRAM        ; prepare VRAM for writes at HL
-             ld    a, e            ; put tile index in A (param.)
-             out   (VDPDATA), a    ; write tile index to name table
-             ld    a, $01          ; use bg. colors and tile bank 1
-             out   (VDPDATA), a    ; tell it to VDP
-             ret                   ; return
-
-
-
 
 ; -------------------------------------------------------------------
 ; ADVANCE ANIMATION
