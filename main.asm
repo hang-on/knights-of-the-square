@@ -85,11 +85,6 @@ MetaTileBufferIndex db
 ; - if I ever need paging...
 
 InitializeGame:
-
-             call  initBlib
-
-             call  InitializeStage
-
 ; Initialize random number seed.
 
              ld    hl, rndSeed     ; point hl to random seed word
@@ -98,23 +93,17 @@ InitializeGame:
              inc   hl              ; point to MSB
              ld    (hl), a         ; update MSB of seed
 
-             call  InitializeScore         ; InitializeGame score module
+             call  initBlib
 
-;             call InitializeChest          ; initialize chest
+             call  InitializeStage
 
-; Initialize the thug.
+             call  InitializeScore
 
-             call  ThugInit
+             call  InitializeThug
 
-; Initialize player character.
+             call  InitializePlayer
 
-             call  plrInit
-
-; Initilize PSGLib.
-
-             call PSGInit          ; initialize PSGLib
-
-; Initialize debug panel
+             call  PSGInit         ; initialize PSGLib
 
 ;             call  InitializeDebugPanel
 
