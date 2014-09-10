@@ -44,7 +44,7 @@ ThugCharCode db
 .section "Thug initialize" free
 ; Initialize the thug with default values.
 ; Call this every time the thug is brought into play.
-ThugInit:
+InitializeThug:
              
 ; Put initial values into the thug's variables.
 

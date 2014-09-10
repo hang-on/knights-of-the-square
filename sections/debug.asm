@@ -3,12 +3,10 @@
 .define FLAG1 2 + 31
 .define FLAG2 3 + 31
 
-.define GREEN_FLAG $22
-.define YELLOW_FLAG $23
+.define GREEN_FLAG $50
+.define YELLOW_FLAG $51
 
-; TODO: Make a black tile in the sprite bank for no flag.
-
-.define NO_FLAG $10
+.define NO_FLAG $52
 
 
 ; -------------------------------------------------------------------

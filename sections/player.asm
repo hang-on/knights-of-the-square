@@ -47,7 +47,7 @@ wponDam      db                    ; damage dealt by the player's weapon
 
 .section "Player initialize" free
 ; Put an idle/standing Arthur on the screen.
-plrInit:
+InitializePlayer:
              ld    a, IDLE         ; get state constant
              ld    (plrState), a   ; init player state to 'idle'
              ld    hl, plrX        ; address of player x position
