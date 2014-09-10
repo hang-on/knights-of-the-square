@@ -32,7 +32,6 @@ banks 2
 
 .include "lib\bluelib.inc"
 .include "lib\psglib.inc"
-.include "sections\misc.asm"
 .include "sections\chest.asm"
 .include "sections\thug.asm"
 .include "sections\player.asm"
@@ -407,7 +406,7 @@ _step1:
 
 .ends
 
-.section "Routines"
+.section "Misc routines" free
 
 ;
 LoadHalfMetaTileToNameTable:
@@ -556,11 +555,6 @@ LoadMetaTileToBuffer:
 ; charcodes for a tree.
 DummyData:
 .db          6 $16 7 $17
-
-
-.ends
-
-.section "Misc. functions" free
 
 
 ; -------------------------------------------------------------------
