@@ -1,12 +1,14 @@
 ; Debug Panel
 
+
+; flag positions on the name table
 .define FLAG1 2 + 31
 .define FLAG2 3 + 31
 
+; flag tiles
 .define GREEN_FLAG $50
 .define YELLOW_FLAG $51
-
-.define NO_FLAG $52
+.define NO_FLAG $00                ; solid black
 
 
 ; -------------------------------------------------------------------
