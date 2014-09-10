@@ -351,7 +351,7 @@ initVDP:     ld    b, 11
 ; Standard bluelib VDP register settings
 ; Use this data to initialize VDP registers so that they comply with
 ; requirements of bluelib.
-; NOTE: Ended up being pretty specific to Blockquest horiz. scroller
+; NOTE: Ended up being pretty specific to Blockquest horiz. ManageScrolling
 VDPStd:
     .db %01100110                  ;
                                    ; b4 = line interrupt (disabled)

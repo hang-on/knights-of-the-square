@@ -55,7 +55,6 @@ rndSeed      dw                    ; used by goRandom as seed
 scrlFlag     db                    ; shall we scroll screen at int.?
 scrlReg      db                    ; mirror of value in scroll reg.
 nextClmn     db                    ; next name tab. clmn to be blanked
-;mapData      dw                    ; pointer to nxt column of map data
 scrlBrk      db                    ; block scrolling
 
 ; The next byte to read from the MetaTileScript?
@@ -128,18 +127,22 @@ gameLoop:
 .orga $0038
 .section "Maskable interrupt handler" force
              ex    af, af'         ; save AF in their shadow register
+             
              in    a, VDPCOM       ; VDP status / satisfy interrupt
+
              exx                   ; save the rest of the registers
 
-             call  scroller        ; scrolling the background
-             call  updScore        ; write the digits
+             call  ManageScrolling  ; scrolling the background
+             call  UpdateScore     ; write the digits
              call  hdlFrame        ; bluelib frame handler
              call  PSGFrame        ; psglib housekeeping
              call  PSGSFXFrame     ; process next SFX frame
 
              exx                   ; restore the registers
              ex    af, af'         ; also restore AF
+
              ei                    ; enable interrupts
+
              reti                  ; return from interrupt
 .ends
 
@@ -152,7 +155,7 @@ gameLoop:
 
 .section "Update score display" free
 ;TODO - make this a buffer to be otir'ed every frame...
-updScore:
+UpdateScore:
 
              ld    d, SCORE + 6    ; point to 100.000 digit (dest.)
              ld    ix, score       ; point to score
@@ -196,10 +199,10 @@ updScore:
 
 
 .section "Scroller handling" free
-scroller:
-; Every frame: Check scroller flag to see if screen needs scrolling.
+ManageScrolling:
+; Every frame: Check ManageScrolling flag to see if screen needs scrolling.
 
-             ld    a, (scrlFlag)   ; read value of scroller flag
+             ld    a, (scrlFlag)   ; read value of ManageScrolling flag
              cp    1               ; is it set?
              jp    nz, noScroll    ; if not, skip scrolling
 
@@ -507,7 +510,7 @@ ManageStageLoop:
 ; Scrolling OK. Set the scroll flag
 
              ld    a, 1            ; 1 = flag is set
-             ld    (scrlFlag), a   ; set scroller flag
+             ld    (scrlFlag), a   ; set ManageScrolling flag
 
 _step1:
              ret
