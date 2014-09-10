@@ -98,7 +98,7 @@ InitializeGame:
              inc   hl              ; point to MSB
              ld    (hl), a         ; update MSB of seed
 
-             call scorInit         ; InitializeGame score module
+             call  InitializeScore         ; InitializeGame score module
 
 ;             call InitializeChest          ; initialize chest
 

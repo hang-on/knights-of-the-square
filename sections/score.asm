@@ -9,7 +9,7 @@ score:       ds 6                  ; a RAM data block for the score
 .ends
 
 .section "Score init" free
-scorInit:
+InitializeScore:
 ; Initialize score counter to 000000.
 
              ld    a, '0'          ; put ASCII zero into A
