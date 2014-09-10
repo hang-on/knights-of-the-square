@@ -116,7 +116,6 @@ _ScrollThug:
 
              ld   hl, ThugX
              dec  (hl)
-             cp   0
              jp   nz, +
 
 ; Thug has scrolled off screen, so destroy him.
