@@ -30,14 +30,14 @@ plrXOld      db
 plrYOld      db
 plrLife      db                    ; life meter of the player
 plrDir       db                    ; player's direction
-PlayerFlag   db
+player_flag   db
 
 wponX        db                    ; weapon x,y (for coll. detect)
 wponY        db
 wponDam      db                    ; damage dealt by the player's weapon
 
 .ends
-; PlayerFlag is formatted as follows:
+; player_flag is formatted as follows:
 ; xxxx xxxc
 ; x = undefined
 ; c = player touches and open chest (award points)
@@ -72,7 +72,7 @@ ManagePlayerLoop:
 ; Clear status flag.
 
              xor   a
-             ld    (PlayerFlag), a
+             ld    (player_flag), a
 
 
 ; Store the now expired player state as 'old state'.
@@ -340,7 +340,7 @@ _step11:
              jp    _step13
 +:
 ; If chest is open, then pick it up.
-             ld    hl, PlayerFlag
+             ld    hl, player_flag
              set   0, (hl)
 
              xor   a
