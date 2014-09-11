@@ -110,10 +110,12 @@ _SpawnThug:
              cp    THUG_OFF
              ret    nz
 
+             ; Thug is off - should we respawn him?
              call  goRandom
              and   %11111100       ; more zeroes = more respawning
              ret   nz
 
+             ; OK - his number came out, let's put him back on.
              call  InitializeThug
              ret
 
