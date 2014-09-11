@@ -75,7 +75,7 @@ GetGoldPoints:
 
 ; Award player for picking up gold (an open chest).
 
-             ld    a, (PlayerFlag)
+             ld    a, (player_flag)
              bit   0, a
              ret   z
              ld    hl, score + 3
