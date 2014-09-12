@@ -31,6 +31,7 @@ plrYOld      db
 plrLife      db                    ; life meter of the player
 plrDir       db                    ; player's direction
 player_flag   db
+attack_delay db
 
 wponX        db                    ; weapon x,y (for coll. detect)
 wponY        db
@@ -73,6 +74,14 @@ ManagePlayerLoop:
 
              xor   a
              ld    (player_flag), a
+             
+             ld    a, (attack_delay)
+             cp    0
+             jp    nz, +
+             dec   a
+             ld   (attack_delay), a
++:
+
 
 
 ; Store the now expired player state as 'old state'.
