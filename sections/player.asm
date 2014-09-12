@@ -94,89 +94,10 @@ ManagePlayerLoop:
 +:
 
              call  _GetInput
+             
+             call  _HandleIdlePlayer
 
-
-; -------------------------------------------------------------------
-;                           HANDLE PLRSTATE = IDLE                  ;
-; -------------------------------------------------------------------
-_step2:
-             ld    a, (plrState)
-             cp    IDLE
-             jp   nz, _step3        ; gatekeeping: only plrMode = idle
-
-
-; Put a standing Arthur on screen (left or right?).
-
-             ld    a, (plrDir)
-             cp    RIGHT
-             jp    nz, +
-             ld    c, ARTSTAND     ; C = charcode
-             jp    ++
-+:
-             ld    c, ARTSTAND+4     ; C = charcode
-++:
-             ld    a, (plrX)
-             ld    d, a            ; D
-             ld    a, (plrY)
-             ld    e, a            ; E
-             ld    b, PLRSAT       ; B = Sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
-; -------------------------------------------------------------------
-;                          HANDLE PLRSTATE = WALK                   ;
-; -------------------------------------------------------------------
-_step3:
-             ld    a, (plrState)
-             cp    WALK
-             jp   nz, _step4        ; gatekeeping: only walking
-
-; Respond to directional input (set vSpeed and hSpeed).
-
-             call  getPlr1         ; get formatted input in A
-             rra                   ; rotate 'up bit' into carry
-             rra                   ; carry = down bit
-             rra                   ; carry = left bit
-             push  af              ; save input
-             call  c, mvWest       ; should we atttempt to go west?
-             pop   af              ; retrieve input
-             rra                   ; carry = right bit
-             call  c, mvEast       ; go east?
-
-; NOTE: plrX and plrY has not changed yet - only the speed!
-
-; Handle walking animation of player sprite.
-
-             ld    a, (oldState)   ; get old state
-             cp    WALK            ; did we walk last time?
-             jp    z, +            ; if so, then forward the anim.
-             ld    hl, plrAnim     ; else: point to player animation
-             ld    (hl), 0         ; and reset it (start from cel 0)
-
-+:           ld    hl, plrAnim     ; param: player's animation
-
-             ; branch on direction
-             ld    a, (plrDir)
-             cp    RIGHT
-             jp    nz, +
-             ld    de, artRight    ; param: player's anim. script
-             call  advcAnim        ; advance plr's walking anim.
-             ld    hl, artRight    ; param: animation script
-             jp    ++
-+:
-             ld    de, artLeft    ; param: player's anim. script
-             call  advcAnim        ; advance plr's walking anim.
-             ld    hl, artLeft    ; param: animation script
-++:
-             ld    a, (plrAnim)    ; param: freshly updated anim.
-             call  arrayItm        ; get charcode from anim. script
-             ld    c, a            ; put charcode in C (param)
-             ld    a, (plrX)       ; get player's x position
-             ld    d, a            ; put it in D (param)
-             ld    a, (plrY)       ; get player's y position
-             ld    e, a            ; put it in E (param)
-             ld    b, PLRSAT       ; B = plr sprite index in SAT
-             call  goSprite        ; update SAT buffer (RAM)
-
+             call  _HandleWalkingPlayer
 
 ; -------------------------------------------------------------------
 ;                          HANDLE PLRSTATE = ATTACK                 ;
@@ -194,7 +115,7 @@ _step4:
 
              ld    a, 15
              ld    (attack_delay), a
-             
+
              ld    a, (player_flag)
              set   1, a
              ld    (player_flag), a
@@ -398,6 +319,88 @@ _GetInput:
 
 +:           ld    (hl), IDLE      ; fall through to idle state
              ret
+
+
+_HandleIdlePlayer:
+
+             ld    a, (plrState)
+             cp    IDLE
+             ret   nz              ; gatekeeping: only plrMode = idle
+
+; Put a standing Arthur on screen (left or right?).
+
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
+             ld    c, ARTSTAND     ; C = charcode
+             jp    ++
++:
+             ld    c, ARTSTAND+4     ; C = charcode
+++:
+             ld    a, (plrX)
+             ld    d, a            ; D
+             ld    a, (plrY)
+             ld    e, a            ; E
+             ld    b, PLRSAT       ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+             ret
+
+
+_HandleWalkingPlayer:
+
+             ld    a, (plrState)
+             cp    WALK
+             ret   nz              ; gatekeeping: only walking
+
+; Respond to directional input (set vSpeed and hSpeed).
+
+             call  getPlr1         ; get formatted input in A
+             rra                   ; rotate 'up bit' into carry
+             rra                   ; carry = down bit
+             rra                   ; carry = left bit
+             push  af              ; save input
+             call  c, mvWest       ; should we atttempt to go west?
+             pop   af              ; retrieve input
+             rra                   ; carry = right bit
+             call  c, mvEast       ; go east?
+
+; NOTE: plrX and plrY has not changed yet - only the speed!
+
+; Handle walking animation of player sprite.
+
+             ld    a, (oldState)   ; get old state
+             cp    WALK            ; did we walk last time?
+             jp    z, +            ; if so, then forward the anim.
+             ld    hl, plrAnim     ; else: point to player animation
+             ld    (hl), 0         ; and reset it (start from cel 0)
+
++:           ld    hl, plrAnim     ; param: player's animation
+
+             ; branch on direction
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
+             ld    de, artRight    ; param: player's anim. script
+             call  advcAnim        ; advance plr's walking anim.
+             ld    hl, artRight    ; param: animation script
+             jp    ++
++:
+             ld    de, artLeft    ; param: player's anim. script
+             call  advcAnim        ; advance plr's walking anim.
+             ld    hl, artLeft    ; param: animation script
+++:
+             ld    a, (plrAnim)    ; param: freshly updated anim.
+             call  arrayItm        ; get charcode from anim. script
+             ld    c, a            ; put charcode in C (param)
+             ld    a, (plrX)       ; get player's x position
+             ld    d, a            ; put it in D (param)
+             ld    a, (plrY)       ; get player's y position
+             ld    e, a            ; put it in E (param)
+             ld    b, PLRSAT       ; B = plr sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
+
+             ret
+
 
 
 
