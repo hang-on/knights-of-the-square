@@ -75,7 +75,7 @@ ManagePlayerLoop:
              ld    a, (player_flag)
              and   %11111110        ; turn of chest flag every loop
              ld    (player_flag), a
-             
+
              ld    a, (attack_delay)
              cp    0
              jp    z, +
@@ -113,7 +113,11 @@ _step1:
 +:
              bit   CTBTN1, a            ; button 1
              jp    z, +
-             ld    a, (attack_delay)
+             ld    a, (player_flag)
+             bit   1, a
+             jp    nz, +           ; is attack option free?
+
+             ld    a, (attack_delay)  ; too close to prev. attack?
              cp    0
              jp    nz, +
 
@@ -226,6 +230,10 @@ _step4:
 
              ld    a, 15
              ld    (attack_delay), a
+             
+             ld    a, (player_flag)
+             set   1, a
+             ld    (player_flag), a
 
              ld    hl,sfxSword     ; point hl to sword SFX
              ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
@@ -380,6 +388,13 @@ _step11:
 
 
 _step13:
+             call   getPlr1
+             bit    CTBTN1, a
+             jp     nz, +
+             ld     a, (player_flag)
+             res    1, a
+             ld     (player_flag), a
++:
              ret
 
 .ends
