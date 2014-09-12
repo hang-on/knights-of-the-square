@@ -76,14 +76,6 @@ ManagePlayerLoop:
              and   %11111110        ; turn of chest flag every loop
              ld    (player_flag), a
 
-             ld    a, (attack_delay)
-             cp    0
-             jp    z, +
-             dec   a
-             ld   (attack_delay), a
-+:
-
-
 
 ; Store the now expired player state as 'old state'.
 
@@ -92,9 +84,16 @@ ManagePlayerLoop:
              inc   hl              ; point to oldState = plrState + 1
              ld    (hl), a         ; save expired state as oldState
 
-; -------------------------------------------------------------------
-;                           RESPOND TO INPUT                        ;
-; -------------------------------------------------------------------
+; Decrement attack_delay if necessary.
+
+             ld    a, (attack_delay)
+             cp    0
+             jp    z, +
+             dec   a
+             ld   (attack_delay), a
++:
+
+
 _step1:
 
              ld    a, (plrState)
