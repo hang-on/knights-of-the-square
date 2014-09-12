@@ -72,7 +72,8 @@ ManagePlayerLoop:
 
 ; Clear status flag.
 
-             xor   a
+             ld    a, (player_flag)
+             and   %11111110        ; turn of chest flag every loop
              ld    (player_flag), a
              
              ld    a, (attack_delay)
