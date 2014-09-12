@@ -39,10 +39,10 @@ wponDam      db                    ; damage dealt by the player's weapon
 
 .ends
 ; player_flag is formatted as follows:
-; xxxx xxxc
+; xxxx xxac
 ; x = undefined
 ; c = player touches and open chest (award points)
-
+; a = attacklock, 1 = locked, 0 = unlocked
 
 ; --------------------------------------------------------------------
 
