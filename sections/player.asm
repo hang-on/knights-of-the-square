@@ -44,6 +44,8 @@ wponDam      db                    ; damage dealt by the player's weapon
 ; c = player touches and open chest (award points)
 ; a = attacklock, 1 = locked, 0 = unlocked
 
+.define ATTACK_LOCK_FLAG 1
+
 ; --------------------------------------------------------------------
 
 .section "Player initialize" free
@@ -94,94 +96,12 @@ ManagePlayerLoop:
 +:
 
              call  _GetInput
-             
+
              call  _HandleIdlePlayer
 
              call  _HandleWalkingPlayer
 
-; -------------------------------------------------------------------
-;                          HANDLE PLRSTATE = ATTACK                 ;
-; -------------------------------------------------------------------
-_step4:
-             ld    a, (plrState)
-             cp    ATTACK
-             jp   nz, _step5        ; gatekeeping: only attacking
-
-             ld    a, (oldState)   ; get old state
-             cp    ATTACK          ; where we attacking last time?
-             jp    z, attack1      ; if so, continue the script
-             xor   a               ; else, set A = 0
-             ld    (plrAnim), a    ; and start new animation sequence
-
-             ld    a, 15
-             ld    (attack_delay), a
-
-             ld    a, (player_flag)
-             set   1, a
-             ld    (player_flag), a
-
-             ld    hl,sfxSword     ; point hl to sword SFX
-             ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
-             call  PSGSFXPlay      ; play slashing sound
-
-             ; branch on direction
-             ld    a, (plrDir)
-             cp    RIGHT
-             jp    nz, +
-             ld    c, ARTSWORD     ; C = charcode (param)
-             ld    a, (plrX)       ; get player x position
-             add   a, 12
-             ld    d, a            ; put it in D
-             jp    ++
-+:
-             ld    c, ARTSWORD     ; C = charcode (param)
-             ld    a, (plrX)       ; get player x position
-             sub   12
-             ld    d, a            ; put it in D
-
-++:
-             ld    (wponX), a      ; put it in weapon x pos
-             ld    a, (plrY)       ; get player y position (param)
-             ld    e, a            ; put it in E
-             ld    (wponY), a
-             ld    b, WPONSAT      ; B = sprite index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             jp    _step5
-
-
-attack1:     ld    a, (plrDir)
-             cp    RIGHT
-             jp    z, +
-             add   a, 3
-+:
-             add   a, 3
-             ld    c, a           ; C = charcode (param)
-             ld    a, (plrX)       ; get player x position
-             ld    d, a            ; put it in D
-             ld    a, (plrY)       ; get player y position (param)
-             ld    e, a            ; put it in E
-             ld    b, PLRSAT       ; B = sprite index in SAT
-             call  goSprite        ; update SAT RAM buffer
-
-             ld    hl, plrAnim
-             inc   (hl)
-             ld    a, (hl)
-             cp    8               ; take sword back up
-             jp    nz, _step5
-
-; Reset sword sprite.
-
-             ld    hl, plrState
-             ld    (hl), IDLE
-
-             xor   a
-             ld    (wponX), a
-             ld    (wponY), a
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, WPONSAT      ; B = the weapon's index in SAT
-             call  goSprite        ; update SAT RAM buffer
+             call  _HandleAttackingPlayer
 
 
 ; -------------------------------------------------------------------
@@ -384,12 +304,12 @@ _HandleWalkingPlayer:
              call  advcAnim        ; advance plr's walking anim.
              ld    hl, artRight    ; param: animation script
              jp    ++
-+:
-             ld    de, artLeft    ; param: player's anim. script
+
++:           ld    de, artLeft    ; param: player's anim. script
              call  advcAnim        ; advance plr's walking anim.
              ld    hl, artLeft    ; param: animation script
-++:
-             ld    a, (plrAnim)    ; param: freshly updated anim.
+
+++:          ld    a, (plrAnim)    ; param: freshly updated anim.
              call  arrayItm        ; get charcode from anim. script
              ld    c, a            ; put charcode in C (param)
              ld    a, (plrX)       ; get player's x position
@@ -402,6 +322,93 @@ _HandleWalkingPlayer:
              ret
 
 
+_HandleAttackingPlayer:
+
+             ld    a, (plrState)
+             cp    ATTACK
+             ret   nz              ; gatekeeping: only attacking
+
+             ld    a, (oldState)   ; get old state
+             cp    ATTACK          ; where we attacking last time?
+             jp    z, ContinueAttack  ; if so, continue the script
+
+; Begin new attack.
+
+             xor   a               ; else, set A = 0
+             ld    (plrAnim), a    ; and start new animation sequence
+
+             ; start the attack delay counter (limit attacks)
+             ld    a, 15
+             ld    (attack_delay), a
+
+             ; set the attack lock flag
+             ld    hl, player_flag
+             set   ATTACK_LOCK_FLAG, (hl)
+
+             ld    hl,sfxSword     ; point hl to sword SFX
+             ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
+             call  PSGSFXPlay      ; play slashing sound
+
+             ; branch on direction
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    nz, +
+             ld    c, ARTSWORD     ; C = charcode (param)
+             ld    a, (plrX)       ; get player x position
+             add   a, 12
+             ld    d, a            ; put it in D
+             jp    ++
+
++:           ld    c, ARTSWORD     ; C = charcode (param)
+             ld    a, (plrX)       ; get player x position
+             sub   12
+             ld    d, a            ; put it in D
+
+++:          ld    (wponX), a      ; put it in weapon x pos
+             ld    a, (plrY)       ; get player y position (param)
+             ld    e, a            ; put it in E
+             ld    (wponY), a
+             ld    b, WPONSAT      ; B = sprite index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ret
+
+
+ContinueAttack:
+
+             ld    a, (plrDir)
+             cp    RIGHT
+             jp    z, +
+             add   a, 3
+
++:           add   a, 3
+             ld    c, a           ; C = charcode (param)
+             ld    a, (plrX)       ; get player x position
+             ld    d, a            ; put it in D
+             ld    a, (plrY)       ; get player y position (param)
+             ld    e, a            ; put it in E
+             ld    b, PLRSAT       ; B = sprite index in SAT
+             call  goSprite        ; update SAT RAM buffer
+
+             ld    hl, plrAnim
+             inc   (hl)
+             ld    a, (hl)
+             cp    8               ; take sword back up
+             ret    nz
+
+; Reset sword sprite.
+
+             ld    hl, plrState
+             ld    (hl), IDLE
+
+             xor   a
+             ld    (wponX), a
+             ld    (wponY), a
+             ld    c, 0            ; reset charcode
+             ld    d, 0            ; reset x pos
+             ld    e, 0            ; reset y pos
+             ld    b, WPONSAT      ; B = the weapon's index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ret
 
 
 .ends
