@@ -72,20 +72,20 @@ InitializePlayer:
 .section "Player loop" free
 ManagePlayerLoop:
 
-; Clear status flag.
+; Manage the player flags.
 
+             ; turn of chest flag every loop
              ld    a, (player_flag)
-             and   %11111110        ; turn of chest flag every loop
+             and   %11111110
              ld    (player_flag), a
 
+             ; reset attack lock if button is released
              call   getPlr1
              bit    CTBTN1, a
              jp     nz, +
              ld     hl, player_flag
              res    ATTACK_LOCK_FLAG, (hl)
 +:
-
-
 
 ; Store the now expired player state as 'old state'.
 
