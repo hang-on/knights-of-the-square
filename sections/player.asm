@@ -93,43 +93,8 @@ ManagePlayerLoop:
              ld   (attack_delay), a
 +:
 
+             call  _GetInput
 
-_step1:
-
-             ld    a, (plrState)
-             cp    ATTACK
-             jp   z, _step2        ; not input when attacking
-
-
-; Read player 1's controller in order to determine current state.
-
-             call  getPlr1         ; get player 1 input indirectly
-             ld    hl, plrState
-             cp    0               ; if no input: plrState = idle
-             jp    nz, +
-             ld    (hl), IDLE
-             jp    _step2
-+:
-             bit   CTBTN1, a            ; button 1
-             jp    z, +
-             ld    a, (player_flag)
-             bit   1, a
-             jp    nz, +           ; is attack option free?
-
-             ld    a, (attack_delay)  ; too close to prev. attack?
-             cp    0
-             jp    nz, +
-
-             ld    (hl), ATTACK
-             jp    _step2
-+:
-             call  getPlr1         ; get player 1 input indirectly
-             and   %00001111       ; directional button mask
-             jp    z, +            ; if pressed, then attempt to walk
-             ld    (hl), WALK
-             jp    _step2
-+:
-             ld    (hl), IDLE      ; fall through to idle state
 
 ; -------------------------------------------------------------------
 ;                           HANDLE PLRSTATE = IDLE                  ;
@@ -395,6 +360,46 @@ _step13:
              ld     (player_flag), a
 +:
              ret
+
+
+_GetInput:
+
+             ld    a, (plrState)
+             cp    ATTACK
+             ret   z               ; not input when attacking
+
+; Read player 1's controller in order to determine current state.
+
+             call  getPlr1         ; get player 1 input indirectly
+             ld    hl, plrState
+             cp    0               ; if no input: plrState = idle
+             jp    nz, +
+             ld    (hl), IDLE
+             ret
+
++:           bit   CTBTN1, a       ; is button 1 pressed
+             jp    z, +            ; if not, skip to next test
+             ld    a, (player_flag)
+             bit   1, a
+             jp    nz, +           ; is attack option free?
+
+             ld    a, (attack_delay)  ; too close to prev. attack?
+             cp    0
+             jp    nz, +
+
+             ld    (hl), ATTACK    ; OK, player is allowed to attack
+             ret
+
++:           call  getPlr1         ; get player 1 input indirectly
+             and   %00001111       ; directional button mask
+             jp    z, +            ; if pressed, then attempt to walk
+             ld    (hl), WALK
+             ret
+
++:           ld    (hl), IDLE      ; fall through to idle state
+             ret
+
+
 
 .ends
 
