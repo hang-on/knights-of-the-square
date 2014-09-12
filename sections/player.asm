@@ -81,9 +81,8 @@ ManagePlayerLoop:
              call   getPlr1
              bit    CTBTN1, a
              jp     nz, +
-             ld     a, (player_flag)
-             res    1, a
-             ld     (player_flag), a
+             ld     hl, player_flag
+             res    ATTACK_LOCK_FLAG, (hl)
 +:
 
 
