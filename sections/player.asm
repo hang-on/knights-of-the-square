@@ -150,7 +150,8 @@ _UpdatePlayerPosition:
              xor   a
              ld   (vSpeed), a
 
-             ret
+             ret                   ; back to player loop recipe
+
 
 _GetInput:
 
