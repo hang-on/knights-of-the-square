@@ -77,7 +77,7 @@ ManagePlayerLoop:
              
              ld    a, (attack_delay)
              cp    0
-             jp    nz, +
+             jp    z, +
              dec   a
              ld   (attack_delay), a
 +:
@@ -112,9 +112,14 @@ _step1:
 +:
              bit   CTBTN1, a            ; button 1
              jp    z, +
+             ld    a, (attack_delay)
+             cp    0
+             jp    nz, +
+
              ld    (hl), ATTACK
              jp    _step2
 +:
+             call  getPlr1         ; get player 1 input indirectly
              and   %00001111       ; directional button mask
              jp    z, +            ; if pressed, then attempt to walk
              ld    (hl), WALK
@@ -217,6 +222,9 @@ _step4:
              jp    z, attack1      ; if so, continue the script
              xor   a               ; else, set A = 0
              ld    (plrAnim), a    ; and start new animation sequence
+
+             ld    a, 15
+             ld    (attack_delay), a
 
              ld    hl,sfxSword     ; point hl to sword SFX
              ld    c,SFX_CHANNELS2AND3  ; use chan. 2 and 3
