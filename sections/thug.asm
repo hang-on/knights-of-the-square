@@ -28,7 +28,7 @@
 .ramsection "Thug ram" slot 3
 thug_state db
 thug_x db
-ThugY db
+thug_y db
 ThugCounter db
 ThugLife db
 ThugFlag db
@@ -102,19 +102,28 @@ ManageThugLoop:
 
              call  _KillThug
 
+             call  _UpdateThugPosition
+
 ; Scroll thug if the stage scrolls.
 
              call  _ScrollThug
+
+
 
              ret
 
 
 _WalkThug:
 
-             ld    a, (thug_state)
-             cp    THUG_WALKING
-             ret   z
+             ld    a, (plrX)
+             ld    b, a
+             ld    a, (thug_x)
+             sub   b
+             sub   20     ; distance to player
+             ret   c
 
+             ld    hl, thug_state
+             ld    (hl), THUG_WALKING
              ; TODO: Put in animation handling
 
              ld    a, -1
@@ -144,6 +153,14 @@ _UpdateThugPosition:
              ld    (thug_x), a       ; and put it into current  x
              xor   a               ; clear A
              ld    (thug_speed), a     ; set speed to zero
+
+             ld    c, THUG_STANDING
+             ld    a, (thug_x)
+             ld    d, a            ; D
+             ld    a, (thug_y)
+             ld    e, a            ; E
+             ld    b, THUGSAT       ; B = Sprite index in SAT
+             call  goSprite        ; update SAT buffer (RAM)
 
              ret                   ; back to player loop recipe
 
@@ -185,7 +202,7 @@ _ScrollThug:
 
              xor   a
              ld    (thug_x), a
-             ld    (ThugY), a
+             ld    (thug_y), a
 
              ld    c, 0
              ld    d, 0
@@ -204,7 +221,7 @@ _ScrollThug:
              ld    c, a            ; does this work better?
              ld    a, (thug_x)
              ld    d, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    b, THUGSAT
              call  goSprite
@@ -245,7 +262,7 @@ _KillThug:
              ld    c, a
              ld    a, (thug_x)
              ld    d, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    b, THUGSAT
              call  goSprite
@@ -325,7 +342,7 @@ _HitThug:
              ld    d, a
              ld    a, (thug_x)
              ld    l, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    b, 8
              ld    c, 16
@@ -371,7 +388,7 @@ _StartAttack:
              ld    c, THUG_ATTACKING
              ld    a, (thug_x)
              ld    d, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    b, THUGSAT
              call  goSprite
@@ -380,7 +397,7 @@ _StartAttack:
              ld    a, (thug_x)
              sub   12
              ld    d, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    b, THUG_WEAPON_SAT
              call  goSprite
@@ -411,7 +428,7 @@ _HandleAttack:
              ld    c, THUG_STANDING
              ld    a, (thug_x)
              ld    d, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    b, THUGSAT
              call  goSprite
@@ -451,7 +468,7 @@ _DetectProximity:
              ld    a, (thug_x)
              sub   10
              ld    l, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    c, 4            ; size of thug box
 
