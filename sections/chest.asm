@@ -4,8 +4,8 @@
 
 ; Definitions for ChestState.
 
-.define CHEST_IS_CLOSED $20
-.define CHEST_IS_OPEN $21
+.define CHEST_IS_CLOSED $25
+.define CHEST_IS_OPEN $26
 .define CHEST_IS_OFF $ff
 
 ; The chest's SAT index:
@@ -83,6 +83,9 @@ _IsHitBySword:
 
 ; Check if Arthur's sword collides with chest.
 
+; TODO: Implement new collision detection here!
+
+
              ld    hl, wponX
              ld    a, (plrDir)
              cp    LEFT
@@ -113,6 +116,8 @@ _IsHitBySword:
              ld    (hl), CHEST_IS_OPEN
 
 ; Set a bit in ChestFlag to signal to score module.
+
+TODO: Reactivate scoring + chest in score module 
 
              ld    hl, ChestFlag
              set   0, (hl)
@@ -145,6 +150,9 @@ _Scroller:
              ld    ix, ChestState
              ld    (ix + 0), CHEST_IS_CLOSED
              ld    (ix + 1), 255
+             
+; TODO: Should be BASELINE, not some random number!
+
              call  goRandom
              and   %00011111
              add   a, 115
