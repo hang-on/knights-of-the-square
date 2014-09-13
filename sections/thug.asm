@@ -35,6 +35,7 @@ ThugFlag db
 thug_speed db
 ThugDelay db
 thug_char_code db
+thug_animation_cel db
 .ends
 
 ; * ThugFlag, bits: xxxx xxps
@@ -163,7 +164,16 @@ _WalkThug:
 
 +:           ld    hl, thug_state
              ld    (hl), THUG_WALKING
-             ; TODO: Put in animation handling
+
+             ld    hl, thug_animation_cel
+             ld    de, thug_walking_left
+             call  advcAnim
+
+             ld    a, (thug_animation_cel)
+             ld    hl, thug_walking_left
+             call  arrayItm
+
+             ld    (thug_char_code), a
 
              ld    hl, thug_speed
              dec   (hl)
