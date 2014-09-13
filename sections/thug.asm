@@ -218,6 +218,7 @@ _ScrollThug:
              xor   a
              ld    (thug_x), a
              ld    (thug_y), a
+             ld    (thug_char_code), a
 
              ld    c, 0
              ld    d, 0
