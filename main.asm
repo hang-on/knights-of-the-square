@@ -692,10 +692,10 @@ TestOverlap:
 
 MetaTileScript:
 ; One screen is 15 meta tiles
-.db 3 1 1 1 11 3 1 6 1 1 1 3 3 1 4
-.db 1 6 6 11 1 1 3 1 1 3 4 5 4 5 5
+.db 3 1 1 1 11 3 1 6 1 1 13 1 1 1 4
+.db 1 6 6 11 1 1 1 1 1 1 4 5 4 5 5
 .db 5 5 4 5 5 11 1 1 8 9 10 4 7 12 4
-.db 3 3 1 5 5 4 5 5 12 1 1 1 7 12 7
+.db 13 1 1 5 5 4 5 5 12 1 1 1 7 12 7
 .db 5 5 5 5
 
 ; END_OF_LEVEL = amount of meta tiles + 1
