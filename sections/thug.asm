@@ -108,9 +108,38 @@ ManageThugLoop:
 
              call  _ScrollThug
 
-
+             call  _SwitchThugOff
 
              ret
+
+_SwitchThugOff:
+
+             ld    a, (thug_state)
+             cp    THUG_DEAD
+             ret   nz
+
+             ld    a, (thug_x)
+             cp    0
+             ret   nz
+
+
+; Thug has scrolled off screen, so destroy him.
+
+             xor   a
+             ld    (thug_x), a
+             ld    (thug_y), a
+             ld    (thug_char_code), a
+
+             ld    c, 0
+             ld    d, 0
+             ld    e, 0
+             ld    b, THUGSAT
+             call  goSprite
+
+             ld    hl, thug_state
+             ld    (hl), THUG_OFF
+             ret
+
 
 
 _WalkThug:
@@ -121,7 +150,7 @@ _WalkThug:
              ld    a, (thug_state)
              cp    THUG_STANDING
              jp    z, +
-             
+
              ret
 
 +:
@@ -211,24 +240,6 @@ _ScrollThug:
 
              ld   hl, thug_x
              dec  (hl)
-             jp   nz, +
-
-; Thug has scrolled off screen, so destroy him.
-
-             xor   a
-             ld    (thug_x), a
-             ld    (thug_y), a
-             ld    (thug_char_code), a
-
-             ld    c, 0
-             ld    d, 0
-             ld    e, 0
-             ld    b, THUGSAT
-             call  goSprite
-
-             ld    hl, thug_state
-             ld    (hl), THUG_OFF
-             ret
 
 ; Update thug sprite position.
 
@@ -242,8 +253,6 @@ _ScrollThug:
              ld    b, THUGSAT
              call  goSprite
              ret
-
-
 
 
 _KillThug:
