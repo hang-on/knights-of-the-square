@@ -114,10 +114,10 @@ ManageThugLoop:
 
 _SwitchThugOff:
 
-             ld    a, (thug_state)
+/*             ld    a, (thug_state)
              cp    THUG_DEAD
              ret   nz
-
+*/
              ld    a, (thug_x)
              cp    0
              ret   nz
