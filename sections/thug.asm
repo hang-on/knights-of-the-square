@@ -178,18 +178,9 @@ _WalkThug:
 
 _UpdateThugPosition:
 
-; Cancel horizontal movement if stage is scrolling.
-
-             ld    a, (ScrollFlag)
-             cp    1
-             jp    nz, +
-             xor   a
-             ld    (thug_speed), a     ; dont move forward.
-
-
 ; Move thug horizontally according to hSpeed.
 
-+:           ld    a, (thug_speed)     ; get horizontal speed
+             ld    a, (thug_speed)     ; get horizontal speed
              ld    b, a            ; store it in B
              ld    a, (thug_x)       ; get current x pos
              add   a, b            ; add speed to current x pos
@@ -238,20 +229,9 @@ _ScrollThug:
 ; Scroll thug.
 ; TODO: Better to apply -1 to thug's horizontal speed!
 
-             ld   hl, thug_x
+             ld    hl, thug_speed
              dec  (hl)
 
-; Update thug sprite position.
-
-+:
-             ld    a, (thug_char_code)
-             ld    c, a            ; does this work better?
-             ld    a, (thug_x)
-             ld    d, a
-             ld    a, (thug_y)
-             ld    e, a
-             ld    b, THUGSAT
-             call  goSprite
              ret
 
 
