@@ -26,7 +26,7 @@
 .define SCROLL     0
 
 .ramsection "Thug ram" slot 3
-ThugState db
+thug_state db
 ThugX db
 ThugY db
 ThugCounter db
@@ -49,7 +49,7 @@ InitializeThug:
 
 ; Put initial values into the thug's variables.
 
-             ld    ix, ThugState
+             ld    ix, thug_state
              ld    (ix + 0), THUG_STANDING
              ld    (ix + 1), 255   ; put him in the blanked column
              ld    (ix + 2), BASELINE
@@ -111,7 +111,7 @@ ManageThugLoop:
 
 _WalkThug:
 
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_WALKING
              ret   z
 
@@ -119,7 +119,7 @@ _WalkThug:
 
 
 _SpawnThug:
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_OFF
              ret    nz
 
@@ -134,7 +134,7 @@ _SpawnThug:
 
 
 _ScrollThug:
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_OFF
              ret    z
 
@@ -163,7 +163,7 @@ _ScrollThug:
              ld    b, THUGSAT
              call  goSprite
 
-             ld    hl, ThugState
+             ld    hl, thug_state
              ld    (hl), THUG_OFF
              ret
 
@@ -184,7 +184,7 @@ _ScrollThug:
 
 
 _KillThug:
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_DYING
              ret    nz
 
@@ -197,7 +197,7 @@ _KillThug:
 
 ; Switch thug to new state = 'dead'.
 
-             ld    hl, ThugState
+             ld    hl, thug_state
              ld    (hl), THUG_DEAD
 
 ; Signal to score module and return.
@@ -231,7 +231,7 @@ _HurtThug:
 
 ; Is thug status = hurting? (Paralyzed from being hit).
 
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_HURTING
              ret    nz
 
@@ -250,7 +250,7 @@ _HurtThug:
 
 ; Switch state back to standing and return.
 
-             ld    hl, ThugState
+             ld    hl, thug_state
              ld    (hl), THUG_STANDING
 
 ; Check the thug's life meter.
@@ -261,7 +261,7 @@ _HurtThug:
 
 ; Life is below zero - switch state to 'dying'.
 
-             ld    ix, ThugState
+             ld    ix, thug_state
              ld   (ix + 3), 0
              ld   (ix + 0), THUG_DYING
              ret
@@ -277,7 +277,7 @@ _HitThug:
 
 ; Thug is vulnerable when he is standing or preparing to attack.
 
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_STANDING
              jp    z, +
              cp    THUG_WAITING
@@ -304,7 +304,7 @@ _HitThug:
 
 ; Update thug mode to "hurting" and set counter for duration.
 
-             ld    ix, ThugState
+             ld    ix, thug_state
              ld    (ix + 0), THUG_HURTING
              ld    (ix + 3), 7
 
@@ -333,7 +333,7 @@ _HitThug:
 _StartAttack:
 
              ld     a, THUG_ATTACKING
-             ld    (ThugState), a
+             ld    (thug_state), a
              ld    (ThugCharCode), a
              ld    a, 10
              ld    (ThugCounter), a
@@ -362,7 +362,7 @@ _HandleAttack:
              call  _DetectProximity
              call  _PrepareAttack
 
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_ATTACKING
              ret   nz
 
@@ -375,7 +375,7 @@ _HandleAttack:
 ; End attack state.
 
              ld    a, THUG_STANDING
-             ld    (ThugState), a
+             ld    (thug_state), a
              ld    (ThugCharCode), a
 
              ld    c, THUG_STANDING
@@ -395,7 +395,7 @@ _HandleAttack:
              ret
 
 _PrepareAttack:
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_WAITING
              ret   nz
 
@@ -409,7 +409,7 @@ _PrepareAttack:
 
 _DetectProximity:
 
-             ld    a, (ThugState)
+             ld    a, (thug_state)
              cp    THUG_STANDING
              ret   nz
 
@@ -435,7 +435,7 @@ _DetectProximity:
              add    a, 10
              ld    (ThugCounter), a
              ld    a, THUG_WAITING
-             ld    (ThugState), a
+             ld    (thug_state), a
 
              ret
 
