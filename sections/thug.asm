@@ -165,8 +165,8 @@ _WalkThug:
              ld    (hl), THUG_WALKING
              ; TODO: Put in animation handling
 
-             ld    a, -1
-             ld    (thug_speed), a
+             ld    hl, thug_speed
+             dec   (hl)
 
 
              ret
