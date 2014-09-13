@@ -114,10 +114,6 @@ ManageThugLoop:
 
 _SwitchThugOff:
 
-/*             ld    a, (thug_state)
-             cp    THUG_DEAD
-             ret   nz
-*/
              ld    a, (thug_x)
              cp    0
              ret   nz
@@ -207,7 +203,7 @@ _SpawnThug:
 
              ; Thug is off - should we respawn him?
              call  goRandom
-             and   %11111100       ; more zeroes = more respawning
+             and   %01111111       ; more zeroes = more respawning
              ret   nz
 
              ; OK - his number came out, let's put him back on.
