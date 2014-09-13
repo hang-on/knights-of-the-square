@@ -497,4 +497,11 @@ thugDie:
 .redefine C2 THUG_STANDING+3
 .redefine C3 THUG_STANDING+4
 .db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C3 $ff
+
+; walking left
+thug_walking_left:
+.redefine C1 THUG_STANDING
+.redefine C2 THUG_STANDING + 1
+.db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C2 $ff
+
 .ends
