@@ -34,7 +34,7 @@ ThugLife db
 ThugFlag db
 thug_speed db
 ThugDelay db
-ThugCharCode db
+thug_char_code db
 .ends
 
 ; * ThugFlag, bits: xxxx xxps
@@ -54,7 +54,7 @@ InitializeThug:
              ld    (ix + 1), 255   ; put him in the blanked column
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 8
-             ld    (ix + 8), THUG_STANDING  ; ThugCharCode
+             ld    (ix + 8), THUG_STANDING  ; thug_char_code
 
 ; Put a standing thug sprite on the screen.
 
@@ -114,15 +114,29 @@ ManageThugLoop:
 
 
 _WalkThug:
+             ld    a, (thug_state)
+             cp    THUG_WALKING
+             jp    z, +
 
+             ld    a, (thug_state)
+             cp    THUG_STANDING
+             jp    z, +
+             
+             ret
+
++:
              ld    a, (plrX)
              ld    b, a
              ld    a, (thug_x)
              sub   b
              sub   20     ; distance to player
-             ret   c
+             jp    nc, +
 
              ld    hl, thug_state
+             ld    (hl), THUG_STANDING
+             ret
+
++:           ld    hl, thug_state
              ld    (hl), THUG_WALKING
              ; TODO: Put in animation handling
 
@@ -154,7 +168,8 @@ _UpdateThugPosition:
              xor   a               ; clear A
              ld    (thug_speed), a     ; set speed to zero
 
-             ld    c, THUG_STANDING
+             ld    a, (thug_char_code)
+             ld    c, a
              ld    a, (thug_x)
              ld    d, a            ; D
              ld    a, (thug_y)
@@ -217,7 +232,7 @@ _ScrollThug:
 ; Update thug sprite position.
 
 +:
-             ld    a, (ThugCharCode)
+             ld    a, (thug_char_code)
              ld    c, a            ; does this work better?
              ld    a, (thug_x)
              ld    d, a
@@ -258,7 +273,7 @@ _KillThug:
 +:           ld    hl, thugDie
              ld    a, (ThugCounter)
              call  arrayItm
-             ld    (ThugCharCode), a  ; store new charcode
+             ld    (thug_char_code), a  ; store new charcode
              ld    c, a
              ld    a, (thug_x)
              ld    d, a
@@ -381,7 +396,7 @@ _StartAttack:
 
              ld     a, THUG_ATTACKING
              ld    (thug_state), a
-             ld    (ThugCharCode), a
+             ld    (thug_char_code), a
              ld    a, 10
              ld    (ThugCounter), a
 
@@ -423,7 +438,7 @@ _HandleAttack:
 
              ld    a, THUG_STANDING
              ld    (thug_state), a
-             ld    (ThugCharCode), a
+             ld    (thug_char_code), a
 
              ld    c, THUG_STANDING
              ld    a, (thug_x)
