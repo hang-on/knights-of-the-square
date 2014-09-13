@@ -27,12 +27,12 @@
 
 .ramsection "Thug ram" slot 3
 thug_state db
-ThugX db
+thug_x db
 ThugY db
 ThugCounter db
 ThugLife db
 ThugFlag db
-ThugSpeed db
+thug_speed db
 ThugDelay db
 ThugCharCode db
 .ends
@@ -118,6 +118,30 @@ _WalkThug:
              ret
 
 
+_UpdateThugPosition:
+
+; Cancel horizontal movement if stage is scrolling.
+
+             ld    a, (ScrollFlag)
+             cp    1
+             jp    nz, +
+             xor   a
+             ld    (thug_speed), a     ; dont move forward.
+
+
+; Move thug horizontally according to hSpeed.
+
++:           ld    a, (thug_speed)     ; get horizontal speed
+             ld    b, a            ; store it in B
+             ld    a, (thug_x)       ; get current x pos
+             add   a, b            ; add speed to current x pos
+             ld    (thug_x), a       ; and put it into current  x
+             xor   a               ; clear A
+             ld    (thug_speed), a     ; set speed to zero
+
+             ret                   ; back to player loop recipe
+
+
 _SpawnThug:
              ld    a, (thug_state)
              cp    THUG_OFF
@@ -147,14 +171,14 @@ _ScrollThug:
 ; Scroll thug.
 ; TODO: Better to apply -1 to thug's horizontal speed!
 
-             ld   hl, ThugX
+             ld   hl, thug_x
              dec  (hl)
              jp   nz, +
 
 ; Thug has scrolled off screen, so destroy him.
 
              xor   a
-             ld    (ThugX), a
+             ld    (thug_x), a
              ld    (ThugY), a
 
              ld    c, 0
@@ -172,7 +196,7 @@ _ScrollThug:
 +:
              ld    a, (ThugCharCode)
              ld    c, a            ; does this work better?
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              ld    d, a
              ld    a, (ThugY)
              ld    e, a
@@ -213,7 +237,7 @@ _KillThug:
              call  arrayItm
              ld    (ThugCharCode), a  ; store new charcode
              ld    c, a
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              ld    d, a
              ld    a, (ThugY)
              ld    e, a
@@ -293,7 +317,7 @@ _HitThug:
              ld    h, a
              ld    a, (wponY)
              ld    d, a
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              ld    l, a
              ld    a, (ThugY)
              ld    e, a
@@ -339,7 +363,7 @@ _StartAttack:
              ld    (ThugCounter), a
 
              ld    c, THUG_ATTACKING
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              ld    d, a
              ld    a, (ThugY)
              ld    e, a
@@ -347,7 +371,7 @@ _StartAttack:
              call  goSprite
 
              ld    c, THUG_WEAPON
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              sub   12
              ld    d, a
              ld    a, (ThugY)
@@ -379,7 +403,7 @@ _HandleAttack:
              ld    (ThugCharCode), a
 
              ld    c, THUG_STANDING
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              ld    d, a
              ld    a, (ThugY)
              ld    e, a
@@ -418,7 +442,7 @@ _DetectProximity:
              ld    a, (plrY)
              ld    d, a
              ld    b, 16            ; size of player box
-             ld    a, (ThugX)
+             ld    a, (thug_x)
              sub   10
              ld    l, a
              ld    a, (ThugY)
