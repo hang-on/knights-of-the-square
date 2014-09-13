@@ -656,7 +656,7 @@ TestOverlap:
 /*
              ; Example of DetectCollision in action.
              ; The following detects collision between the player
-             ; object (plrX, plrY) and a thug object (thug_x, ThugY)
+             ; object (plrX, plrY) and a thug object (thug_x, thug_y)
 
              ld    a, (plrX)       ; set up the paramters
              ld    h, a
@@ -665,7 +665,7 @@ TestOverlap:
              ld    b, 8            ; the player is an 8x8 box
              ld    a, (thug_x)
              ld    l, a
-             ld    a, (ThugY)
+             ld    a, (thug_y)
              ld    e, a
              ld    c, 8            ; the thug is also an 8x8 box
 
