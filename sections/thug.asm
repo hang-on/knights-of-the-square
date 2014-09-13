@@ -115,6 +115,12 @@ _WalkThug:
              cp    THUG_WALKING
              ret   z
 
+             ; TODO: Put in animation handling
+
+             ld    a, -1
+             ld    (thug_speed), a
+
+
              ret
 
 
