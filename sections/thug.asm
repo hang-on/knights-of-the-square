@@ -9,6 +9,7 @@
 .define THUG_HURTING 1
 .define THUG_DYING 2
 .define THUG_WAITING 3
+.define THUG_WALKING 4
 .define THUG_ATTACKING $36
 .define THUG_SHIRT $19
 
@@ -45,7 +46,7 @@ ThugCharCode db
 ; Initialize the thug with default values.
 ; Call this every time the thug is brought into play.
 InitializeThug:
-             
+
 ; Put initial values into the thug's variables.
 
              ld    ix, ThugState
@@ -81,6 +82,9 @@ ManageThugLoop:
 
              call  _SpawnThug
 
+; Maybe walk the thug?
+
+             call  _WalkThug
 
 ; Detect proximity of player, prepare for attack, etc.
 
@@ -101,6 +105,15 @@ ManageThugLoop:
 ; Scroll thug if the stage scrolls.
 
              call  _ScrollThug
+
+             ret
+
+
+_WalkThug:
+
+             ld    a, (ThugState)
+             cp    THUG_WALKING
+             ret   z
 
              ret
 
