@@ -141,10 +141,11 @@ _Scroller:
              jp    nz, ++
 
 ; Determine if we should put a new chest on screen.
-
              call  goRandom
-             sub   20
-             ret   po
+debug:
+             ;ld    (debug_byte), a
+             and   %01111111
+             ret   nz
 
 ; Put a new chest outside the screen to the right, ready to scroll.
 

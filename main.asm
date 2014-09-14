@@ -60,6 +60,7 @@ MetaTileScriptIndex db             ; next MetaTileScript byte to read
 MetaTileBuffer dsb 4               ; the current meta tile's tiles
 MetaTileBufferIndex db             ; next MetaTileBuffer byte to read
 
+debug_byte db
 .ends
 
 .bank 0 slot 0
