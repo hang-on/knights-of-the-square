@@ -60,7 +60,7 @@ ManageChestLoop:
 
 ; Check for collision between Arthur's sword and closed chest.
 
-             call  _IsHitBySword
+             ;call  _IsHitBySword
 
 ; Create, update or destroy chest depending on ScrollerFlag.
 
@@ -70,6 +70,7 @@ ManageChestLoop:
 
              ret
 
+/*
 _IsHitBySword:
 
 ; Skip collision check if chest is off or already open.
@@ -117,19 +118,19 @@ _IsHitBySword:
 
 ; Set a bit in ChestFlag to signal to score module.
 
-TODO: Reactivate scoring + chest in score module 
+; TODO: Reactivate scoring + chest in score module
 
              ld    hl, ChestFlag
              set   0, (hl)
 
              ret
 
-
+*/
 _Scroller:
 
 ; Is ScrollerFlag set?
 
-             ld    a, (scrlFlag)
+             ld    a, (scroll_flag)
              cp    1
              ret    nz
 
@@ -150,13 +151,9 @@ _Scroller:
              ld    ix, ChestState
              ld    (ix + 0), CHEST_IS_CLOSED
              ld    (ix + 1), 255
-             
-; TODO: Should be BASELINE, not some random number!
 
-             call  goRandom
-             and   %00011111
-             add   a, 115
-             ld    (ix + 2), a
+
+             ld    (ix + 2), BASELINE
 
              ld    c, CHEST_IS_CLOSED
              ld    d, (ix + 1)

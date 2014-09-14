@@ -52,7 +52,7 @@ banks 2
 .ramsection "Variables" slot 3
 RandomizerSeed      dw             ; used by goRandom as seed
 
-ScrollFlag db                      ; shall we scroll screen at int.?
+scroll_flag db                      ; shall we scroll screen at int.?
 HorizontalScrollRegister db        ; mirror of value in scroll reg.
 NextScrollColumn db                ; next name tab. clmn to be blanked
 
@@ -84,6 +84,8 @@ InitializeGame:
 
              call  InitializeThug
 
+             call  InitializeChest
+
              call  InitializePlayer
 
              call  PSGInit         ; initialize PSGLib
@@ -109,6 +111,7 @@ gameLoop:
              call  ManageStageLoop
              call  ManagePlayerLoop
              call  ManageThugLoop
+             call  ManageChestLoop
              call  ManageScoreLoop
 
              halt
@@ -194,7 +197,7 @@ UpdateScore:
 ManageScrolling:
 ; Every frame: Check ManageScrolling flag to see if screen needs scrolling.
 
-             ld    a, (ScrollFlag)   ; read value of ManageScrolling flag
+             ld    a, (scroll_flag)   ; read value of ManageScrolling flag
              cp    1               ; is it set?
              jp    nz, noScroll    ; if not, skip scrolling
 
@@ -233,7 +236,7 @@ chkClmn:     ld    a, (HorizontalScrollRegister)    ; H. scroll reg. (#8) RAM mi
 ; Reset the scroll flag and return.
 
 resFlag:     xor    a              ; clear A
-             ld    (ScrollFlag), a   ; clear scroll flag
+             ld    (scroll_flag), a   ; clear scroll flag
 
 ; Finish scroll handler.
 
@@ -502,7 +505,7 @@ ManageStageLoop:
 ; Scrolling OK. Set the scroll flag
 
              ld    a, 1            ; 1 = flag is set
-             ld    (ScrollFlag), a   ; set ManageScrolling flag
+             ld    (scroll_flag), a   ; set ManageScrolling flag
 
 _step1:
              ret

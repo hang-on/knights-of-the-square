@@ -120,7 +120,7 @@ _UpdatePlayerPosition:
 
 ; Cancel horizontal movement if stage is scrolling.
 
-             ld    a, (ScrollFlag)
+             ld    a, (scroll_flag)
              cp    1
              jp    nz, +
              xor   a
@@ -422,7 +422,7 @@ stopPlr:     ld    a, (plrXOld)    ; get x-pos from before hSpeed
              ld    (plrY), a       ; revert y-pos to prev. value
 
              xor   a               ; clear A
-             ld    (ScrollFlag), a   ; reset scroll flag = don't scroll
+             ld    (scroll_flag), a   ; reset scroll flag = don't scroll
              ret
 
 ; Move the player one pixel south (down).

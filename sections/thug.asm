@@ -228,7 +228,7 @@ _ScrollThug:
 
 ; Check the stage's scroll flag to see if scrolling will happen.
 
-             ld    a, (ScrollFlag)
+             ld    a, (scroll_flag)
              cp    1
              ret    nz
 
