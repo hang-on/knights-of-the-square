@@ -51,6 +51,7 @@ banks 2
 ; All variables default to 0, because ram is cleared by bluelib.
 .ramsection "Variables" slot 3
 RandomizerSeed      dw             ; used by goRandom as seed
+seed                dw             ; seed for Cauldwell's rnd
 
 scroll_flag db                      ; shall we scroll screen at int.?
 HorizontalScrollRegister db        ; mirror of value in scroll reg.
@@ -577,6 +578,20 @@ goRandom:    push  hl
              ld    (RandomizerSeed),hl
              pop   hl
              ret                   ; return random number in a
+
+; Cauldwell's rnd
+; Simple pseudo-random number generator.
+; Steps a pointer through the ROM (held in seed), returning
+; the contents of the byte at that location.
+GenerateRandomNumber:
+             ld hl,(seed) ; Pointer
+             ld a,h
+             and 31 ; keep it within first 8k of ROM.
+             ld h,a
+             ld a,(hl) ; Get "random" number from location.
+             inc hl ; Increment pointer.
+             ld (seed),hl
+             ret
 
 
 ; -------------------------------------------------------------------
