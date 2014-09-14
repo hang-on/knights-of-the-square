@@ -124,7 +124,7 @@ gameLoop:
 .orga $0038
 .section "Maskable interrupt handler" force
              ex    af, af'         ; save AF in their shadow register
-             
+
              in    a, VDPCOM       ; VDP status / satisfy interrupt
 
              exx                   ; save the rest of the registers
@@ -591,6 +591,7 @@ GenerateRandomNumber:
              ld a,(hl) ; Get "random" number from location.
              inc hl ; Increment pointer.
              ld (seed),hl
+             
              ret
 
 
