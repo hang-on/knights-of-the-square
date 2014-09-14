@@ -14,8 +14,8 @@
 
 .ramsection "Chest variables" slot 3
 ChestState db
-ChestX db
-ChestY db
+chest_x db
+chest_y db
 ChestFlag db
 .ends
 
@@ -60,7 +60,7 @@ ManageChestLoop:
 
 ; Check for collision between Arthur's sword and closed chest.
 
-             ;call  _IsHitBySword
+             call  _IsHitBySword
 
 ; Create, update or destroy chest depending on ScrollerFlag.
 
@@ -70,7 +70,7 @@ ManageChestLoop:
 
              ret
 
-/*
+
 _IsHitBySword:
 
 ; Skip collision check if chest is off or already open.
@@ -83,23 +83,17 @@ _IsHitBySword:
              ret    nz
 
 ; Check if Arthur's sword collides with chest.
-
-; TODO: Implement new collision detection here!
-
-
-             ld    hl, wponX
-             ld    a, (plrDir)
-             cp    LEFT
-             jp    nz, +
-             inc   (hl)
-             inc   (hl)
-             inc   (hl)
-             jp    ++
-+:           dec (hl)
-             dec (hl)
-             dec (hl)
-++:          ld    de, ChestX
-             call  clDetect
+             ld    a, (wponX)
+             ld    h, a
+             ld    a, (chest_x)
+             ld    l, a
+             ld    a, (wponY)
+             ld    d, a
+             ld    a, (chest_y)
+             ld    e, a
+             ld    b, 8
+             ld    c, 14
+             call  DetectCollision
              ret    nc
 
 ; Open chest (sprite).
@@ -125,7 +119,6 @@ _IsHitBySword:
 
              ret
 
-*/
 _Scroller:
 
 ; Is ScrollerFlag set?
@@ -144,7 +137,7 @@ _Scroller:
              call  GenerateRandomNumber
              ld    b, a
              ld    a, r
-             and   100
+             and   130
              add   a, b
              ret   po
 
@@ -167,7 +160,7 @@ _Scroller:
 
 ; Scroll the chest.
 
-             ld   hl, ChestX
+             ld   hl, chest_x
              dec  (hl)
              ld   a, (hl)
              cp   0
@@ -176,8 +169,8 @@ _Scroller:
 ; Chest has scrolled off screen, so destroy it.
 
              xor   a
-             ld    (ChestX), a
-             ld    (ChestY), a
+             ld    (chest_x), a
+             ld    (chest_y), a
 
              ld    c, 0
              ld    d, 0
