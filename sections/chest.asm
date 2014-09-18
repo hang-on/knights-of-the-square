@@ -71,6 +71,62 @@ ManageChestLoop:
              ret
 
 
+_IsTouchingPlayer:
+
+             ld    a, (ChestState)    ; get chest mode
+             cp    CHEST_IS_OFF        ; is it off/inactive?
+             ret    z                 ; if no active chest skip coll.chk
+             
+             ld    a, (plrState)
+             cp    WALK
+             ret    nz
+
+             ld    a, (plrX)
+             ld    h, a
+             ld    a, (chest_x)
+             ld    l, a
+             ld    a, (plrY)
+             ld    d, a
+             ld    a, (chest_y)
+             ld    e, a
+             ld    bc, 86
+
+             call  DetectCollision
+             ret   nc
+
+; Check if chest is closed or open.
+
+             ld    a, (ChestState)    ; get chest mode
+             cp    CHEST_IS_CLOSED         ; is it closed?
+             jp    nz, +           ; if so, then player cannot pass!
+             call  stopPlr
+             ret
++:
+
+; If chest is open, then pick it up.
+             ld    hl, player_flag
+             set   0, (hl)
+
+             xor   a
+             ld    (chest_x), a
+             ld    (chest_y), a
+
+             ld    c, 0            ; reset charcode
+             ld    d, 0            ; reset x pos
+             ld    e, 0            ; reset y pos
+             ld    b, CHESTSAT     ; B = the chest's index in SAT
+             call  goSprite        ; update SAT RAM buffer
+             ld    hl, ChestState     ; point to chest mode
+             ld    (hl), $ff       ; turn it off now
+
+             ld    hl,sfxBonus     ; point to bonus SFX
+             ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
+             call  PSGSFXPlay      ; play the super retro bonus sound
+
+             ret
+
+
+
 _IsHitBySword:
 
 ; Skip collision check if chest is off or already open.

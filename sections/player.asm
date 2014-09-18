@@ -359,55 +359,6 @@ ContinueAttack:
              call  goSprite        ; update SAT RAM buffer
              ret
 
-/*
-; -------------------------------------------------------------------
-;                    Check for collision w. chest                   ;
-; -------------------------------------------------------------------
-_step11:
-             ld    a, (ChestState)    ; get chest mode
-             cp    CHEST_IS_OFF        ; is it off/inactive?
-             jp    z, _step13      ; if no active chest skip coll.chk
-             ld    a, (plrState)
-             cp    WALK
-             jp    nz, _step13
-
-             ld    hl, plrX        ; point HL to player x,y data
-             ld    de, ChestX        ; point DE to chest x,y
-
-; NOTE: Implement new collision detection handler
-;             call  clDetect        ; call the collision detection sub
-             jp    nc, _step13              ; if no carry, then no collision
-
-; Check if chest is closed or open.
-
-             ld    a, (ChestState)    ; get chest mode
-             cp    CHEST_IS_CLOSED         ; is it closed?
-             jp    nz, +           ; if so, then player cannot pass!
-             call  stopPlr
-             jp    _step13
-+:
-; If chest is open, then pick it up.
-             ld    hl, player_flag
-             set   0, (hl)
-
-             xor   a
-             ld    (ChestX), a
-             ld    (ChestY), a
-
-             ld    c, 0            ; reset charcode
-             ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
-             ld    b, CHESTSAT     ; B = the chest's index in SAT
-             call  goSprite        ; update SAT RAM buffer
-             ld    hl, ChestState     ; point to chest mode
-             ld    (hl), $ff       ; turn it off now
-
-             ld    hl,sfxBonus     ; point to bonus SFX
-             ld    c,SFX_CHANNELS2AND3  ; in chan. 2 and 3
-             call  PSGSFXPlay      ; play the super retro bonus sound
-
-*/
-
 
 .ends
 
