@@ -2,7 +2,7 @@
 ;                          THUG MODULE                              ;
 ; ------------------------------------------------------------------;
 
-.define THUGSAT 5
+.define THUGSAT 2
 .define THUG_OFF $00
 .define THUG_DEAD $34
 .define THUG_STANDING $30

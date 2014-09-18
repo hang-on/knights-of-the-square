@@ -10,7 +10,7 @@
 
 ; The chest's SAT index:
 
-.define CHESTSAT 2
+.define CHESTSAT 5
 
 .ramsection "Chest variables" slot 3
 ChestState db
