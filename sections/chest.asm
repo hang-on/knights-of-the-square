@@ -61,6 +61,8 @@ ManageChestLoop:
 ; Check for collision between Arthur's sword and closed chest.
 
              call  _IsHitBySword
+             
+             call  _IsTouchingPlayer
 
 ; Create, update or destroy chest depending on ScrollerFlag.
 
