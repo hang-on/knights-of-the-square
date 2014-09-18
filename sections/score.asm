@@ -102,7 +102,7 @@ goScore:
              ld    (hl), a         ; put updated digit back in string
              cp    '9'             ; test updated digit
              ret   c               ; if 9 or less, relax and return
-
+             ret   z
 ; Update the next digit to the left.
 
              sub   10
@@ -112,6 +112,7 @@ nxtDigit:    dec   hl              ; move pointer to nxt digit (left)
              ld    a, (hl)         ; load value into A
              cp    '9'             ; test it
              ret   c               ; if below 9, then scoring is done
+             ret   z
              sub   10
              ld    (hl), a
              jp    nxtDigit        ; update the next digit
