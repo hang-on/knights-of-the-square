@@ -84,26 +84,6 @@ GetGoldPoints:
 
              ret
 
-
-
-             ; the flags (part of?) are reset every loop
-             ; read thugflag - add points
-             ; read  cstFlag - add points  - dont touch these
-
-             ; move score code out of vblank, and blast 6 bytes of ram every frame..
-             ; work on a score ram buffer
-
-
-/*; Add to player's score.
-
-             ld    hl, score + 3    ; point to the hundreds column
-             ld    b,  4            ; one chest is worth 400 points!
-             call  goScore          ; call the score updater routine
-*/
-
-; Soldier is dead, add to player's score. (should go into player or score object)
-; we can set a flag here?
-
 ; -------------------------------------------------------------------
 ; SCORE
 ; Assumes a data block for keeping the score
