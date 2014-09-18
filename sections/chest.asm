@@ -196,7 +196,7 @@ _Scroller:
              call  GenerateRandomNumber
              ld    b, a
              ld    a, r
-             and   130
+             and   135
              add   a, b
              ret   po
 
