@@ -91,7 +91,8 @@ _IsTouchingPlayer:
              ld    d, a
              ld    a, (chest_y)
              ld    e, a
-             ld    bc, 1612
+             ld    b, 12
+             ld    c, 12
 
              call  DetectCollision
              ret   nc
