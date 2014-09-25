@@ -153,7 +153,7 @@ SOURCES AND INSPIRATION
 ; VARIABLES
 ; ********************************************************************
 .ramsection "Bluelib variables" slot 3
-frmCount     DB                    ; counts frames
+frame_counter     DB                    ; counts frames
 portDC       DB                    ; keeps the latest reading of the
 portDD       DB                    ; input ports
 CRAMBuf      DSB 32                ; 2 x 16 colors
@@ -179,7 +179,7 @@ bfHoriz      DSB 128               ; word: Horiz. pos. + charcode
 ; --------------------------------------------------------------------
 hdlFrame:
 
-             ld    hl, frmCount    ; increment frame counter
+             ld    hl, frame_counter    ; increment frame counter
              inc   (hl)
 
 ; copy Sprite Attribute Table (SAT) from RAM buffer to VRAM
