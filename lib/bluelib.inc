@@ -41,7 +41,7 @@ setCRAM             SET COLOR RAM: define all 32 colors in CRAM
 
 initBlib            INITIALIZE BLUELIB: Initializes bluelib
 
-toglDSP             TOGGLE DISPLAY: Enable / disable display
+ToggleDisplay             TOGGLE DISPLAY: Enable / disable display
 
 prepVRAM            Send command word to VDP
 
@@ -318,21 +318,23 @@ wtPlr2:      call  getPlr2
 
 
 ; ====================================================================
-.section "_toggleDisplay" free
+.section "ToggleDisplay" free
 ; TOGGLE DISPLAY: Turn the screen on or off
-; Parameter: A = enableDisplay or disableDisplay (definitions)
-; Note: Frame interrupts and 8 x 8 sprites are alsO enabled each time
-; this function is called. TODO: This must be fixed!!!
+; It uses VDP_register ram mirror to toggle. If display is enabled,
+; then it will be disabled, and vice versa.
 ; Note: Remember to disable interrupts prior to calling this function.
-toglDSP:     
+ToggleDisplay:
+             ; get current display state
              ld    hl, VDP_register
              inc   hl
+             bit   6, (hl)
              cp    ENABLE_DISPLAY
              jp    nz, +
              set   6, (hl)
              jp    ++
 +:           res   6, (hl)
 
+             ; set VDP register R1
 ++:          ld    a, (hl)
              out   (VDPCOM), a
              ld     a, $81
