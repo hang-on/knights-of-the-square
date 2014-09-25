@@ -3,7 +3,7 @@
 ; ------------------------------------------------------------------;
 
 ; Work in progress, 2014
-.SDSCTAG 1.0, "Knights of the Square", "Hack and slash!", "Anders Skriver Jensen"
+.SDSCTAG 0.024, "Knights of the Square", "Hack and slash!", "Anders Skriver Jensen"
 
 ; -------------------------------------------------------------------
 
@@ -113,8 +113,8 @@ gameLoop:
 ; Invoke the modules' loop handlers.
              call  ManageStageLoop
              call  ManagePlayerLoop
-             call  ManageThugLoop
              call  ManageChestLoop
+             call  ManageThugLoop
              call  ManageScoreLoop
 
              halt
