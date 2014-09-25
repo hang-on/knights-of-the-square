@@ -97,7 +97,7 @@ InitializeGame:
 
 ; Turn display on.
 
-             ld     a, DSPON       ; get display constant
+             ld     a, ENABLE_DISPLAY       ; get display constant
              call   toglDSP        ; turn display on using bluelib
 
              ei                    ; enable interrupts

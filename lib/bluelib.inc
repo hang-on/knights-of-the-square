@@ -88,8 +88,12 @@ SOURCES AND INSPIRATION
 .define SMAPADDR   $3800           ; screen map address (default set.)
 .define NAME_TABLE $3800
 ; for toggling the display: (assuming bluelib std VDP settings)
-.define DSPOFF     %10100001       ; display off
-.define DSPON      %11100001       ; display on
+.define DSPOFF     %10100001       ; display off   - deprec.
+.define DSPON      %11100001       ; display on    - deprec.
+
+.define ENABLE_DISPLAY 1
+.define DISABLE_DISPLAY 0
+
 
 
 ; for defining character patterns:
@@ -320,7 +324,17 @@ wtPlr2:      call  getPlr2
 ; Note: Frame interrupts and 8 x 8 sprites are alsO enabled each time
 ; this function is called. TODO: This must be fixed!!!
 ; Note: Remember to disable interrupts prior to calling this function.
-toglDSP:     out   (VDPCOM), a
+toglDSP:     
+             ld    hl, VDP_register
+             inc   hl
+             cp    ENABLE_DISPLAY
+             jp    nz, +
+             set   6, (hl)
+             jp    ++
++:           res   6, (hl)
+
+++:          ld    a, (hl)
+             out   (VDPCOM), a
              ld     a, $81
              out    (VDPCOM), a
              ret
