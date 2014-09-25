@@ -586,7 +586,8 @@ goRandom:    push  hl
 ; the contents of the byte at that location.
 GenerateRandomNumber:
              ld hl,(seed) ; Pointer
-             ld a,h
+             ld a, (frame_counter)  ; tweaking Cauldwell's code here
+             add a,h
              and 31 ; keep it within first 8k of ROM.
              ld h,a
              ld a,(hl) ; Get "random" number from location.
