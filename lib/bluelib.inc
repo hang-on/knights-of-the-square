@@ -158,6 +158,7 @@ portDC       DB                    ; keeps the latest reading of the
 portDD       DB                    ; input ports
 CRAMBuf      DSB 32                ; 2 x 16 colors
 CRAMFlag     DB                    ; flag for CRAM buffer
+VDP_register dsb 11                ; mirror of the VDP reg. values
 .ends
 
 .ramsection "Sprite Attribute Table RAM buffer" slot 3
@@ -331,7 +332,16 @@ toglDSP:     out   (VDPCOM), a
 .section "initVDP" free
 ; INITIALIZE VDP REGISTERS
 ; Entry: HL = pointer to 11 bytes of data
-initVDP:     ld    b, 11
+initVDP:     
+             ; save the reg. settings in ram mirror
+             push  hl
+             ld    de, VDP_register
+             ld    bc, 11
+             ldir
+             pop   hl
+
+             ; set the actual registers
+             ld    b, 11
              ld    c, $80
 
 -:           ld    a, (hl)
@@ -511,9 +521,11 @@ dfColor:     ld    hl, CRAMBuf     ; point to ram buffer
 ; should be called before interrupts are enabled
 ; and before any bluelib function is called
 ; --------------------------------------------------------------------
-initBlib:    ld    hl, VDPStd
-             call  initVDP         ; init VDP
+initBlib:    
              call  clearRam
+
+             ld    hl, VDPStd
+             call  initVDP         ; init VDP
              ret
 .ends
 ; ====================================================================
