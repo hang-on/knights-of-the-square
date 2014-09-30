@@ -375,7 +375,7 @@ _HitThug:
 ; Deal damage to thug using formula: (0 - 3) + weapon modifier.
 
              call  goRandom        ; put a pseudo-random number in A
-             and   %00000011       ; mask to give us interval 0 - 3
+             and   %00000111       ; mask to give us interval 0 - 7
              ld    b, a            ; store masked random number
              ld    a, (wponDam)    ; get weapon damage modifier
              add   a, b            ; add random damage to modifier
