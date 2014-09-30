@@ -42,7 +42,7 @@ banks 2
 ; ATTENTION! Update the following vars when changing the graphics --;
 ;                                                                   ;
 .define NUMBER_OF_SPRITE_TILES 64                                   ;
-.define NUMBER_OF_BACKGROUND_TILES $52                              ;
+.define NUMBER_OF_BACKGROUND_TILES $5B                              ;
 ;                                                                   ;
 ; -------------------------------------------------------------------
 
