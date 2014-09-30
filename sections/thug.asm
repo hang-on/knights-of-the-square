@@ -30,7 +30,7 @@ thug_state db
 thug_x db
 thug_y db
 ThugCounter db
-ThugLife db
+thug_life db
 ThugFlag db
 thug_speed db
 ThugDelay db
@@ -54,7 +54,7 @@ InitializeThug:
              ld    (ix + 0), THUG_STANDING
              ld    (ix + 1), 255   ; put him in the blanked column
              ld    (ix + 2), BASELINE
-             ld    (ix + 4), 8
+             ld    (ix + 4), 40
              ld    (ix + 8), THUG_STANDING  ; thug_char_code
 
 ; Put a standing thug sprite on the screen.
@@ -313,7 +313,7 @@ _HurtThug:
 
 ; Check the thug's life meter.
 
-             ld    a, (ThugLife)
+             ld    a, (thug_life)
              rla
              ret    nc
 
@@ -380,9 +380,9 @@ _HitThug:
              ld    a, (wponDam)    ; get weapon damage modifier
              add   a, b            ; add random damage to modifier
              ld    b, a            ; store this total amount of dam.
-             ld    a, (ThugLife)   ; get soldier's life variable
+             ld    a, (thug_life)   ; get soldier's life variable
              sub   b               ; subtract total damage
-             ld    (ThugLife), a   ; and put the result back in var.
+             ld    (thug_life), a   ; and put the result back in var.
 
              ret
 

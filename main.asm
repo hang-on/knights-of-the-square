@@ -38,6 +38,7 @@ banks 2
 .include "sections\player.asm"
 .include "sections\score.asm"
 .include "sections\debug.asm"
+.include "sections\elm.asm"
 
 ; ATTENTION! Update the following vars when changing the graphics --;
 ;                                                                   ;
@@ -115,6 +116,7 @@ gameLoop:
              call  ManageChestLoop
              call  ManageThugLoop
              call  ManageScoreLoop
+             call  ManageELMLoop
 
              halt
              jp    gameLoop
