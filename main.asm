@@ -133,6 +133,7 @@ gameLoop:
 
              call  ManageScrolling  ; scrolling the background
              call  UpdateScore     ; write the digits
+             call  HandleELMFrame
              call  hdlFrame        ; bluelib frame handler
              call  PSGFrame        ; psglib housekeeping
              call  PSGSFXFrame     ; process next SFX frame

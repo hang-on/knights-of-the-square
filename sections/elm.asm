@@ -5,7 +5,7 @@
 .section "ELM loop" superfree
 
 ManageELMLoop:
-
+/*
 
              ld   d, 34 ;erase ELM
              ld   e, $52
@@ -70,8 +70,35 @@ DrawELM:
              ld   d, 38
              ld   e, ELM_TILES
              call putTile
-
+*/
              ret
 
+.ends
+
+.section "ELM frame int." superfree
+HandleELMFrame:
+
+             ld   d, 34 ;erase ELM
+             ld   e, $53
+             call putTile
+
+             ld   d, 35 ;erase ELM
+             ld   e, $53
+             call putTile
+
+             ld   d, 36 ;erase ELM
+             ld   e, $53
+             call putTile
+             ld   d, 37 ;erase ELM
+             ld   e, $53
+             call putTile
+             ld   d, 38 ;erase ELM
+             ld   e, $53
+             call putTile
+             ld   d, 39 ;erase ELM
+             ld   e, $55
+             call putTile
+
+             ret
 .ends
 
