@@ -39,6 +39,7 @@ banks 2
 .include "sections\score.asm"
 .include "sections\debug.asm"
 .include "sections\elm.asm"
+.include "sections\plm.asm"
 
 ; ATTENTION! Update the following vars when changing the graphics --;
 ;                                                                   ;
@@ -134,6 +135,7 @@ gameLoop:
              call  ManageScrolling  ; scrolling the background
              call  UpdateScore     ; write the digits
              call  HandleELMFrame
+             call  HandlePLMFrame
              call  hdlFrame        ; bluelib frame handler
              call  PSGFrame        ; psglib housekeeping
              call  PSGSFXFrame     ; process next SFX frame
