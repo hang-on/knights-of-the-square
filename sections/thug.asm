@@ -54,7 +54,7 @@ InitializeThug:
              ld    (ix + 0), THUG_STANDING
              ld    (ix + 1), 255   ; put him in the blanked column
              ld    (ix + 2), BASELINE
-             ld    (ix + 4), 40
+             ld    (ix + 4), 40 ;life
              ld    (ix + 8), THUG_STANDING  ; thug_char_code
 
 ; Put a standing thug sprite on the screen.
@@ -376,6 +376,7 @@ _HitThug:
 
              call  goRandom        ; put a pseudo-random number in A
              and   %00000111       ; mask to give us interval 0 - 7
+             inc   a               ; always 1 damage
              ld    b, a            ; store masked random number
              ld    a, (wponDam)    ; get weapon damage modifier
              add   a, b            ; add random damage to modifier
