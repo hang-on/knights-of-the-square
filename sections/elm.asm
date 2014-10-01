@@ -32,36 +32,35 @@ ManageELMLoop:
 DrawELM:
 
              ld   ix, ELM_buffer
-
              ld   a, (thug_life)
+
              cp   8
-             ret  c
+             jp   c, FinishELM
 
              ld   (ix + 0), $53
 
-             ld   a, (thug_life)
              cp   16
-             ret   c
+             jp   c, FinishELM
 
              ld   (ix + 1), $53
 
-             ld   a, (thug_life)
              cp   24
-             ret  c
+             jp  c, FinishELM
 
              ld   (ix + 2), $53
 
-             ld   a, (thug_life)
              cp   32
-             ret  c
+             jp   c, FinishELM
 
              ld   (ix + 3), $53
 
-             ld   a, (thug_life)
              cp   40
-             ret  c
+             jp   c, FinishELM
 
              ld   (ix + 4), $53
+
+
+FinishELM:
              ret
 
 .ends
