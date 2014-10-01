@@ -25,42 +25,55 @@ ManageELMLoop:
 ; clear buffer
              ld    hl, ELM_buffer
              ld    b, 8
--:           ld    (hl), $52 ; blank
+-:           ld    (hl), $5b ; blank
              inc   hl
              djnz  -
 
 DrawELM:
 
-             ld   ix, ELM_buffer
+             ld   hl, ELM_buffer
              ld   a, (thug_life)
+             ld   b, 8
 
-             cp   8
+             cp   b
              jp   c, FinishELM
 
-             ld   (ix + 0), $53
+             ld   (hl), $53
+             inc  hl
 
-             cp   16
+             ld   b, 16
+             cp   b
              jp   c, FinishELM
 
-             ld   (ix + 1), $53
+             ld   (hl), $53
+             inc  hl
 
-             cp   24
+             ld   b, 24
+             cp   b
              jp  c, FinishELM
 
-             ld   (ix + 2), $53
+             ld   (hl), $53
+             inc  hl
 
-             cp   32
+             ld   b, 32
+             cp   b
              jp   c, FinishELM
 
-             ld   (ix + 3), $53
+             ld   (hl), $53
+             inc  hl
 
-             cp   40
+             ld   b, 40
+             cp   b
              jp   c, FinishELM
 
-             ld   (ix + 4), $53
-
+             ld   (hl), $53
+             inc  hl
 
 FinishELM:
+             sub  b
+             add  a, 8
+             add  a, $53
+             ld   (hl), a
              ret
 
 .ends
