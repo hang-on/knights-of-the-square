@@ -2,7 +2,7 @@
 
 
 .define DIGITS     $40             ; tile bank index of digits
-.define SCORE      19              ; where to begin the score display
+.define SCORE      42              ; where to begin the score display
 
 .ramsection "Score variables" slot 3
 score:       ds 6                  ; a RAM data block for the score
