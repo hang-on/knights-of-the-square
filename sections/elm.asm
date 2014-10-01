@@ -87,6 +87,12 @@ FinishELM:
 .section "ELM frame int." superfree
 HandleELMFrame:
 
+             ld    a, (thug_state)
+             cp    THUG_OFF
+             jp    z, WipeELM
+             cp    THUG_DEAD
+             jp    z, WipeELM
+
 
              ; put enemy portrait on screen
              ld    hl, $386E
@@ -124,5 +130,20 @@ HandleELMFrame:
              call putTile
 
              ret
+
+WipeELM:
+             ld    hl, $386E ; thug portrait
+             call  prepVRAM        ; prepare VRAM for writes at HL
+
+             ld    b, 8
+-:           ld    a, $52
+             out   (VDPDATA), a
+             ld    a, $01
+             out   (VDPDATA), a
+             djnz  -
+
+
+             ret
+
 .ends
 
