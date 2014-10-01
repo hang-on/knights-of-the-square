@@ -354,7 +354,7 @@ ContinueAttack:
              ld    (wponY), a
              ld    c, 0            ; reset charcode
              ld    d, 0            ; reset x pos
-             ld    e, 0            ; reset y pos
+             ld    e, 200            ; reset y pos
              ld    b, WPONSAT      ; B = the weapon's index in SAT
              call  goSprite        ; update SAT RAM buffer
              ret

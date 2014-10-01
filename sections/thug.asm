@@ -447,7 +447,7 @@ _HandleAttack:
 
              ld    c, 0
              ld    d, 0
-             ld    e, 0
+             ld    e, 200
              ld    b, THUG_WEAPON_SAT
              call  goSprite
 
