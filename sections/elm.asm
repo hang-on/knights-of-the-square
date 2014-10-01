@@ -24,7 +24,7 @@ ManageELMLoop:
 
 ; clear buffer
              ld    hl, ELM_buffer
-             ld    b, 8
+             ld    b, 5
 -:           ld    (hl), $5b ; red/empty bar
              inc   hl
              djnz  -
@@ -86,6 +86,15 @@ FinishELM:
 
 .section "ELM frame int." superfree
 HandleELMFrame:
+
+             /*
+             ld    hl,
+             call  prepVRAM        ; prepare VRAM for writes at HL
+             ld    a, e            ; put tile index in A (param.)
+             out   (VDPDATA), a    ; write tile index to name table
+             ld    a, $01          ; use bg. colors and tile bank 1
+             out   (VDPDATA), a    ; tell it to VDP
+             */
 
              ld   ix, ELM_buffer
 
