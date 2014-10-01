@@ -4,7 +4,7 @@
 
 .ramsection "ELM ram" slot 3
 
-ELM_buffer dsb 8
+ELM_buffer dsb 7
 
 .ends
 
@@ -89,41 +89,38 @@ HandleELMFrame:
 
 
              ; put enemy portrait on screen
-             ld    hl, $3842
+             ld    hl, $386E
              call  prepVRAM        ; prepare VRAM for writes at HL
              ld    a, 17            ; put tile index in A (param.)
              out   (VDPDATA), a    ; write tile index to name table
-             ld    a, $08          ; 
+             ld    a, $08          ;
              out   (VDPDATA), a    ; tell it to VDP
 
 
              ld   ix, ELM_buffer
 
-             ld   d, 34 ;erase ELM
+             ld   d, 56
              ld   e, (ix + 0)
              call putTile
 
-             ld   d, 35 ;erase ELM
+             ld   d, 57
              ld   e, (ix + 1)
              call putTile
 
-             ld   d, 36 ;erase ELM
+             ld   d, 58
              ld   e, (ix + 2)
              call putTile
-             ld   d, 37 ;erase ELM
+             ld   d, 59
              ld   e, (ix + 3)
              call putTile
-             ld   d, 38 ;erase ELM
+             ld   d, 60
              ld   e, (ix + 4)
              call putTile
-             ld   d, 39 ;erase ELM
+             ld   d, 61
              ld   e, (ix + 5)
              call putTile
-             ld   d, 40 ;erase ELM
+             ld   d, 62
              ld   e, (ix + 6)
-             call putTile
-             ld   d, 41 ;erase ELM
-             ld   e, (ix + 7)
              call putTile
 
              ret
