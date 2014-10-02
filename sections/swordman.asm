@@ -2,72 +2,94 @@
 ;                          Swordman section                             ;
 ; ------------------------------------------------------------------;
 
-.define THUGSAT 2
-.define THUG_OFF $00
-.define THUG_DEAD $34
-.define THUG_STANDING $30
-.define THUG_HURTING 1
-.define THUG_DYING 2
-.define THUG_WAITING 3
-.define THUG_WALKING 4
-.define THUG_ATTACKING $36
-.define THUG_SHIRT $19
+.define SWORDMAN_SAT 7 ; not sure that this is a free number?
+.define SWORDMAN_WEAPON_SAT 8
 
-.define THUG_WEAPON $35
-.define THUG_WEAPON_SAT 6
+.define SWORDMAN_OFF $00
+.define SWORDMAN_STANDING $40
+
+; sword tile indexes
+.define SWORD_LEFT $4a
+.define SWORD_UP $49
+.define SWORD_RIGHT $48
+
+
+;.define SWORDMAN_DEAD $34
+
+;.define THUG_HURTING 1
+;.define THUG_DYING 2
+;.define THUG_WAITING 3
+;.define THUG_WALKING 4
+;.define THUG_ATTACKING $36
+;.define THUG_SHIRT $19
+
+;.define THUG_WEAPON $35
 
 ; colors
-.define YELLOW     $0f
-.define ORANGE     $07
+;.define YELLOW     $0f
+;.define ORANGE     $07
 
 
 
 ; Used by ThugFlag.
-.define SCROLL     0
+;.define SCROLL     0
 
-.ramsection "Thug ram" slot 3
-thug_state db
-thug_x db
-thug_y db
-ThugCounter db
+.ramsection "Soldier ram" slot 3
+swordman_state db
+swordman_x db
+swordman_y db
+swordman_counter db
+/*
 thug_life db
 ThugFlag db
 thug_speed db
 ThugDelay db
 thug_char_code db
 thug_animation_cel db
+*/
 .ends
 
+; must change this
 ; * ThugFlag, bits: xxxx xxps
 ; s = scroll thug left next vblank
 ; p = points ready to be added to player's score (for slaying!)
 ; -------------------------------------------------------------------
 
-.section "Thug initialize" free
-; Initialize the thug with default values.
+.section "Swordman initialize" free
+; Initialize the swordman with default values.
 ; Call this every time the thug is brought into play.
-InitializeThug:
+InitializeSwordman:
 
-; Put initial values into the thug's variables.
+; Put initial values into the swordman's variables.
 
-             ld    ix, thug_state
-             ld    (ix + 0), THUG_STANDING
-             ld    (ix + 1), 255   ; put him in the blanked column
+             ld    ix, swordman_state
+             ld    (ix + 0), SWORDMAN_STANDING
+             ld    (ix + 1), 210   ; put him in the blanked column
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 40 ;life
-             ld    (ix + 8), THUG_STANDING  ; thug_char_code
+             ld    (ix + 8), SWORDMAN_STANDING  ; swordman_char_code
 
 ; Put a standing thug sprite on the screen.
 
              ld    c, (ix + 8)
              ld    d, (ix + 1)
              ld    e, (ix + 2)
-             ld    b, THUGSAT
+             ld    b, SWORDMAN_SAT
+             call  goSprite
+
+             ; put sword just left of swordman
+             ld    a, d
+             sub   16
+             ld    d, a
+             ld    b, SWORDMAN_WEAPON_SAT
+             ld    c, SWORD_LEFT
              call  goSprite
 
              ret
 .ends
 
+
+/*
 .section "Thug loop" free
 
 ; Put a call to this function in the main game loop.
@@ -516,3 +538,5 @@ thug_walking_left:
 .db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C2 $ff
 
 .ends
+
+*/

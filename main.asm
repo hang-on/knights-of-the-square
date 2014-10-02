@@ -40,10 +40,11 @@ banks 2
 .include "sections\debug.asm"
 .include "sections\elm.asm"
 .include "sections\plm.asm"
+.include "sections\swordman.asm"
 
 ; ATTENTION! Update the following vars when changing the graphics --;
 ;                                                                   ;
-.define NUMBER_OF_SPRITE_TILES $48                                   ;
+.define NUMBER_OF_SPRITE_TILES $4b                                   ;
 .define NUMBER_OF_BACKGROUND_TILES $5c                              ;
 ;                                                                   ;
 ; -------------------------------------------------------------------
@@ -88,6 +89,8 @@ InitializeGame:
              call  InitializeScore
 
              call  InitializeThug
+             
+             call  InitializeSwordman
 
              call  InitializeChest
 
