@@ -54,7 +54,7 @@ InitializePlayer:
              ld    a, IDLE         ; get state constant
              ld    (plrState), a   ; init player state to 'idle'
              ld    hl, plrX        ; address of player x position
-             ld    (hl), 8         ; load initial x pos. on screen
+             ld    (hl), 32         ; load initial x pos. on screen
              inc   hl              ; forward to player y position
              ld    (hl), BASELINE       ; load initial y pos. on screen
 

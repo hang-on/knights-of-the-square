@@ -21,7 +21,7 @@
 .define SWORDMAN_WAITING 3
 .define SWORDMAN_WALKING 4
 .define SWORDMAN_ATTACKING $47
-.define SWORDMAN_SHIRT $19  ; check this number!
+.define SWORDMAN_SHIRT $13  
 
 .define SWORDMAN_WEAPON_FRONT $48
 .define SWORDMAN_WEAPON_TOP $49
@@ -66,7 +66,7 @@ InitializeSwordman:
 
              ld    ix, swordman_state
              ld    (ix + 0), SWORDMAN_STANDING
-             ld    (ix + 1), 0   ; put him in the blanked column
+             ld    (ix + 1), 16   ; put him in the blanked column
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 40 ;life
              ld    (ix + 8), SWORDMAN_STANDING  ; swordman_char_code
@@ -98,6 +98,28 @@ InitializeSwordman:
 
 ManageSwordmanLoop:
 
+             call  _WalkSwordman
+
+             call  _UpdateSwordmanPosition
+
+             ret
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 ; Clear the status flag.
 
              xor   a
@@ -135,7 +157,9 @@ ManageSwordmanLoop:
 
              call  _SwitchSwordmanOff
 
-             ret
+             ret  ; NOTE
+
+*/
 
 _SwitchSwordmanOff:
 
@@ -183,6 +207,7 @@ _WalkSwordman:
              ret
 
 +:
+/*
              ld    a, (plrX)
              ld    b, a
              ld    a, (swordman_x)
@@ -194,7 +219,8 @@ _WalkSwordman:
              ld    (hl), SWORDMAN_STANDING
              ret
 
-+:           ld    hl, swordman_state
++: */
+             ld    hl, swordman_state
              ld    (hl), SWORDMAN_WALKING
 
              ld    hl, swordman_animation_cel
@@ -523,5 +549,8 @@ swordman_walking_right:
 .db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C2 $ff
 
 .ends
+
+/*
+
 
 */
