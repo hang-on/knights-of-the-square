@@ -1,5 +1,5 @@
 ;-------------------------------------------------------------------;
-;                          Swordman section                             ;
+;                          Swordman section                         ;
 ; ------------------------------------------------------------------;
 
 .define SWORDMAN_SAT 7 ; not sure that this is a free number?
@@ -21,7 +21,7 @@
 .define SWORDMAN_WAITING 3
 .define SWORDMAN_WALKING 4
 .define SWORDMAN_ATTACKING $47
-.define SWORDMAN_SHIRT $13  
+.define SWORDMAN_SHIRT $13
 
 .define SWORDMAN_WEAPON_FRONT $48
 .define SWORDMAN_WEAPON_TOP $49
@@ -101,6 +101,12 @@ ManageSwordmanLoop:
              call  _WalkSwordman
 
              call  _UpdateSwordmanPosition
+
+             call  _ScrollSwordman
+
+             call  _SpawnSwordman
+
+             call  _SwitchSwordmanOff
 
              ret
 
@@ -207,19 +213,19 @@ _WalkSwordman:
              ret
 
 +:
-/*
-             ld    a, (plrX)
-             ld    b, a
+
              ld    a, (swordman_x)
+             ld    b, a
+             ld    a, (plrX)
              sub   b
-             sub   25     ; distance to player - long (sword)
+             sub   35     ; distance to player - long (sword)
              jp    nc, +
 
              ld    hl, swordman_state
              ld    (hl), SWORDMAN_STANDING
              ret
 
-+: */
++:
              ld    hl, swordman_state
              ld    (hl), SWORDMAN_WALKING
 
