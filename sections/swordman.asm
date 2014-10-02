@@ -9,49 +9,51 @@
 .define SWORDMAN_STANDING $40
 
 ; sword tile indexes
-.define SWORD_LEFT $4a
+.define SWORD_LEFT $4a      ; duplicates! see below
 .define SWORD_UP $49
 .define SWORD_RIGHT $48
 
 
-;.define SWORDMAN_DEAD $34
+.define SWORDMAN_DEAD $44
 
-;.define THUG_HURTING 1
-;.define THUG_DYING 2
-;.define THUG_WAITING 3
-;.define THUG_WALKING 4
-;.define THUG_ATTACKING $36
-;.define THUG_SHIRT $19
+.define SWORDMAN_HURTING 1
+.define SWORDMAN_DYING 2
+.define SWORDMAN_WAITING 3
+.define SWORDMAN_WALKING 4
+.define SWORDMAN_ATTACKING $47
+.define SWORDMAN_SHIRT $19  ; check this number!
 
-;.define THUG_WEAPON $35
+.define SWORDMAN_WEAPON_FRONT $48
+.define SWORDMAN_WEAPON_TOP $49
+.define SWORDMAN_WEAPON_BEHIND $4a
 
 ; colors
 ;.define YELLOW     $0f
-;.define ORANGE     $07
+.define GREEN     $1d
 
 
 
 ; Used by ThugFlag.
 ;.define SCROLL     0
 
-.ramsection "Soldier ram" slot 3
+.ramsection "Swordman ram" slot 3
 swordman_state db
 swordman_x db
 swordman_y db
 swordman_counter db
-/*
-thug_life db
-ThugFlag db
-thug_speed db
-ThugDelay db
-thug_char_code db
-thug_animation_cel db
-*/
+
+swordman_life db
+swordman_flag db
+swordman_speed db
+swordman_delay db
+swordman_char_code db
+swordman_animation_cel db
+
 .ends
 
 ; must change this
-; * ThugFlag, bits: xxxx xxps
-; s = scroll thug left next vblank
+; * swordman_flag, bits: xxxx xxps
+; s = scroll swordman left next vblank
 ; p = points ready to be added to player's score (for slaying!)
 ; -------------------------------------------------------------------
 
@@ -64,7 +66,7 @@ InitializeSwordman:
 
              ld    ix, swordman_state
              ld    (ix + 0), SWORDMAN_STANDING
-             ld    (ix + 1), 24   ; put him in the blanked column
+             ld    (ix + 1), 0   ; put him in the blanked column
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 40 ;life
              ld    (ix + 8), SWORDMAN_STANDING  ; swordman_char_code
@@ -89,85 +91,93 @@ InitializeSwordman:
 .ends
 
 
-/*
-.section "Thug loop" free
+
+.section "Swordman loop" free
 
 ; Put a call to this function in the main game loop.
 
-ManageThugLoop:
+ManageSwordmanLoop:
 
 ; Clear the status flag.
 
              xor   a
-             ld    (ThugFlag), a
+             ld    (swordman_flag), a
 
-; Maybe respawn the thug.
+; Maybe respawn the swordman.
 
-             call  _SpawnThug
+             call  _SpawnSwordman
 
-; Maybe walk the thug?
+; Maybe walk the swordman?
 
-             call  _WalkThug
+             call  _WalkSwordman
 
 ; Detect proximity of player, prepare for attack, etc.
 
              call  _HandleAttack
 
-; Check for collision between player's sword and thug.
+; Check for collision between player's sword and swordman.
 
-             call   _HitThug
+             call   _HitSwordman
 
-; Handle affairs if thug state is 'hurting'.
+; Handle affairs if swordman state is 'hurting'.
 
-             call  _HurtThug
+             call  _HurtSwordman
 
-; Handle a possible dying thug.
+; Handle a possible dying swordman.
 
-             call  _KillThug
+             call  _KillSwordman
 
-             call  _UpdateThugPosition
+             call  _UpdateSwordmanPosition
 
-; Scroll thug if the stage scrolls.
+; Scroll swordman if the stage scrolls.
 
-             call  _ScrollThug
+             call  _ScrollSwordman
 
-             call  _SwitchThugOff
+             call  _SwitchSwordmanOff
 
              ret
 
-_SwitchThugOff:
+_SwitchSwordmanOff:
 
-             ld    a, (thug_x)
+             ld    a, (swordman_x)
              cp    0
              ret   nz
 
 
-; Thug has scrolled off screen, so destroy him.
+; Swordman has scrolled off screen, so destroy him.
 
              xor   a
-             ld    (thug_x), a
-             ld    (thug_y), a
-             ld    (thug_char_code), a
+             ld    (swordman_x), a
+             ld    (swordman_y), a
+             ld    (swordman_char_code), a
 
              ld    c, 0
              ld    d, 0
              ld    e, 0
-             ld    b, THUGSAT
+             ld    b, SWORDMAN_SAT
              call  goSprite
 
-             ld    hl, thug_state
-             ld    (hl), THUG_OFF
+             ; also clear his sword
+             ld    c, 0
+             ld    d, 0
+             ld    e, 0
+             ld    b, SWORDMAN_WEAPON_SAT
+             call  goSprite
+
+
+             ld    hl, swordman_state
+             ld    (hl), SWORDMAN_OFF
              ret
 
 
 
-_WalkThug:
-             ld    a, (thug_state)
-             cp    THUG_WALKING
+_WalkSwordman:
+             ld    a, (swordman_state)
+             cp    SWORDMAN_WALKING
              jp    z, +
 
-             ld    a, (thug_state)
-             cp    THUG_STANDING
+             ld    a, (swordman_state)
+             cp    SWORDMAN_STANDING
              jp    z, +
 
              ret
@@ -175,77 +185,85 @@ _WalkThug:
 +:
              ld    a, (plrX)
              ld    b, a
-             ld    a, (thug_x)
+             ld    a, (swordman_x)
              sub   b
-             sub   20     ; distance to player
+             sub   25     ; distance to player - long (sword)
              jp    nc, +
 
-             ld    hl, thug_state
-             ld    (hl), THUG_STANDING
+             ld    hl, swordman_state
+             ld    (hl), SWORDMAN_STANDING
              ret
 
-+:           ld    hl, thug_state
-             ld    (hl), THUG_WALKING
++:           ld    hl, swordman_state
+             ld    (hl), SWORDMAN_WALKING
 
-             ld    hl, thug_animation_cel
-             ld    de, thug_walking_left
+             ld    hl, swordman_animation_cel
+             ld    de, swordman_walking_right
              call  advcAnim
 
              ld    a, (thug_animation_cel)
              ld    hl, thug_walking_left
              call  arrayItm
 
-             ld    (thug_char_code), a
+             ld    (swordman_char_code), a
 
-             ld    hl, thug_speed
-             dec   (hl)
+             ld    hl, swordman_speed
+             inc   (hl)                ; move right?
 
 
              ret
 
 
-_UpdateThugPosition:
+_UpdateSwordmanPosition:
 
-; Move thug horizontally according to hSpeed.
+; Move swordman horizontally
 
-             ld    a, (thug_speed)     ; get horizontal speed
+             ld    a, (swordman_speed)     ; get horizontal speed
              ld    b, a            ; store it in B
-             ld    a, (thug_x)       ; get current x pos
+             ld    a, (swordman_x)       ; get current x pos
              add   a, b            ; add speed to current x pos
-             ld    (thug_x), a       ; and put it into current  x
+             ld    (swordman_x), a       ; and put it into current  x
              xor   a               ; clear A
-             ld    (thug_speed), a     ; set speed to zero
+             ld    (swordman_speed), a     ; set speed to zero
 
-             ld    a, (thug_char_code)
+             ld    a, (swordman_char_code)
              ld    c, a
-             ld    a, (thug_x)
+             ld    a, (swordman_x)
              ld    d, a            ; D
-             ld    a, (thug_y)
+             ld    a, (swordman_y)
              ld    e, a            ; E
-             ld    b, THUGSAT       ; B = Sprite index in SAT
+             ld    b, SWORDMAN_SAT       ; B = Sprite index in SAT
              call  goSprite        ; update SAT buffer (RAM)
+
+             ; put sword just left of swordman
+             ld    a, d
+             sub   16
+             ld    d, a
+             ld    b, SWORDMAN_WEAPON_SAT
+             ld    c, SWORD_LEFT
+             call  goSprite
 
              ret                   ; back to player loop recipe
 
 
-_SpawnThug:
-             ld    a, (thug_state)
-             cp    THUG_OFF
+_SpawnSwordman:
+             ld    a, (swordman_state)
+             cp    SWORDMAN_OFF
              ret    nz
 
-             ; Thug is off - should we respawn him?
+             ; Swordman is off - should we respawn him?
              call  goRandom
              and   %01111111       ; more zeroes = more respawning
              ret   nz
 
              ; OK - his number came out, let's put him back on.
-             call  InitializeThug
+             call  InitializeSwordman
              ret
 
 
-_ScrollThug:
-             ld    a, (thug_state)
-             cp    THUG_OFF
+_ScrollSwordman:
+             ld    a, (swordman_state)
+             cp    SWORDMAN_OFF
              ret    z
 
 ; Check the stage's scroll flag to see if scrolling will happen.
@@ -254,186 +272,158 @@ _ScrollThug:
              cp    1
              ret    nz
 
-; Scroll thug.
-; TODO: Better to apply -1 to thug's horizontal speed!
+; Scroll swordman.
 
-             ld    hl, thug_speed
+             ld    hl, swordman_speed
              dec  (hl)
 
              ret
 
 
-_KillThug:
-             ld    a, (thug_state)
-             cp    THUG_DYING
-             ret    nz
-
-; Check if 'dying' state has expired.
-
-             ld    hl, ThugCounter
-             ld    a, (hl)
-             cp    12
-             jp    nz, +
+_KillSwordman:
 
 ; Switch thug to new state = 'dead'.
 
-             ld    hl, thug_state
-             ld    (hl), THUG_DEAD
+             ld    hl, swordman_state
+             ld    (hl), SWORDMAN_DEAD
 
 ; Signal to score module and return.
 
-             ld    hl, ThugFlag
+             ld    hl, swordman_flag
              set   1, (hl)
              ret
 
-; Dying state still active - play next cel in dying animation.
 
-+:           ld    hl, thugDie
-             ld    a, (ThugCounter)
-             call  arrayItm
-             ld    (thug_char_code), a  ; store new charcode
-             ld    c, a
-             ld    a, (thug_x)
-             ld    d, a
-             ld    a, (thug_y)
-             ld    e, a
-             ld    b, THUGSAT
-             call  goSprite
+_HurtSwordman:
 
-; Increase counter and return = one step closer to death!
+; Is swordman status = hurting? (Paralyzed from being hit).
 
-             ld    hl, ThugCounter
-             inc   (hl)
-             ret
-
-
-_HurtThug:
-
-; Is thug status = hurting? (Paralyzed from being hit).
-
-             ld    a, (thug_state)
-             cp    THUG_HURTING
+             ld    a, (swordman_state)
+             cp    SWORDMAN_HURTING
              ret    nz
 
 ; Has the hurt state expired?
 
-             ld    hl, ThugCounter
+             ld    hl, swordman_counter
              ld    a, (hl)
              cp    0
              jp    nz, +
 
-; The hurt state has expired - give him back his orange shirt.
+; The hurt state has expired - give him back his green shirt.
 
-             ld    b, THUG_SHIRT
-             ld    c, ORANGE
-             call  dfColor
+             ld    b, SWORDMAN_SHIRT
+             ld    c, GREEN
+             call  dfColor   ; ! hey, this should be when ints are off!!
 
 ; Switch state back to standing and return.
 
-             ld    hl, thug_state
-             ld    (hl), THUG_STANDING
+             ld    hl, swordman_state
+             ld    (hl), SWORDMAN_STANDING
 
-; Check the thug's life meter.
+; Check the swordman's life meter.
 
-             ld    a, (thug_life)
+             ld    a, (swordman_life)
              rla
              ret    nc
 
 ; Life is below zero - switch state to 'dying'.
 
-             ld    ix, thug_state
+             ld    ix, swordman_state
              ld   (ix + 3), 0
-             ld   (ix + 0), THUG_DYING
+             ld   (ix + 0), SWORDMAN_DYING
              ret
 
 ; The hurt state is just going on, so decrease counter.
 
-+:           ld    hl, ThugCounter
++:           ld    hl, swordman_counter
              dec   (hl)
              ret
 
 
-_HitThug:
+_HitSwordman:
 
-; Thug is vulnerable when he is standing or preparing to attack.
+; Swordman is vulnerable when he is standing or preparing to attack.
 
-             ld    a, (thug_state)
-             cp    THUG_STANDING
+             ld    a, (swordman_state)
+             cp    SWORDMAN_STANDING
              jp    z, +
-             cp    THUG_WAITING
+             cp    SWORDMAN_WAITING
              jp    z, +
 
 ; If none of the above, skip to next section.
 
              ret
 
-; Detect collision between the player's sword and the thug's body.
+; Detect collision between the player's sword and the swordman's body.
 
 +:           ld    a, (wponX)
              ld    h, a
              ld    a, (wponY)
              ld    d, a
-             ld    a, (thug_x)
+             ld    a, (swordman_x)
              ld    l, a
-             ld    a, (thug_y)
+             ld    a, (swordman_y)
              ld    e, a
              ld    b, 8
              ld    c, 16
              call  DetectCollision
              ret    nc
 
-; Update thug mode to "hurting" and set counter for duration.
+; Update swordman mode to "hurting" and set counter for duration.
 
-             ld    ix, thug_state
-             ld    (ix + 0), THUG_HURTING
+             ld    ix, swordman_state
+             ld    (ix + 0), SWORDMAN_HURTING
              ld    (ix + 3), 7
 
 ; Give him a yellow shirt of pain.
 
-             ld    b, THUG_SHIRT
+             ld    b, SWORDMAN_SHIRT
              ld    c, YELLOW
-             call  dfColor
+             call  dfColor       ; ! hey, in frame int!?!
 
-; Deal damage to thug using formula: (0 - 3) + weapon modifier.
+; Deal damage to swordman
 
              call  goRandom        ; put a pseudo-random number in A
              and   %00000111       ; mask to give us interval 0 - 7
-             inc   a               ; always 1 damage
+             inc   a               ; always 1 damage (dam. 1-8)
              ld    b, a            ; store masked random number
              ld    a, (wponDam)    ; get weapon damage modifier
              add   a, b            ; add random damage to modifier
              ld    b, a            ; store this total amount of dam.
-             ld    a, (thug_life)   ; get soldier's life variable
+             ld    a, (swordman_life)   ; get soldier's life variable
              sub   b               ; subtract total damage
-             ld    (thug_life), a   ; and put the result back in var.
+             ld    (swordman_life), a   ; and put the result back in var.
 
              ret
 
-; Handle the thug's occasional attempt to attack the player.
+; Handle the swordman's occasional attempt to attack the player.
 
 _StartAttack:
 
-             ld     a, THUG_ATTACKING
-             ld    (thug_state), a
-             ld    (thug_char_code), a
+             ld     a, SWORDMAN_ATTACKING
+             ld    (swordman_state), a
+             ld    (swordman_char_code), a
              ld    a, 10
-             ld    (ThugCounter), a
+             ld    (swordman_counter), a
 
-             ld    c, THUG_ATTACKING
-             ld    a, (thug_x)
+             ld    c, SWORDMAN_ATTACKING
+             ld    a, (swordman_x)
              ld    d, a
-             ld    a, (thug_y)
+             ld    a, (swordman_y)
              ld    e, a
-             ld    b, THUGSAT
+             ld    b, SWORDMAN_SAT
              call  goSprite
 
-             ld    c, THUG_WEAPON
-             ld    a, (thug_x)
-             sub   12
+             ; also put in the sword...?
+
+
+             ld    c, SWORDMAN_WEAPON_FRONT
+             ld    a, (swordman_x)
+             add   a, 12
              ld    d, a
-             ld    a, (thug_y)
+             ld    a, (swordman_y)
              ld    e, a
-             ld    b, THUG_WEAPON_SAT
+             ld    b, SWORDMAN_WEAPON_SAT
              call  goSprite
 
              ret
@@ -443,11 +433,11 @@ _HandleAttack:
              call  _DetectProximity
              call  _PrepareAttack
 
-             ld    a, (thug_state)
-             cp    THUG_ATTACKING
+             ld    a, (swordman_state)
+             cp    SWORDMAN_ATTACKING
              ret   nz
 
-             ld    hl, ThugCounter
+             ld    hl, swordman_counter
              dec   (hl)
              ld    a, (hl)
              cp    0
@@ -455,32 +445,32 @@ _HandleAttack:
 
 ; End attack state.
 
-             ld    a, THUG_STANDING
-             ld    (thug_state), a
-             ld    (thug_char_code), a
+             ld    a, SWORDMAN_STANDING
+             ld    (swordman_state), a
+             ld    (swordman_char_code), a
 
-             ld    c, THUG_STANDING
-             ld    a, (thug_x)
+             ld    c, SWORDMAN_STANDING
+             ld    a, (swordman_x)
              ld    d, a
-             ld    a, (thug_y)
+             ld    a, (swordman_y)
              ld    e, a
-             ld    b, THUGSAT
+             ld    b, SWORDMAN_SAT
              call  goSprite
 
              ld    c, 0
              ld    d, 0
-             ld    e, 200
-             ld    b, THUG_WEAPON_SAT
+             ld    e, 200     ; drop sword below the screen
+             ld    b, SWORDMAN_WEAPON_SAT
              call  goSprite
 
              ret
 
 _PrepareAttack:
-             ld    a, (thug_state)
-             cp    THUG_WAITING
+             ld    a, (swordman_state)
+             cp    SWORDMAN_WAITING
              ret   nz
 
-             ld    hl, ThugCounter
+             ld    hl, swordman_counter
              dec   (hl)
              ret   nz
 
@@ -490,8 +480,8 @@ _PrepareAttack:
 
 _DetectProximity:
 
-             ld    a, (thug_state)
-             cp    THUG_STANDING
+             ld    a, (swordman_state)
+             cp    SWORDMAN_STANDING
              ret   nz
 
              ld    a, (plrX)
@@ -499,12 +489,12 @@ _DetectProximity:
              ld    a, (plrY)
              ld    d, a
              ld    b, 16            ; size of player box
-             ld    a, (thug_x)
-             sub   10
+             ld    a, (swordman_x)
+             add   a, 16
              ld    l, a
-             ld    a, (thug_y)
+             ld    a, (swordman_y)
              ld    e, a
-             ld    c, 4            ; size of thug box
+             ld    c, 12            ; size of thug box
 
              call  DetectCollision
 
@@ -514,27 +504,22 @@ _DetectProximity:
              call   goRandom
              and    %00001110
              add    a, 10
-             ld    (ThugCounter), a
-             ld    a, THUG_WAITING
-             ld    (thug_state), a
+             ld    (swordman_counter), a
+             ld    a, SWORDMAN_WAITING
+             ld    (swordman_state), a
 
              ret
 
 
 .ends
 
-.section "Thug data" free
+.section "Swordman data" free
 ; cel array for animating collapsing thug
-thugDie:
-.redefine C1 THUG_STANDING+2
-.redefine C2 THUG_STANDING+3
-.redefine C3 THUG_STANDING+4
-.db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C3 $ff
 
-; walking left
-thug_walking_left:
-.redefine C1 THUG_STANDING
-.redefine C2 THUG_STANDING + 1
+; walking right
+swordman_walking_right:
+.redefine C1 SWORDMAN_STANDING
+.redefine C2 SWORDMAN_STANDING + 1
 .db C1 C1 C1 C1 C1 C1 C2 C2 C2 C2 C2 C2 $ff
 
 .ends

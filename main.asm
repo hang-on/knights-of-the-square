@@ -120,6 +120,7 @@ gameLoop:
              call  ManagePlayerLoop
              call  ManageChestLoop
              call  ManageThugLoop
+             call  ManageSwordmanLoop
              call  ManageScoreLoop
              call  ManageELMLoop
              halt
