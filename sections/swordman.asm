@@ -64,7 +64,7 @@ InitializeSwordman:
 
              ld    ix, swordman_state
              ld    (ix + 0), SWORDMAN_STANDING
-             ld    (ix + 1), 210   ; put him in the blanked column
+             ld    (ix + 1), 24   ; put him in the blanked column
              ld    (ix + 2), BASELINE
              ld    (ix + 4), 40 ;life
              ld    (ix + 8), SWORDMAN_STANDING  ; swordman_char_code

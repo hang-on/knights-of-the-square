@@ -40,6 +40,7 @@ banks 2
 .include "sections\debug.asm"
 .include "sections\elm.asm"
 .include "sections\plm.asm"
+.include "sections\slm.asm"
 .include "sections\swordman.asm"
 
 ; ATTENTION! Update the following vars when changing the graphics --;
@@ -121,7 +122,6 @@ gameLoop:
              call  ManageThugLoop
              call  ManageScoreLoop
              call  ManageELMLoop
-
              halt
              jp    gameLoop
 
@@ -139,6 +139,7 @@ gameLoop:
              call  UpdateScore     ; write the digits
              call  HandleELMFrame
              call  HandlePLMFrame
+             call  HandleSLMFrame
              call  hdlFrame        ; bluelib frame handler
              call  PSGFrame        ; psglib housekeeping
              call  PSGSFXFrame     ; process next SFX frame
