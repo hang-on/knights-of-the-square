@@ -98,6 +98,8 @@ InitializeSwordman:
 
 ManageSwordmanLoop:
 
+             call  _HandleAttack
+
              call  _WalkSwordman
 
              call  _UpdateSwordmanPosition
@@ -107,6 +109,8 @@ ManageSwordmanLoop:
              call  _SpawnSwordman
 
              call  _SwitchSwordmanOff
+
+
 
              ret
 
@@ -218,7 +222,7 @@ _WalkSwordman:
              ld    b, a
              ld    a, (plrX)
              sub   b
-             sub   35     ; distance to player - long (sword)
+             sub   30     ; distance to player - long (sword)
              jp    nc, +
 
              ld    hl, swordman_state
@@ -248,6 +252,7 @@ _WalkSwordman:
 
 _UpdateSwordmanPosition:
 
+
 ; Move swordman horizontally
 
              ld    a, (swordman_speed)     ; get horizontal speed
@@ -268,7 +273,44 @@ _UpdateSwordmanPosition:
              call  goSprite        ; update SAT buffer (RAM)
 
              ; put sword just left of swordman
-             ld    a, d
+             ; FIXIT: Sword is not always behind him!!
+
+             ld    a, (swordman_state)
+             cp    SWORDMAN_ATTACKING
+             jp   nz, +
+
+             ld    a, (swordman_counter)
+             cp    16
+             jp    c, ++
+
+             ; put sword on top of swordman
+             ld    c, SWORD_UP
+             ld    a, (swordman_x)
+             ld    d, a
+             ld    a, (swordman_y)
+             sub   16
+             ld    e, a
+             ld    b, SWORDMAN_WEAPON_SAT
+             call  goSprite
+
+             ret
+
+++:
+
+             ; put sword right
+             ld    c, SWORD_RIGHT
+             ld    a, (swordman_x)
+             add   a, 16
+             ld    d, a
+             ld    a, (swordman_y)
+             ld    e, a
+             ld    b, SWORDMAN_WEAPON_SAT
+             call  goSprite
+
+             ret
+
+; put sword to the left of the swordman
++:             ld    a, d
              sub   16
              ld    d, a
              ld    b, SWORDMAN_WEAPON_SAT
@@ -432,13 +474,15 @@ _HitSwordman:
 
 _StartAttack:
 
-             ld     a, SWORDMAN_ATTACKING
-             ld    (swordman_state), a
-             ld    (swordman_char_code), a
-             ld    a, 10
+             ld    a, 30
              ld    (swordman_counter), a
 
-             ld    c, SWORDMAN_ATTACKING
+             ld     a, SWORDMAN_ATTACKING
+             ld    (swordman_state), a
+
+             ld    a, $46 ; lifting sword above head...
+             ld    (swordman_char_code), a
+             ld    c, a
              ld    a, (swordman_x)
              ld    d, a
              ld    a, (swordman_y)
@@ -446,18 +490,16 @@ _StartAttack:
              ld    b, SWORDMAN_SAT
              call  goSprite
 
-             ; also put in the sword...?
-
-
-             ld    c, SWORDMAN_WEAPON_FRONT
+             ; put the sword above his head...
+             ld    c, SWORD_UP
              ld    a, (swordman_x)
-             add   a, 12
              ld    d, a
              ld    a, (swordman_y)
+             sub   16
              ld    e, a
              ld    b, SWORDMAN_WEAPON_SAT
              call  goSprite
-
+*/
              ret
 
 _HandleAttack:
@@ -472,7 +514,34 @@ _HandleAttack:
              ld    hl, swordman_counter
              dec   (hl)
              ld    a, (hl)
-             cp    0
+
+
+             cp    15
+             jp    nz, +
+
+             ld    a, $47 ; sword forward...
+             ld    (swordman_char_code), a
+             ld    c, a
+             ld    a, (swordman_x)
+             ld    d, a
+             ld    a, (swordman_y)
+             ld    e, a
+             ld    b, SWORDMAN_SAT
+             call  goSprite
+
+             ld    c, SWORD_RIGHT
+             ld    a, (swordman_x)
+             add   a, 16
+             ld    d, a
+             ld    a, (swordman_y)
+             ld    e, a
+             ld    b, SWORDMAN_WEAPON_SAT
+             call  goSprite
+
+
+
+
++:           cp    0
              ret   nz
 
 ; End attack state.
@@ -522,11 +591,11 @@ _DetectProximity:
              ld    d, a
              ld    b, 16            ; size of player box
              ld    a, (swordman_x)
-             add   a, 16
+             add   a, 18
              ld    l, a
              ld    a, (swordman_y)
              ld    e, a
-             ld    c, 12            ; size of thug box
+             ld    c, 16            ; size of thug box
 
              call  DetectCollision
 
@@ -534,8 +603,8 @@ _DetectProximity:
 
              ;ld    a, 20
              call   goRandom
-             and    %00001110
-             add    a, 10
+             and    80
+             add    a, 50
              ld    (swordman_counter), a
              ld    a, SWORDMAN_WAITING
              ld    (swordman_state), a
