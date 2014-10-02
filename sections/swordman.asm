@@ -201,8 +201,8 @@ _WalkSwordman:
              ld    de, swordman_walking_right
              call  advcAnim
 
-             ld    a, (thug_animation_cel)
-             ld    hl, thug_walking_left
+             ld    a, (swordman_animation_cel)
+             ld    hl, swordman_walking_right
              call  arrayItm
 
              ld    (swordman_char_code), a
