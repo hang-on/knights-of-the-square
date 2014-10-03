@@ -769,9 +769,47 @@ sfxBonus:
 .section "Title screen" free
 title_screen:
 
-             call  initBlib
 
              call  PSGInit         ; initialize PSGLib
+
+; load title screen assets to VDP
+
+
+             ld    hl, $c000       ; start in bank 1, index = 00
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, _palette     ; source data
+             ld    bc, 16*2            ;
+             call  wrteVRAM
+
+             ld    hl, $0000       ;
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, _tiles     ; source data
+             ld    bc, 65*32            ; tiles x 32, each tile = 32 bytes
+             call  wrteVRAM        ; load tiles into tilebank
+
+             ld    hl, $3800       ;
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, _tilemap     ; source data
+             ld    bc, 32*24*2
+             call  wrteVRAM        ;
+
+; turn minimal screen on
+
+             ld    a, %00100110   ; register 0
+             out   (VDPCOM), a
+             ld     a, $80
+             out    (VDPCOM), a
+
+             ld    a, %11000000    ; register 1
+             out   (VDPCOM), a
+             ld     a, $81
+             out    (VDPCOM), a
+
+              ld    a, %11110000   ; register 7 = border color
+             out   (VDPCOM), a
+             ld     a, $87
+             out    (VDPCOM), a
+
 
 ; Wait for P1 button
 -:           in    a, ($dc)
@@ -779,6 +817,9 @@ title_screen:
              jp    nz, -
 
 ; Start level 1
+             
+             call  initBlib
+
              jp    InitializeGame
 
 
@@ -791,6 +832,16 @@ GoRastertime:
              jp    nz, -
              ret
 
+_tiles:
+.include "titlescreen\tiles.inc"
+
+_palette:
+.include "titlescreen\palette.inc"
+
+_tilemap:
+.include "titlescreen\tilemap.inc"
+
 
 
 .ends
+
