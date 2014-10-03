@@ -356,7 +356,7 @@ _HitThug:
              ld    a, (thug_y)
              ld    e, a
              ld    b, 8
-             ld    c, 16
+             ld    c, 14
              call  DetectCollision
              ret    nc
 

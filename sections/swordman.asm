@@ -463,8 +463,8 @@ _HitSwordman:
              ld    l, a
              ld    a, (swordman_y)
              ld    e, a
-             ld    b, 8
-             ld    c, 16
+             ld    b, 6
+             ld    c, 12
              call  DetectCollision
              ret    nc
 
