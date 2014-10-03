@@ -102,32 +102,15 @@ HandleELMFrame:
              ld    a, $08          ;
              out   (VDPDATA), a    ; tell it to VDP
 
-
-             ld   ix, ELM_buffer
-
-             ld   d, 56
-             ld   e, (ix + 0)
-             call putTile
-
-             ld   d, 57
-             ld   e, (ix + 1)
-             call putTile
-
-             ld   d, 58
-             ld   e, (ix + 2)
-             call putTile
-             ld   d, 59
-             ld   e, (ix + 3)
-             call putTile
-             ld   d, 60
-             ld   e, (ix + 4)
-             call putTile
-             ld   d, 61
-             ld   e, (ix + 5)
-             call putTile
-             ld   d, 62
-             ld   e, (ix + 6)
-             call putTile
+             ; blast the enemy life meter buffer
+             ld    b, 6
+             ld    hl, ELM_buffer
+-:           ld    a, (hl)
+             out   (VDPDATA), a
+             ld    a, $01          ;
+             out   (VDPDATA), a    ; tell it to VDP
+             inc   hl
+             djnz  -
 
              ret
 
