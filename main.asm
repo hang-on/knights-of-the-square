@@ -75,7 +75,7 @@ debug_byte db
              di                    ; disable interrupts
              im    1               ; interrupt mode 1
              ld    sp, $dff0       ; stack pointer near end of RAM
-             jp    InitializeGame
+             jp    title_screen
 .ends
 
 .section "Initialize game" free
@@ -83,14 +83,13 @@ debug_byte db
 ; - if I ever need paging...
 
 InitializeGame:
-             call  initBlib
 
              call  InitializeStage
 
              call  InitializeScore
 
              call  InitializeThug
-             
+
              call  InitializeSwordman
 
              call  InitializeChest
@@ -765,4 +764,16 @@ sfxSword:
 
 sfxBonus:
 .incbin "sfx\bonus.psg"
+.ends
+
+.bank 1 slot 1
+.section "Title screen" free
+title_screen:
+
+             call  initBlib
+
+
+             jp    InitializeGame
+
+
 .ends
