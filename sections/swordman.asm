@@ -284,6 +284,8 @@ _UpdateSwordman:
              ld    a, (swordman_state)
              cp    SWORDMAN_DEAD
              ret   z
+             cp    SWORDMAN_OFF
+             ret   z
 
              cp    SWORDMAN_ATTACKING
              jp   nz, +
@@ -370,7 +372,7 @@ _KillSwordman:
              ret    nz
 
 
-; Switch thug to new state = 'dead'.
+; Switch swordman to new state = 'dead'.
 
              ld    hl, swordman_state
              ld    (hl), SWORDMAN_DEAD
