@@ -123,6 +123,7 @@ gameLoop:
              call  ManageSwordmanLoop
              call  ManageScoreLoop
              call  ManageELMLoop
+             call  ManageSLMLoop
 
 gameloop_finished:                 ; breakpoint for profiling
              nop
