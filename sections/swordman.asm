@@ -251,7 +251,7 @@ _WalkSwordman:
 
              ld    hl, swordman_speed
              inc   (hl)                ; move right?
-
+             inc   (hl) ; double speed!! good legs
 
              ret
 
