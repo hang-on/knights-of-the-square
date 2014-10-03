@@ -770,7 +770,6 @@ sfxBonus:
 title_screen:
 
 
-             call  PSGInit         ; initialize PSGLib
 
 ; load title screen assets to VDP
 
@@ -810,14 +809,30 @@ title_screen:
              ld     a, $87
              out    (VDPCOM), a
 
+             call  PSGInit         ; initialize PSGLib
+             
+             ld    hl, title_music
+             call PSGPlay
+--:
+             call  GoRastertime
+             call  PSGFrame
+
+             ld    b,250   ; make sure we go past line $c0 (GoRastertime)
+-:             nop
+             nop
+             nop
+             nop
+             nop
+             djnz  -
 
 ; Wait for P1 button
--:           in    a, ($dc)
+             in    a, ($dc)
              bit   4, a
-             jp    nz, -
+             jp    nz, --
 
 ; Start level 1
-             
+             call  PSGStop
+
              call  initBlib
 
              jp    InitializeGame
@@ -841,7 +856,10 @@ _palette:
 _tilemap:
 .include "titlescreen\tilemap.inc"
 
+.ends
 
-
+.section "Music" free
+title_music:
+.incbin "titlescreen\ks-title-compr.psg"
 .ends
 
