@@ -812,7 +812,7 @@ title_screen:
              call  PSGInit         ; initialize PSGLib
              
              ld    hl, title_music
-             call PSGPlay
+             call PSGPlayNoRepeat
 --:
              call  GoRastertime
              call  PSGFrame
