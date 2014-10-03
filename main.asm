@@ -133,6 +133,7 @@ gameloop_finished:                 ; breakpoint for profiling
 
 .orga $0038
 .section "Maskable interrupt handler" force
+frame_interrupt_start:
              ex    af, af'         ; save AF in their shadow register
 
              in    a, VDPCOM       ; VDP status / satisfy interrupt
