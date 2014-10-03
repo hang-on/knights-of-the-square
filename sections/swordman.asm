@@ -100,6 +100,12 @@ ManageSwordmanLoop:
 
              call  _HandleAttack
 
+             call  _HitSwordman
+
+             call  _HurtSwordman
+             
+             call  _KillSwordman
+
              call  _WalkSwordman
 
              call  _UpdateSwordman
@@ -276,6 +282,9 @@ _UpdateSwordman:
              ; FIXIT: Sword is not always behind him!!
 
              ld    a, (swordman_state)
+             cp    SWORDMAN_DEAD
+             ret   z
+
              cp    SWORDMAN_ATTACKING
              jp   nz, +
 
@@ -356,10 +365,26 @@ _ScrollSwordman:
 
 _KillSwordman:
 
+             ld    a, (swordman_state)
+             cp    SWORDMAN_DYING
+             ret    nz
+
+
 ; Switch thug to new state = 'dead'.
 
              ld    hl, swordman_state
              ld    (hl), SWORDMAN_DEAD
+             ld    hl, swordman_char_code
+             ld    (hl), SWORDMAN_DEAD
+
+             ; delete sword
+             ld    c, 0
+             ld    d, 0
+             ld    e, 200
+             ld    b, SWORDMAN_WEAPON_SAT
+             call  goSprite
+
+
 
 ; Signal to score module and return.
 
@@ -454,6 +479,11 @@ _HitSwordman:
              ld    b, SWORDMAN_SHIRT
              ld    c, YELLOW
              call  dfColor       ; ! hey, in frame int!?!
+
+; Set the hurting counter
+
+              ld   a, 10
+              ld   (swordman_counter), a
 
 ; Deal damage to swordman
 
