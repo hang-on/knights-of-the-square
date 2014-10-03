@@ -639,8 +639,8 @@ _DetectProximity:
 
              ;ld    a, 20
              call   goRandom
-             and    60
-             add    a, 30
+             and    30
+             add    a, 10
              ld    (swordman_counter), a
              ld    a, SWORDMAN_WAITING
              ld    (swordman_state), a
