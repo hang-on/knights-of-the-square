@@ -102,7 +102,7 @@ ManageSwordmanLoop:
 
              call  _WalkSwordman
 
-             call  _UpdateSwordmanPosition
+             call  _UpdateSwordman
 
              call  _ScrollSwordman
 
@@ -159,7 +159,7 @@ ManageSwordmanLoop:
 
              call  _KillSwordman
 
-             call  _UpdateSwordmanPosition
+             call  _UpdateSwordman
 
 ; Scroll swordman if the stage scrolls.
 
@@ -250,7 +250,7 @@ _WalkSwordman:
              ret
 
 
-_UpdateSwordmanPosition:
+_UpdateSwordman:
 
 
 ; Move swordman horizontally
@@ -483,6 +483,10 @@ _StartAttack:
              ld    a, $46 ; lifting sword above head...
              ld    (swordman_char_code), a
              ld    c, a
+
+
+/*           UpdateSwordman takes care of calls to goSprite
+
              ld    a, (swordman_x)
              ld    d, a
              ld    a, (swordman_y)
@@ -603,8 +607,8 @@ _DetectProximity:
 
              ;ld    a, 20
              call   goRandom
-             and    80
-             add    a, 50
+             and    60
+             add    a, 30
              ld    (swordman_counter), a
              ld    a, SWORDMAN_WAITING
              ld    (swordman_state), a

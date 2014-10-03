@@ -123,6 +123,8 @@ gameLoop:
              call  ManageSwordmanLoop
              call  ManageScoreLoop
              call  ManageELMLoop
+             
+gameloop_finished:             
              halt
              jp    gameLoop
 
