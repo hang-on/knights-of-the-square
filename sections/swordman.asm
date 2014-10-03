@@ -200,7 +200,7 @@ _SwitchSwordmanOff:
              ; also clear his sword
              ld    c, 0
              ld    d, 0
-             ld    e, 0
+             ld    e, 200 ; sword below
              ld    b, SWORDMAN_WEAPON_SAT
              call  goSprite
 
