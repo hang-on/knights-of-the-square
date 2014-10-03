@@ -335,6 +335,10 @@ _SpawnSwordman:
              ld    a, (swordman_state)
              cp    SWORDMAN_OFF
              ret    nz
+             
+             ld    a, (MetaTileScriptIndex)
+             cp    15
+             ret   c
 
              ; Swordman is off - should we respawn him?
              call  goRandom

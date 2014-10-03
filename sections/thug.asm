@@ -211,6 +211,12 @@ _SpawnThug:
              cp    THUG_OFF
              ret    nz
 
+             ld    a, (MetaTileScriptIndex)
+             cp    5
+             ret   c
+
+
+
              ; Thug is off - should we respawn him?
              call  goRandom
              and   %01111111       ; more zeroes = more respawning
