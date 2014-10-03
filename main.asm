@@ -88,9 +88,9 @@ InitializeGame:
 
              call  InitializeScore
 
-             call  InitializeThug
+             ;call  InitializeThug
 
-             call  InitializeSwordman
+             ;call  InitializeSwordman
 
              call  InitializeChest
 
