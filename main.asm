@@ -96,7 +96,6 @@ InitializeGame:
 
              call  InitializePlayer
 
-             call  PSGInit         ; initialize PSGLib
 
              call  InitializeDebugPanel
 
@@ -772,8 +771,26 @@ title_screen:
 
              call  initBlib
 
+             call  PSGInit         ; initialize PSGLib
 
+; Wait for P1 button
+-:           in    a, ($dc)
+             bit   4, a
+             jp    nz, -
+
+; Start level 1
              jp    InitializeGame
+
+
+
+
+; DIY wait for end of active display (0-191)
+GoRastertime:
+-:           in    a, ($7e)
+             cp    $c0
+             jp    nz, -
+             ret
+
 
 
 .ends
