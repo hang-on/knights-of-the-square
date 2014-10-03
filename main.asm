@@ -123,8 +123,9 @@ gameLoop:
              call  ManageSwordmanLoop
              call  ManageScoreLoop
              call  ManageELMLoop
-             
-gameloop_finished:             
+
+gameloop_finished:                 ; breakpoint for profiling
+             nop
              halt
              jp    gameLoop
 
@@ -151,6 +152,9 @@ gameloop_finished:
              ex    af, af'         ; also restore AF
 
              ei                    ; enable interrupts
+
+frame_interrupt_finished:          ; breakpoint for profiling
+             nop
 
              reti                  ; return from interrupt
 .ends
