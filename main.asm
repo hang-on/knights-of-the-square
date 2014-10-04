@@ -54,7 +54,7 @@ banks 2
 .define BASELINE   92              ; where is the common ground?
 
 .asciitable
-map " " to "~" = 0 
+map " " to "~" = 0
 .enda
 
 
@@ -70,6 +70,8 @@ NextScrollColumn db                ; next name tab. clmn to be blanked
 MetaTileScriptIndex db             ; next MetaTileScript byte to read
 MetaTileBuffer dsb 4               ; the current meta tile's tiles
 MetaTileBufferIndex db             ; next MetaTileBuffer byte to read
+
+palette_stepper db
 
 debug_byte db
 .ends
@@ -804,6 +806,17 @@ title_screen:
              call  wrteVRAM        ; load tiles into tilebank
 
 
+             ld    hl, $3b56       ;
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, _message
+             ld    b, 11
+
+-:           ld    a, (hl)            ; put tile index in A (param.)
+             inc   hl
+             out   (VDPDATA), a    ; write tile index to name table
+             ld    a, %00001001          ; sprite palette and bank 2
+             out   (VDPDATA), a    ; tell it to VDP
+             djnz  -
 
 ; turn minimal screen on
 
@@ -824,11 +837,27 @@ title_screen:
 
              call  PSGInit         ; initialize PSGLib
 
+             ld    a, $ff
+             ld    (palette_stepper), a
+
              ld    hl, title_music
              call PSGPlayNoRepeat
+
+
+
 --:
-             call  GoRastertime
+             call  GoRastertime ; wait until rasterline 192 (below visible display)
              call  PSGFrame
+
+             ld    a, $11          ; prepare VDP for write to CRAM
+             out   (VDPCOM), a     ; starting at color $00
+             ld    a, CMDCRAM
+             out   (VDPCOM), a
+
+             ld    a, (palette_stepper)
+             out   (VDPDATA), a
+             dec   a
+             ld    (palette_stepper), a
 
              ld    b,250   ; make sure we go past line $c0 (GoRastertime)
 -:             nop
@@ -859,6 +888,10 @@ GoRastertime:
              cp    $c0
              jp    nz, -
              ret
+
+_message:
+.asc "PRESS START"
+_message_end
 
 _tiles:
 .include "titlescreen\tiles.inc"
