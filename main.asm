@@ -71,7 +71,8 @@ MetaTileScriptIndex db             ; next MetaTileScript byte to read
 MetaTileBuffer dsb 4               ; the current meta tile's tiles
 MetaTileBufferIndex db             ; next MetaTileBuffer byte to read
 
-palette_stepper db
+palette_stepper db                 ; used by FlashMessage in title screen
+titlescreen_counter dw
 
 debug_byte db
 .ends
@@ -615,7 +616,7 @@ GenerateRandomNumber:
              ld a,(hl) ; Get "random" number from location.
              inc hl ; Increment pointer.
              ld (seed),hl
-             
+
              ret
 
 
@@ -839,6 +840,10 @@ title_screen:
 
              ld    a, $ff
              ld    (palette_stepper), a
+             xor   a
+             ld    ix, titlescreen_counter
+             ld    (ix + 0), a
+             ld    (ix + 1), a
 
              ld    hl, title_music
              call PSGPlayNoRepeat
@@ -849,15 +854,17 @@ title_screen:
              call  GoRastertime ; wait until rasterline 192 (below visible display)
              call  PSGFrame
 
-             ld    a, $11          ; prepare VDP for write to CRAM
-             out   (VDPCOM), a     ; starting at color $00
-             ld    a, CMDCRAM
-             out   (VDPCOM), a
+             ; inc word-sized frame counter
+             ld    ix, titlescreen_counter
+             inc   (ix + 0)
+             jp    po, +
+             inc   (ix +1)
 
-             ld    a, (palette_stepper)
-             out   (VDPDATA), a
-             dec   a
-             ld    (palette_stepper), a
++:
+
+             ld    a, (ix + 1)
+             cp    5
+             call  nc, _FlashMessage
 
              ld    b,250   ; make sure we go past line $c0 (GoRastertime)
 -:             nop
@@ -888,6 +895,19 @@ GoRastertime:
              cp    $c0
              jp    nz, -
              ret
+
+_FlashMessage:
+             ld    a, $11          ; prepare VDP for write to CRAM
+             out   (VDPCOM), a     ; starting at color $00
+             ld    a, CMDCRAM
+             out   (VDPCOM), a
+
+             ld    a, (palette_stepper)
+             out   (VDPDATA), a
+             dec   a
+             ld    (palette_stepper), a
+             ret
+
 
 _message:
 .asc "PRESS START"
