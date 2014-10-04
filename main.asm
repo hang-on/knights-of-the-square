@@ -783,6 +783,7 @@ sfxBonus:
 .bank 1 slot 1
 .section "End level" free
 EndLevel:
+             call  PSGSFXStop
              di
              call  ToggleDisplay
 
