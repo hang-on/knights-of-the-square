@@ -60,6 +60,7 @@ map " " to "~" = 0
 
 ; All variables default to 0, because ram is cleared by bluelib.
 .ramsection "Variables" slot 3
+; NOTE: must not be separated (see title screen set seed...)
 RandomizerSeed      dw             ; used by goRandom as seed
 seed                dw             ; seed for Cauldwell's rnd
 
@@ -501,7 +502,6 @@ InitializeStage:
 
 
 
-
              ret
 
 
@@ -879,6 +879,7 @@ _message_end
 
 .section "Title screen" free
 title_screen:
+             call  clearRam
 
 
 
@@ -979,6 +980,20 @@ title_screen:
              call  PSGStop
 
              call  initBlib
+
+; seed the timer with title screen button press
+; two randomizer functions, oh, what a mess
+debug:
+             ld    ix, RandomizerSeed
+             ld    a, (titlescreen_counter)
+             ld    (ix + 0), a
+             rla
+             ld    (ix + 1), a
+             rla
+             ld    (ix + 2), a
+             rla
+             ld    (ix + 3), a
+
 
              jp    InitializeGame
 

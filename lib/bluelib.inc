@@ -538,7 +538,6 @@ dfColor:     ld    hl, CRAMBuf     ; point to ram buffer
 ; and before any bluelib function is called
 ; --------------------------------------------------------------------
 initBlib:    
-             call  clearRam
 
              ld    hl, VDPStd
              call  initVDP         ; init VDP
