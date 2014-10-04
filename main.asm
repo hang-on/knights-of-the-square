@@ -833,9 +833,20 @@ EndLevel:
              ld     a, $87
              out    (VDPCOM), a
 
+             ld    a, 0   ; register 8 = horiz. scroll
+             out   (VDPCOM), a
+             ld     a, $88
+             out    (VDPCOM), a
 
 
--:           jp    -
+; Wait for P1 button
+--:          in    a, ($dc)
+             bit   4, a
+             jp    nz, --
+
+             jp    title_screen
+
+;-:           jp    -
 
 
 _DisplayMessage:
