@@ -135,7 +135,7 @@ gameLoop:
 
              ; check to see if level has ended
              ld    a, (plrX)
-             cp    20  ;  $f8  ;
+             cp    $f8  ;
              jp    z, EndLevel
 
 
