@@ -807,18 +807,6 @@ title_screen:
              call  wrteVRAM        ; load tiles into tilebank
 
 
-             ld    hl, $3b56       ;
-             call  prepVRAM        ; tell this to VDP
-             ld    hl, _message
-             ld    b, 11
-
--:           ld    a, (hl)            ; put tile index in A (param.)
-             inc   hl
-             out   (VDPDATA), a    ; write tile index to name table
-             ld    a, %00001001          ; sprite palette and bank 2
-             out   (VDPDATA), a    ; tell it to VDP
-             djnz  -
-
 ; turn minimal screen on
 
              ld    a, %00100110   ; register 0
@@ -861,19 +849,24 @@ title_screen:
              inc   (ix +1)
 
 +:
+             ; very poor solution
+             ; tiles are blasted to name table every frame from now on...
+             ld    a, (ix + 1)
+             cp    3
+             call  nc, _DisplayMessage
 
              ld    a, (ix + 1)
-             cp    5
+             cp    4
              call  nc, _FlashMessage
 
-             ld    b,250   ; make sure we go past line $c0 (GoRastertime)
+/*             ld    b,250   ; make sure we go past line $c0 (GoRastertime)
 -:             nop
              nop
              nop
              nop
              nop
              djnz  -
-
+*/
 ; Wait for P1 button
              in    a, ($dc)
              bit   4, a
@@ -902,12 +895,34 @@ _FlashMessage:
              ld    a, CMDCRAM
              out   (VDPCOM), a
 
+             ; write a new value to sprite palette item 1
+             ; depending on the stepper...
              ld    a, (palette_stepper)
              out   (VDPDATA), a
              dec   a
              ld    (palette_stepper), a
              ret
 
+
+_DisplayMessage:
+             ;ld    a, (ix + 0)
+             ;cp   $10
+             ;ret  nz
+
+
+             ld    hl, $3b56       ;
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, _message
+             ld    b, 11
+
+-:           ld    a, (hl)            ; put tile index in A (param.)
+             inc   hl
+             out   (VDPDATA), a    ; write tile index to name table
+             ld    a, %00001001          ; sprite palette and bank 2
+             out   (VDPDATA), a    ; tell it to VDP
+             djnz  -
+
+             ret
 
 _message:
 .asc "PRESS START"
