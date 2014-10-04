@@ -80,6 +80,7 @@ debug_byte db
 .bank 0 slot 0
 .org 0
 .section "Startup" force
+begin_rom:
              di                    ; disable interrupts
              im    1               ; interrupt mode 1
              ld    sp, $dff0       ; stack pointer near end of RAM
@@ -130,6 +131,12 @@ gameLoop:
              call  ManageScoreLoop
              call  ManageELMLoop
              call  ManageSLMLoop
+
+             ; check to see if level has ended
+             ld    a, (plrX)
+             cp    20  ;  $f8  ;
+             jp    z, EndLevel
+
 
 gameloop_finished:                 ; breakpoint for profiling
              nop
@@ -774,6 +781,91 @@ sfxBonus:
 .ends
 
 .bank 1 slot 1
+.section "End level" free
+EndLevel:
+             di
+             call  ToggleDisplay
+
+; load title screen assets to VDP
+
+
+             ld    hl, $c000       ; start in bank 1, index = 00
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, text_screen_palette     ; source data
+             ld    bc, 16*2            ;
+             call  wrteVRAM
+
+
+             ld    hl, $2000       ;
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, font_data      ; source data
+             ld    bc, font_data_end-font_data
+             call  wrteVRAM        ; load tiles into tilebank
+
+             ld    hl, $3800
+             call  prepVRAM
+             ld    hl, $d000 ; rot! a place in RAM!!
+             ld    bc, 32*24*2
+             call  wrteVRAM
+
+             ;write congrats to the name table
+             call  _DisplayMessage
+
+             ; kill sprites
+             ld    hl, $3f00 ; SAT start
+             call  prepVRAM
+             ld    a, $d0
+             out   (VDPDATA), a
+
+             ; minimal screen turn on
+             ld    a, %00100110   ; register 0
+             out   (VDPCOM), a
+             ld     a, $80
+             out    (VDPCOM), a
+
+             ld    a, %11000000    ; register 1
+             out   (VDPCOM), a
+             ld     a, $81
+             out    (VDPCOM), a
+
+              ld    a, %11110000   ; register 7 = border color
+             out   (VDPCOM), a
+             ld     a, $87
+             out    (VDPCOM), a
+
+
+
+-:           jp    -
+
+
+_DisplayMessage:
+             ;ld    a, (ix + 0)
+             ;cp   $10
+             ;ret  nz
+
+
+             ld    hl, $3ad0       ;
+             call  prepVRAM        ; tell this to VDP
+             ld    hl, _message
+             ld    b, 16
+
+-:           ld    a, (hl)            ; put tile index in A (param.)
+             inc   hl
+             out   (VDPDATA), a    ; write tile index to name table
+             ld    a, %00001001          ; sprite palette and bank 2
+             out   (VDPDATA), a    ; tell it to VDP
+             djnz  -
+
+             ret
+
+_message:
+.asc "LEVEL COMPLETED!"
+_message_end
+
+
+.ends
+
+
 .section "Title screen" free
 title_screen:
 
@@ -784,7 +876,7 @@ title_screen:
 
              ld    hl, $c000       ; start in bank 1, index = 00
              call  prepVRAM        ; tell this to VDP
-             ld    hl, _palette     ; source data
+             ld    hl, text_screen_palette     ; source data
              ld    bc, 16*2            ;
              call  wrteVRAM
 
@@ -931,7 +1023,7 @@ _message_end
 _tiles:
 .include "titlescreen\tiles.inc"
 
-_palette:
+text_screen_palette:
 .include "titlescreen\palette.inc"
 
 _tilemap:
