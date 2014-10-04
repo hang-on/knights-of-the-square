@@ -3,7 +3,7 @@
 ; ------------------------------------------------------------------;
 
 ; Work in progress, 2014
-.SDSCTAG 0.024, "Knights of the Square", "Hack and slash!", "Anders Skriver Jensen"
+.SDSCTAG 0.24, "Knights of the Square", "Hack and slash!", "Anders Skriver Jensen"
 
 ; -------------------------------------------------------------------
 
@@ -52,6 +52,11 @@ banks 2
 
 .define SCROLL_TRIGGER   126       ; step here to scroll the screen
 .define BASELINE   92              ; where is the common ground?
+
+.asciitable
+map " " to "~" = 0 
+.enda
+
 
 ; All variables default to 0, because ram is cleared by bluelib.
 .ramsection "Variables" slot 3
@@ -795,7 +800,7 @@ title_screen:
              ld    hl, $2000       ;
              call  prepVRAM        ; tell this to VDP
              ld    hl, font_data      ; source data
-             ld    bc, font_data_end-font_data            
+             ld    bc, font_data_end-font_data
              call  wrteVRAM        ; load tiles into tilebank
 
 
