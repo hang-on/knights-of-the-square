@@ -3,7 +3,7 @@
 ; ------------------------------------------------------------------;
 
 ; Work in progress, 2014
-.SDSCTAG 0.24, "Knights of the Square", "Hack and slash!", "Anders Skriver Jensen"
+.SDSCTAG 0.25, "Knights of the Square", "Hack and slash!", "Anders Skriver Jensen"
 
 ; -------------------------------------------------------------------
 
