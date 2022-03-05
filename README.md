@@ -4,7 +4,9 @@ Sega Master System Homebrew
 One day on the SMS-Power forums...
 
 [hang-on] BlockQuest - towards Knights of the Round for the SMS
+
 Post Posted: Fri Jul 11, 2014 11:30 am
+
 I have uploaded my work in progress game to the homebrew section: http://www.smspower.org/Homebrew/Blockquest-SMS
 
 I have a weakness for Capcom's arcade classic Knights of the Round.
