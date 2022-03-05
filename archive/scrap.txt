@@ -1,0 +1,34 @@
+data/sprite_tiles.inc: data/img/sprites.png
+	path %PATH%;C:\Users\ANSJ\Documents\bmp2tile042
+	BMP2Tile.exe data/img/sprites.png -noremovedupes -8x8 -palsms -fullpalette -savetiles data/sprite_tiles.inc -savepalette data/sprite_palette.bin
+	
+data/tileset_tiles.psgcompr: data/img/tileset.png
+	BMP2Tile.exe data/img/tileset.png -noremovedupes -8x16 -palsms -fullpalette -savetiles data/tileset_tiles.psgcompr -savepalette data/tileset_palette.bin
+
+data/background_tiles.psgcompr: data/img/background.png
+	BMP2Tile.exe data/img/background.png -palsms -fullpalette -savetiles data/background_tiles.psgcompr -savetilemap data/background_tilemap.bin -savepalette data/background_palette.bin
+	
+data/path1.path: data/path/path1.spline.json
+	node tool/convert_splines.js data/path/path1.spline.json data/path1.path
+
+data/level1.bin: data/map/level1.tmx
+	node tool/convert_map.js data/map/level1.tmx data/level1.bin
+	
+%.vgm: %.wav
+	psgtalk -r 512 -u 1 -m vgm $<
+
+%.rel : %.c
+	sdcc -c -mz80 --peep-file lib/peep-rules.txt $<
+
+$(PRJNAME).sms: $(OBJS)
+	sdcc -o $(PRJNAME).ihx -mz80 --no-std-crt0 --data-loc 0xC000 lib/crt0_sms.rel $(OBJS) SMSlib.lib lib/PSGlib.rel
+	ihx2sms $(PRJNAME).ihx $(PRJNAME).sms	
+
+clean:
+	rm *.sms *.sav *.asm *.sym *.rel *.noi *.map *.lst *.lk *.ihx data.*
+
+
+all: $(PRJNAME).sms
+
+$(PRJNAME).sms: $(PRJNAME).o  
+	C:\\Users\\ANSJ\\Documents\\Batch\\Build.bat	

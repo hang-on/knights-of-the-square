@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.5" tiledversion="1.7.2" orientation="orthogonal" renderorder="right-down" width="4" height="4" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="1">
+ <properties>
+  <property name="Origin X" type="int" value="0"/>
+  <property name="Origin Y" type="int" value="0"/>
+ </properties>
+ <tileset firstgid="1" source="sprites.tsx"/>
+ <layer id="1" name="Walking_right_0" width="4" height="4">
+  <properties>
+   <property name="Offset_X" type="int" value="0"/>
+   <property name="Offset_Y" type="int" value="0"/>
+  </properties>
+  <data encoding="csv">
+22,23,0,0,
+54,55,56,0,
+0,0,0,0,
+0,0,0,0
+</data>
+ </layer>
+ <layer id="3" name="Walking_right_1" width="4" height="4">
+  <properties>
+   <property name="Offset_X" type="int" value="0"/>
+   <property name="Offset_Y" type="int" value="0"/>
+  </properties>
+  <data encoding="csv">
+25,26,0,0,
+57,58,59,0,
+0,0,0,0,
+0,0,0,0
+</data>
+ </layer>
+</map>
