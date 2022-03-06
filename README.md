@@ -10,4 +10,4 @@ One day on the SMS-Power forums...
 
 A couple of years overdue (is this the far future?), it is finally here: Knights of the Square, as foretold by Kagesan. This little demo presents a tentative answer to the question "What if Capcom's classic was a single-plane kung-fu-like game, with cute characters"? Something like Knights of the Round vs. Black Belt.
 
-Knights of the Square owes everything to the SMS-Power community. From Maxim's tutorials, Bock's and Calindro's Emulators, to all the resources, friendly advice and encouragement on the forums over the years. Haroldo-OK has been a major inspiration for this particular demo, as I found great inspiration in his framework and tools for Dragonblaster.
+Knights of the Square owes everything to the SMS-Power community. From Maxim's tutorials, Bock's and Calindro's Emulators, to all the resources, friendly advice and encouragement on the forums over the years. Haroldo-OK's framework and tools for Dragonblaster has been a major inspiration for this particular demo.
