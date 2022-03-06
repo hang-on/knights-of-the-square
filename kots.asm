@@ -47,7 +47,7 @@
   .equ INITIALIZE_SPLASH 14
   .equ RUN_SPLASH 15
   .equ INITIAL_GAMESTATE INITIALIZE_SPLASH
-  ;.equ INITIAL_GAMESTATE INITIALIZE_END_OF_DEMO
+  ;.equ INITIAL_GAMESTATE INITIALIZE_CHAPTER_COMPLETED
     game_state_jump_table:
     .dw initialize_level, run_level 
     .dw start_new_game, finish_level 
@@ -275,8 +275,8 @@
     call load_cram
     jp +
       sweetie16_palette:
-        .db $23 $00 $11 $12 $17 $1B $2E $19 $14 $10 $35 $38 $3D $3F $2A $15
-        .db $23 $00 $11 $12 $17 $1B $2E $19 $14 $10 $35 $38 $3D $3F $2A $15
+        .db $00 $00 $11 $12 $17 $1B $2E $19 $14 $10 $35 $38 $3D $3F $2A $15
+        .db $00 $00 $11 $12 $17 $1B $2E $19 $14 $10 $35 $38 $3D $3F $2A $15
       all_black_palette:
         .db $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00
         .db $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 $00 
@@ -1578,6 +1578,7 @@
   initialize_end_of_demo:
     ld a,DISABLED
     call set_display
+        
     call PSGStop
 
 
@@ -1594,8 +1595,8 @@
     
     jp +
     ukraine_palette:
-      .db $23 $00 $11 $12 $17 $1B $34 $0f $14 $10 $35 $38 $3D $3F $2A $15
-      .db $23 $00 $11 $12 $17 $1B $34 $0f $14 $10 $35 $38 $3D $3F $2A $15
+      .db $00 $00 $11 $12 $17 $1B $34 $0f $14 $10 $35 $38 $3D $3F $2A $15
+      .db $00 $00 $11 $12 $17 $1B $34 $0f $14 $10 $35 $38 $3D $3F $2A $15
     +:
 
     ld a,1
