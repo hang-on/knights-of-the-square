@@ -1381,10 +1381,14 @@
     ld hl,HISCORE_ADDRESS
     call safe_draw_number_display
 
+    call refresh_sat_handler
+
+
     ei
     halt
     halt
     call wait_for_vblank    
+    call load_sat
 
     ld a,ENABLED
     call set_display
