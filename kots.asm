@@ -2202,8 +2202,19 @@ z
   
   run_splash:
     call wait_for_vblank
-    
+  
     ; Begin vblank critical code (DRAW) ---------------------------------------
+   -:
+      in a,($7e)
+      cp $d7
+    jp nz,-
+    ld a,(temp_byte)
+    ld hl,pal_table
+    call lookup_word
+    ld a,0
+    ld b,16
+    call load_cram
+
     call load_sat
 
     ; End of critical vblank routines. ----------------------------------------
@@ -2220,12 +2231,6 @@ z
     call refresh_sat_handler
     call refresh_input_ports
 
-    ld a,(temp_byte)
-    ld hl,pal_table
-    call lookup_word
-    ld a,0
-    ld b,16
-    call load_cram
 
     ld a,(temp_byte)
     inc a
