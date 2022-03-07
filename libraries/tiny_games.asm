@@ -662,6 +662,12 @@ ret
     or a                      ; Reset carry. 
   ret                         ; 
 
-
+  wait_for_scanline:
+    ; In: A = scanline to wait for 
+    ld b,a
+    -:
+      in a,($7e)
+      cp b
+    jp nz,- 
 
 .ends

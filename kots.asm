@@ -1738,6 +1738,15 @@
     ;call PSGStop
     ;call PSGSFXStop
     ;call PSGSilenceChannels
+    halt
+    ld a,BOTTOM_BLANKING
+    call wait_for_scanline
+
+    ld a,0
+    ld b,32
+    ld hl,sweetie16_palette
+    call load_cram
+    
     di
     ld hl,vdp_register_init_show_left_column
     call initialize_vdp_registers    
@@ -1747,10 +1756,6 @@
     ld b,BORDER_COLOR
     call set_register
 
-    ld a,0
-    ld b,32
-    ld hl,sweetie16_palette
-    call load_cram
 
     ld a,MISC_ASSETS_BANK
     ld hl,title_tiles
@@ -1824,10 +1829,8 @@
   run_title:
     call wait_for_vblank
     
-    -:
-      in a,($7e)
-      cp $d7
-    jp nz,-
+    ld a,BOTTOM_BLANKING
+    call wait_for_scanline
     
     ; Begin vblank critical code (DRAW) ---------------------------------------
     ld a,(frame_counter)
@@ -2204,10 +2207,9 @@ z
     call wait_for_vblank
   
     ; Begin vblank critical code (DRAW) ---------------------------------------
-   -:
-      in a,($7e)
-      cp $d7
-    jp nz,-
+    ld a,BOTTOM_BLANKING
+    call wait_for_scanline
+
     ld a,(temp_byte)
     ld hl,pal_table
     call lookup_word
