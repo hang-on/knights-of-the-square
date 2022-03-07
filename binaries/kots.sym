@@ -8,10 +8,10 @@
 00:2a35 PSGPlay
 00:2a58 PSGStop
 00:293a PSGResume
-00:2ac5 PSGGetStatus
+00:0062 PSGGetStatus
 00:2899 PSGSetMusicVolumeAttenuation
 00:28d8 _restore_channel3
-00:2ab4 PSGSilenceChannels
+00:0051 PSGSilenceChannels
 00:27c5 PSGRestoreVolumes
 00:27ee _chkchn2
 00:2807 _restoreSFX2
@@ -23,7 +23,7 @@
 00:2723 _skip_chn2
 00:2748 _skip_chn3
 00:2749 _skipRestore
-00:2ac9 PSGSFXGetStatus
+00:2aca PSGSFXGetStatus
 00:2390 PSGFrame
 00:239f _intLoop
 00:23b0 _continue
@@ -557,8 +557,8 @@
 07:a300 end_of_demo_tilemap
 07:a900 splash_tiles
 07:b0a0 splash_tilemap
-00:0050 *WLA_SDSC_PRG_AUTHOR_PTR
-00:2a9e *WLA_SDSC_PRG_NAME_PTR
+00:2a9e *WLA_SDSC_PRG_AUTHOR_PTR
+00:2ab4 *WLA_SDSC_PRG_NAME_PTR
 00:2753 *WLA_SDSC_PRG_NOTES_PTR
 
 [definitions]

@@ -236,11 +236,12 @@
     bit INTERRUPT_TYPE_BIT,a  ; HLINE or VBLANK interrupt?
     jp z,+
       ld hl,vblank_counter
+      inc (hl)
       jp ++
     +:
       ld hl,hline_counter
+      inc (hl)
     ++:
-  inc (hl)
   pop hl
   pop af
   ei
