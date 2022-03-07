@@ -669,5 +669,5 @@ ret
       in a,($7e)
       cp b
     jp nz,- 
-
+  ret
 .ends
