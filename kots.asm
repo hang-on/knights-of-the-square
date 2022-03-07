@@ -1825,6 +1825,33 @@
     call wait_for_vblank
     
     ; Begin vblank critical code (DRAW) ---------------------------------------
+
+    -:
+      in a,($7e)
+      cp $d7
+    jr nz,-
+
+    ld a,(frame_counter)
+    ld bc,_sizeof_blink_frames
+    ld hl,blink_frames
+    cpir
+    jp nz,+    
+      ld a,4
+      out (CONTROL_PORT),a
+      ld a,CRAM_WRITE_COMMAND
+      out (CONTROL_PORT),a
+      ld a,$1b
+      out (DATA_PORT),a
+      jp ++
+    +:
+      ld a,4
+      out (CONTROL_PORT),a
+      ld a,CRAM_WRITE_COMMAND
+      out (CONTROL_PORT),a
+      ld a,$17
+      out (DATA_PORT),a
+    ++:
+
     call load_sat
 
     ; End of critical vblank routines. ----------------------------------------
@@ -1913,26 +1940,7 @@
         ld (game_state),a
       +:
 
-    ld a,(frame_counter)
-    ld bc,_sizeof_blink_frames
-    ld hl,blink_frames
-    cpir
-    jp nz,+    
-      ld a,4
-      out (CONTROL_PORT),a
-      ld a,CRAM_WRITE_COMMAND
-      out (CONTROL_PORT),a
-      ld a,$1b
-      out (DATA_PORT),a
-      jp ++
-    +:
-      ld a,4
-      out (CONTROL_PORT),a
-      ld a,CRAM_WRITE_COMMAND
-      out (CONTROL_PORT),a
-      ld a,$17
-      out (DATA_PORT),a
-    ++:
+
 
     jp +
       blink_frames:
