@@ -241,7 +241,6 @@
     +:
       ld hl,hline_counter
       inc (hl)
-      call handle_hblank_interrupt
     ++:
   pop hl
   pop af
@@ -264,7 +263,6 @@
 ; -----------------------------------------------------------------------------
   init:
   ; Run this function once (on game load/reset). 
-    LOAD_BYTES pending_cram_job, FALSE
     ld hl,vdp_register_init
     call initialize_vdp_registers
     call clear_vram
@@ -332,11 +330,11 @@
 
     vdp_register_init:
     .db %01100110  %10100000 $ff $ff $ff
-    .db $ff $fb $f0 $00 $00 $d7
+    .db $ff $fb $f0 $00 $00 $00
 
     vdp_register_init_show_left_column:
     .db %01000110  %10100000 $ff $ff $ff
-    .db $ff $fb $f0 $00 $00 $d7
+    .db $ff $fb $f0 $00 $00 $00
 
 
   ; ---------------------------------------------------------------------------

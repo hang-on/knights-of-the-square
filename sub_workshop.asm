@@ -1,29 +1,13 @@
 
 .ramsection "Ram section for library being developed" slot 3
-  pending_cram_job db
-  destination_color db
-  colors_total db
-  palette_data dw
+
 .ends
 
 .bank 0 slot 0
 ; -----------------------------------------------------------------------------
 .section "Subroutine workshop" free
 ; -----------------------------------------------------------------------------
-  handle_hblank_interrupt:
-    ; 
-    ld a,(pending_cram_job)
-    cp TRUE
-    ret nz
-      ld hl,palette_data
-      call get_word
-      ld a,(colors_total)
-      ld b,a
-      ld a,(destination_color)
-      call load_cram
-      ld a,FALSE
-      ld (pending_cram_job),a
-  ret
+
 
   detect_collision:
     ; Axis-aligned bounding box.
