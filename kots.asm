@@ -1735,9 +1735,6 @@
 
   ; ---------------------------------------------------------------------------
   initialize_title:
-    ;call PSGStop
-    ;call PSGSFXStop
-    ;call PSGSilenceChannels
     halt
     ld a,BOTTOM_BLANKING
     call wait_for_scanline
