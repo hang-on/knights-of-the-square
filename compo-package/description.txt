@@ -27,7 +27,7 @@ Pause Button: Pause.
 Gameplay
 Advance through the sidescrolling levels. You will encounter three types of enemies: Soldiers, swordmen and a huge, axe-wielding knight known as Scorn (the boss). The soldier can be taken out with a quick sword slash. The sword man is tricky - look for a way to avoid his sword as he moves around the screen.
 
-Pick up various treasures for bonus points, and food items to replenish your health bar. Remaning time is converted to bonus points when the chapter is completed.
+Pick up various treasures for bonus points, and food items to replenish your health bar. Remaining time is converted to bonus points when the chapter is completed.
 
 Features
 This demo contains the first chapter ("Village on Fire") which ends with a boss fight. I have used surt's excellent art as the base for the background graphics, and added a few tiles of my own.
